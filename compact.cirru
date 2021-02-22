@@ -111,7 +111,7 @@
                   :a $ #{} 1 2 3
                 options $ {} (:key :id)
                 changes $ []
-              print changes
+              ; print changes
               is $ = changes (diff-twig a b options)
         |test-diff-map-by-ids $ quote
           deftest test-diff-map-by-ids $ testing "\"diff map by diffs"
@@ -125,7 +125,19 @@
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |run-tests $ quote
-          defn run-tests () (reset! *quit-on-failure? true) (test-diff-same-keyword) (test-diff-maps) (; test-diff-sets) (test-diff-same-sets) (test-diff-map-by-ids) (test-diff-vectors) (test-vec-add) (test-diff-map-same-id) (test-diff-funcs)
+          defn run-tests ()
+            when
+              = "\"ci" $ get-env "\"env"
+              reset! *quit-on-failure? true
+            test-diff-same-keyword
+            test-diff-maps
+            test-diff-sets
+            test-diff-same-sets
+            test-diff-map-by-ids
+            test-diff-vectors
+            test-vec-add
+            test-diff-map-same-id
+            test-diff-funcs
         |test-diff-vectors $ quote
           deftest test-diff-vectors $ testing "\"diff vectors"
             let
@@ -352,9 +364,7 @@
       :defs $ {}
         |diff-set $ quote
           defn diff-set (collect! coord a b)
-            ; assert
-              or (coll? a) (coll? b)
-              , "|[Recollect] sets to diff should hold literals"
+            ; assert "|[Recollect] sets to diff should hold literals" $ or (coll? a) (coll? b)
             if (not= a b)
               let
                   added $ difference b a
@@ -528,6 +538,7 @@
               (string? x) 2
               (nil? x) 3
               (bool? x) 4
+              (symbol? x) 5
               true $ raise
                 str "|Failed to compare, it's: " $ pr-str x
         |vec-add $ quote

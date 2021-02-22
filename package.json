@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@calcit/procs": "^0.2.64"
+    "@calcit/procs": "^0.2.65"
   },
   "devDependencies": {
     "vite": "^2.0.1",
