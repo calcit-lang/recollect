@@ -1,7 +1,7 @@
 
 {} (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!)
-    :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
+  :configs $ {} (:init-fn |recollect.app.main/init!) (:reload-fn |recollect.app.main/reload!)
+    :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/ |calcit-test/
     :version |0.0.1
   :files $ {}
     |recollect.patch $ {}
@@ -27,13 +27,7 @@
               (= op schema/tree-op-dissoc) (patch-map-remove base coord data)
               (= op schema/tree-op-assoc) (patch-map-set base coord data)
               (= op schema/tree-op-set-splice) (patch-set base coord data)
-              (= op schema/tree-op-seq-splice) (patch-seq base coord data)
               true $ do (println "|Unkown op:" op) base
-        |patch-seq $ quote
-          defn patch-seq (base coord data)
-            let[] (n content) data $ update-in base coord
-              fn (cursor)
-                seq-add content $ if (&= 0 n) cursor (drop n cursor)
         |patch-set $ quote
           defn patch-set (base coord data)
             let[] (removed added) data $ if (empty? coord)
@@ -60,7 +54,6 @@
             :states $ {}
         |tree-op-assoc $ quote (def tree-op-assoc 0)
         |tree-op-dissoc $ quote (def tree-op-dissoc 1)
-        |tree-op-seq-splice $ quote (def tree-op-seq-splice 5)
         |tree-op-set-splice $ quote (def tree-op-set-splice 4)
         |tree-op-vec-append $ quote (def tree-op-vec-append 2)
         |tree-op-vec-drop $ quote (def tree-op-vec-drop 3)
@@ -68,107 +61,112 @@
     |recollect.test $ {}
       :ns $ quote
         ns recollect.test $ :require
-          [] cljs.test :refer $ [] deftest is run-tests
+          [] calcit-test.core :refer $ [] deftest testing is *quit-on-failure?
           [] recollect.diff :refer $ [] diff-twig
           [] recollect.patch :refer $ [] patch-twig
           [] recollect.schema :as schema
-          [] recollect.util :refer $ [] vec-add seq-add
-          [] recollect.twig :refer $ [] deftwig
+          [] recollect.util :refer $ [] vec-add
       :defs $ {}
         |test-diff-same-keyword $ quote
-          deftest test-diff-same-keyword () $ let
-              a :x
-              b :x
-              options $ {} (:key :id)
-              changes $ []
-            is $ = changes (diff-twig a b options)
-            is $ = b (patch-twig a changes)
+          deftest test-diff-same-keyword $ testing "\"diff same keyword"
+            let
+                a :x
+                b :x
+                options $ {} (:key :id)
+                changes $ []
+              is $ = changes (diff-twig a b options)
+              is $ = b (patch-twig a changes)
         |test-diff-maps $ quote
-          deftest test-diff-maps () $ let
-              a $ {}
-                :a $ {} (:b 1)
-              b $ {}
-                :a $ {} (:c 2)
-              options $ {} (:key :id)
-              changes $ []
-                [] schema/tree-op-dissoc ([] :a) :b
-                [] schema/tree-op-assoc ([] :a :c) 2
-            is $ = changes (diff-twig a b options)
-            is $ = b (patch-twig a changes)
+          deftest test-diff-maps $ testing "\"diff maps"
+            let
+                a $ {}
+                  :a $ {} (:b 1)
+                b $ {}
+                  :a $ {} (:c 2)
+                options $ {} (:key :id)
+                changes $ []
+                  [] schema/tree-op-dissoc ([] :a) :b
+                  [] schema/tree-op-assoc ([] :a :c) 2
+              is $ = changes (diff-twig a b options)
+              is $ = b (patch-twig a changes)
         |test-diff-sets $ quote
-          deftest test-diff-sets () $ let
-              a $ {}
-                :a $ #{} 1 2 3
-              b $ {}
-                :a $ #{} 2 3 4
-              options $ {} (:key :id)
-              changes $ []
-                [] schema/tree-op-set-splice ([] :a)
-                  [] (#{} 1) (#{} 4)
-            is $ = changes (diff-twig a b options)
-            is $ = b (patch-twig a changes)
+          deftest test-diff-sets $ testing "\"diff sets"
+            let
+                a $ {}
+                  :a $ #{} 1 2 3
+                b $ {}
+                  :a $ #{} 2 3 4
+                options $ {} (:key :id)
+                changes $ []
+                  [] schema/tree-op-set-splice ([] :a)
+                    [] (#{} 1) (#{} 4)
+              is $ = changes (diff-twig a b options)
+              is $ = b (patch-twig a changes)
         |test-diff-same-sets $ quote
-          deftest test-diff-same-sets () $ let
-              a $ {}
-                :a $ #{} 1 2 3
-              b $ {}
-                :a $ #{} 1 2 3
-              options $ {} (:key :id)
-              changes $ []
-            print changes
-            is $ = changes (diff-twig a b options)
+          deftest test-diff-same-sets $ testing "\"diff same sets"
+            let
+                a $ {}
+                  :a $ #{} 1 2 3
+                b $ {}
+                  :a $ #{} 1 2 3
+                options $ {} (:key :id)
+                changes $ []
+              print changes
+              is $ = changes (diff-twig a b options)
         |test-diff-map-by-ids $ quote
-          deftest test-diff-map-by-ids () $ let
-              a $ {} (:id 1) (:data 1)
-              b $ {} (:id 2) (:data 1)
-              options $ {} (:key :id)
-              changes $ []
-                [] schema/tree-op-assoc ([])
-                  {} (:id 2) (:data 1)
-            is $ = changes (diff-twig a b options)
-            is $ = b (patch-twig a changes)
+          deftest test-diff-map-by-ids $ testing "\"diff map by diffs"
+            let
+                a $ {} (:id 1) (:data 1)
+                b $ {} (:id 2) (:data 1)
+                options $ {} (:key :id)
+                changes $ []
+                  [] schema/tree-op-assoc ([])
+                    {} (:id 2) (:data 1)
+              is $ = changes (diff-twig a b options)
+              is $ = b (patch-twig a changes)
+        |run-tests $ quote
+          defn run-tests () (reset! *quit-on-failure? true) (test-diff-same-keyword) (test-diff-maps) (; test-diff-sets) (test-diff-same-sets) (test-diff-map-by-ids) (test-diff-vectors) (test-vec-add) (test-diff-map-same-id) (test-diff-funcs)
         |test-diff-vectors $ quote
-          deftest test-diff-vectors () $ let
-              a $ {}
-                :a $ [] 1 2 3 4
-              b $ {}
-                :a $ [] 1 6 7 8
-              options $ {} (:key :id)
-              changes $ []
-                [] schema/tree-op-assoc ([] :a 1) 6
-                [] schema/tree-op-assoc ([] :a 2) 7
-                [] schema/tree-op-assoc ([] :a 3) 8
-            is $ = changes (diff-twig a b options)
-            is $ = b (patch-twig a changes)
+          deftest test-diff-vectors $ testing "\"diff vectors"
+            let
+                a $ {}
+                  :a $ [] 1 2 3 4
+                b $ {}
+                  :a $ [] 1 6 7 8
+                options $ {} (:key :id)
+                changes $ []
+                  [] schema/tree-op-assoc ([] :a 1) 6
+                  [] schema/tree-op-assoc ([] :a 2) 7
+                  [] schema/tree-op-assoc ([] :a 3) 8
+              is $ = changes (diff-twig a b options)
+              is $ = b (patch-twig a changes)
         |test-vec-add $ quote
-          deftest test-vec-add () $ let
-              a $ [] 1 2 3 4
-              b $ [] 5 6 7 8
-            is $ = (vec-add a b) ([] 1 2 3 4 5 6 7 8)
+          deftest test-vec-add $ testing "\"vec-add"
+            let
+                a $ [] 1 2 3 4
+                b $ [] 5 6 7 8
+              is $ = (vec-add a b) ([] 1 2 3 4 5 6 7 8)
         |test-diff-map-same-id $ quote
-          deftest test-diff-map-same-id () $ let
-              a $ {} (:id 1) (:data 1)
-              b $ {} (:id 1) (:data 2)
-              options $ {} (:key :id)
-              changes $ []
-                [] schema/tree-op-assoc ([] :data) 2
-            is $ = changes (diff-twig a b options)
-            is $ = b (patch-twig a changes)
+          deftest test-diff-map-same-id $ testing "\"diff map same id"
+            let
+                a $ {} (:id 1) (:data 1)
+                b $ {} (:id 1) (:data 2)
+                options $ {} (:key :id)
+                changes $ []
+                  [] schema/tree-op-assoc ([] :data) 2
+              is $ = changes (diff-twig a b options)
+              is $ = b (patch-twig a changes)
         |test-diff-funcs $ quote
-          deftest test-diff-funcs () $ let
-              A $ deftwig twig-a0 (f) (f)
-              B $ deftwig twig-b0 (f) (f)
-              fx $ fn () "\"x"
-              a0 $ A fx
-              b $ B fx
-              options $ {} (:key :id)
-              changes $ []
-            is $ = changes (diff-twig a0 b options)
-        |test-seq-add $ quote
-          deftest test-seq-add () $ let
-              a $ [] 1 2 3 4
-              b $ [] 5 6 7 8
-            is $ = (seq-add a b) ([] 1 2 3 4 5 6 7 8)
+          deftest test-diff-funcs $ testing "\"diff functions"
+            let
+                A $ defn twig-a0 (f) (f)
+                B $ defn twig-b0 (f) (f)
+                fx $ fn () "\"x"
+                a0 $ A fx
+                b $ B fx
+                options $ {} (:key :id)
+                changes $ []
+              is $ = changes (diff-twig a0 b options)
       :proc $ quote
           defn main! () (println "|Test loaded!") (run-tests)
     |recollect.app.main $ {}
@@ -184,9 +182,17 @@
           [] recollect.schema :as schema
           [] recollect.app.config :as config
           [] recollect.twig :refer $ [] clear-twig-caches!
+          [] recollect.test :refer $ [] run-tests
       :defs $ {}
         |ssr? $ quote
           def ssr? $ some? (.querySelector js/document |meta.respo-ssr)
+        |pick-main $ quote
+          defmacro pick-main () $ let
+              action $ get-env "\"action"
+            echo "\"Init action:" action
+            if (= action "\"test")
+              quote-replace $ run-tests
+              quote-replace $ main!
         |dispatch! $ quote
           defn dispatch! (op op-data)
             when
@@ -218,6 +224,8 @@
             render-data-twig!
             println "|app started!"
         |*data-twig $ quote (defatom *data-twig nil)
+        |init! $ quote
+          defn init! () $ pick-main
         |render-app! $ quote
           defn render-app! (renderer)
             renderer mount-target (comp-container @*data-twig @*client-store) dispatch!
@@ -352,9 +360,6 @@
                   added $ difference b a
                   removed $ difference a b
                 collect! $ [] schema/tree-op-set-splice coord ([] removed added)
-        |diff-seq $ quote
-          defn diff-seq (collect! coord a b options)
-            find-seq-changes collect! coord (reverse a) (reverse b) options
         |by-key $ quote
           defn by-key (x y)
             compare-more (first x) (first y)
@@ -391,23 +396,6 @@
               reset! *changes $ []
               diff-twig-iterate collect! ([]) a b options
               , @*changes
-        |find-seq-changes $ quote
-          defn find-seq-changes (collect! coord ra rb options)
-            cond
-              
-                and (empty? ra) (empty? rb)
-                , nil
-              (empty? ra)
-                collect! $ [] schema/tree-op-seq-splice coord
-                  [] 0 $ reverse rb
-              (empty? rb)
-                collect! $ [] schema/tree-op-seq-splice coord
-                  [] (count ra) ([])
-              :else $ if
-                identical? (first ra) (first rb)
-                recur collect! coord (rest ra) (rest rb) options
-                collect! $ [] schema/tree-op-seq-splice coord
-                  [] (count ra) (reverse rb)
         |*diff-changes $ quote
           defatom *diff-changes $ []
         |diff-vector $ quote
@@ -530,13 +518,6 @@
         |literal? $ quote
           defn literal? (x)
             or (string? x) (number? x) (bool? x) (nil? x) (keyword? x) (symbol? x)
-        |seq-add $ quote
-          defn seq-add (xs ys)
-            seq-add' (reverse xs) ys
-        |seq-add' $ quote
-          defn seq-add' (xs' ys)
-            if (empty? xs') ys $ recur (rest xs')
-              prepend ys $ first xs'
         |type->int $ quote
           defn type->int (x)
             cond

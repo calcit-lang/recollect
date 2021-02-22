@@ -21,16 +21,25 @@ jobs:
         mkdir -p ~/.config/calcit/modules/ && cd ~/.config/calcit/modules/
         && git clone https://github.com/calcit-lang/lilac.git
         && git clone https://github.com/calcit-lang/memof.git
+        && git clone https://github.com/calcit-lang/calcit-test.git
         && git clone https://github.com/Respo/respo.calcit.git
         && git clone https://github.com/Respo/reel.calcit.git
         && git clone https://github.com/Respo/respo-markdown.calcit.git
         && git clone https://github.com/Respo/respo-ui.calcit.git
         && git clone https://github.com/Respo/respo-value.calcit.git
 
+    - name: "deps"
+      run: yarn
+
+    - name: "run tests"
+      run: >
+        action=test ./ci-bin/cr_once --emit-js
+        && target=node yarn webpack && env=ci node js-out/bundle.js
+
     - name: "compiles to js"
       run: >
-        ./ci-bin/cr_once --emit-js --once
-        && yarn && yarn vite build --base=./
+        ./ci-bin/cr_once --emit-js
+        && yarn vite build --base=./
 
     - name: Deploy to server
       id: deploy
