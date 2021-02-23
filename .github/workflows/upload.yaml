@@ -31,10 +31,13 @@ jobs:
     - name: "deps"
       run: yarn
 
-    - name: "run tests"
+    - name: "cr test"
+      run: ./ci-bin/cr_once --init-fn:recollect.app.main/test!
+
+    - name: "js tests"
       run: >
-        action=test ./ci-bin/cr_once --emit-js
-        && target=node yarn webpack && env=ci node js-out/bundle.js
+        ./ci-bin/cr_once --init-fn:recollect.app.main/test! --emit-js
+        && target=node entry=./test.js yarn webpack && env=ci node js-out/bundle.js
 
     - name: "compiles to js"
       run: >

@@ -1,6 +1,6 @@
 
 {} (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/init!) (:reload-fn |recollect.app.main/reload!)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/ |calcit-test/
     :version |0.0.1
   :files $ {}
@@ -196,15 +196,10 @@
           [] recollect.twig :refer $ [] clear-twig-caches!
           [] recollect.test :refer $ [] run-tests
       :defs $ {}
+        |test! $ quote
+          defn test! () $ run-tests
         |ssr? $ quote
           def ssr? $ some? (.querySelector js/document |meta.respo-ssr)
-        |pick-main $ quote
-          defmacro pick-main () $ let
-              action $ get-env "\"action"
-            echo "\"Init action:" action
-            if (= action "\"test")
-              quote-replace $ run-tests
-              quote-replace $ main!
         |dispatch! $ quote
           defn dispatch! (op op-data)
             when
@@ -236,8 +231,6 @@
             render-data-twig!
             println "|app started!"
         |*data-twig $ quote (defatom *data-twig nil)
-        |init! $ quote
-          defn init! () $ pick-main
         |render-app! $ quote
           defn render-app! (renderer)
             renderer mount-target (comp-container @*data-twig @*client-store) dispatch!
