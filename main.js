@@ -1,7 +1,7 @@
 
-import { main_BANG_ } from "./js-out/recollect.app.main.js"
+import { init_BANG_ } from "./js-out/recollect.app.main.js"
 
-main_BANG_()
+init_BANG_()
 
 if (import.meta.hot) {
   import.meta.hot.accept('./js-out/recollect.app.main.js', (main) => {
