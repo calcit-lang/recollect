@@ -33,7 +33,8 @@ jobs:
 
     - name: "run tests"
       run: >
-        action=test ./ci-bin/cr_once --emit-js
+        action=test ./ci-bin/cr_once
+        && action=test ./ci-bin/cr_once --emit-js
         && target=node yarn webpack && env=ci node js-out/bundle.js
 
     - name: "compiles to js"
