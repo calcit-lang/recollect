@@ -2,7 +2,7 @@
 {} (:package |recollect)
   :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/ |calcit-test/
-    :version |0.0.1
+    :version |0.0.2
   :files $ {}
     |recollect.patch $ {}
       :ns $ quote
@@ -124,6 +124,18 @@
                     {} (:id 2) (:data 1)
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
+        |test-diff-records $ quote
+          deftest test-diff-records $ testing "\"diff records"
+            let
+                Person $ defrecord 'Person :name :age
+                a $ %{} Person (:name "\"Lily") (:age 10)
+                b $ %{} Person (:name "\"Lucy") (:age 11)
+                options $ {}
+                changes $ []
+                  [] schema/tree-op-assoc ([] 'age) 11
+                  [] schema/tree-op-assoc ([] 'name) "\"Lucy"
+              is $ = changes (diff-twig a b options)
+              is $ = b (patch-twig a changes)
         |run-tests $ quote
           defn run-tests ()
             when
@@ -131,6 +143,7 @@
               reset! *quit-on-failure? true
             test-diff-same-keyword
             test-diff-maps
+            test-diff-records
             test-diff-sets
             test-diff-same-sets
             test-diff-map-by-ids
@@ -381,7 +394,6 @@
         |find-vector-changes $ quote
           defn find-vector-changes (collect! idx coord a-pairs b-pairs options) (; println idx a-pairs b-pairs)
             cond
-              
                 and (empty? a-pairs) (empty? b-pairs)
                 , nil
               (empty? b-pairs)
@@ -403,10 +415,17 @@
           defatom *diff-changes $ []
         |diff-vector $ quote
           defn diff-vector (collect! coord a b options) (find-vector-changes collect! 0 coord a b options)
+        |diff-record $ quote
+          defn diff-record (collect! coord a b options)
+            if (relevant-record? a b)
+              let
+                  a-pairs $ set->list (to-pairs a)
+                &doseq (pair a-pairs)
+                  let[] (k va) pair $ diff-twig-iterate collect! (conj coord k) va (&get b k) options
+              collect! $ [] schema/tree-op-assoc coord b
         |find-map-changes $ quote
           defn find-map-changes (collect! coord a-pairs b-pairs options)
             cond
-              
                 and (empty? a-pairs) (empty? b-pairs)
                 , nil
               (empty? a-pairs)
@@ -446,6 +465,7 @@
                 (map? b) (diff-map collect! coord a b options)
                 (set? b) (diff-set collect! coord a b)
                 (list? b) (diff-vector collect! coord a b options)
+                (record? b) (diff-record collect! coord a b options)
                 :else $ do (println "|Unexpected data:" a b)
               collect! $ [] schema/tree-op-assoc coord b
       :proc $ quote ()
@@ -524,7 +544,6 @@
         |type->int $ quote
           defn type->int (x)
             cond
-              
                 number? x
                 , 0
               (keyword? x) 1
@@ -542,7 +561,6 @@
         |compare $ quote
           defn compare (x y)
             cond
-              
                 &< x y
                 , -1
               (&> x y) 1
