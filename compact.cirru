@@ -2,7 +2,7 @@
 {} (:package |recollect)
   :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/ |calcit-test/
-    :version |0.0.2
+    :version |0.0.3
   :files $ {}
     |recollect.patch $ {}
       :ns $ quote
@@ -127,7 +127,7 @@
         |test-diff-records $ quote
           deftest test-diff-records $ testing "\"diff records"
             let
-                Person $ defrecord 'Person :name :age
+                Person $ defrecord Person :name :age
                 a $ %{} Person (:name "\"Lily") (:age 10)
                 b $ %{} Person (:name "\"Lucy") (:age 11)
                 options $ {}
@@ -400,7 +400,7 @@
                 collect! $ [] schema/tree-op-vec-drop coord idx
               (empty? a-pairs)
                 collect! $ [] schema/tree-op-vec-append coord b-pairs
-              :else $ do
+              true $ do
                 diff-twig-iterate collect! (conj coord idx) (first a-pairs) (first b-pairs) options
                 recur collect! (inc idx) coord (rest a-pairs) (rest b-pairs) options
         |diff-twig $ quote
@@ -466,7 +466,7 @@
                 (set? b) (diff-set collect! coord a b)
                 (list? b) (diff-vector collect! coord a b options)
                 (record? b) (diff-record collect! coord a b options)
-                :else $ do (println "|Unexpected data:" a b)
+                true $ do (println "|Unexpected data:" a b)
               collect! $ [] schema/tree-op-assoc coord b
       :proc $ quote ()
     |recollect.app.twig.container $ {}
