@@ -950,7 +950,7 @@
                                       |r $ {} (:type :expr) (:by |SygU7c6BlG) (:at 1615126676255)
                                         :data $ {}
                                           |T $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1615126676255) (:text |[])
-                                          |j $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1615126893087) (:text |'age)
+                                          |j $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1619456257579) (:text |:age)
                                       |v $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1615126883949) (:text |11)
                                   |r $ {} (:type :expr) (:by |SygU7c6BlG) (:at 1615126676255)
                                     :data $ {}
@@ -959,7 +959,7 @@
                                       |r $ {} (:type :expr) (:by |SygU7c6BlG) (:at 1615126676255)
                                         :data $ {}
                                           |T $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1615126676255) (:text |[])
-                                          |j $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1615126895584) (:text |'name)
+                                          |j $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1619456259756) (:text |:name)
                                       |v $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1615126881110) (:text "|\"Lucy")
                           |D $ {} (:type :expr) (:by |SygU7c6BlG) (:at 1615126690286)
                             :data $ {}
@@ -2617,7 +2617,6 @@
                           |j $ {} (:type :expr) (:by |SygU7c6BlG) (:at 1611982558711)
                             :data $ {}
                               |T $ {} (:type :leaf) (:text |sort) (:id |By1x7dlLNyG) (:by |root) (:at 1510396011398)
-                              |j $ {} (:type :leaf) (:text |by-key) (:id |HklgmOxINyz) (:by |root) (:at 1510396011398)
                               |r $ {} (:type :expr) (:by |SygU7c6BlG) (:at 1611982652311)
                                 :data $ {}
                                   |T $ {} (:type :expr) (:by |SygU7c6BlG) (:at 1611982560062)
@@ -2625,13 +2624,13 @@
                                       |T $ {} (:type :leaf) (:text |a) (:id |Hk-e7_lI4kG) (:by |root) (:at 1510396011398)
                                       |D $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1611982562734) (:text |to-pairs)
                                   |D $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1611982656465) (:text |set->list)
+                              |v $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1619456172136) (:text |by-key)
                       |j $ {} (:type :expr) (:id |ryzgmue8V1z) (:by |root) (:at 1510396011398)
                         :data $ {}
                           |T $ {} (:type :leaf) (:text |b-pairs) (:id |SJ7lmOlUEyz) (:by |root) (:at 1510396011398)
                           |j $ {} (:type :expr) (:id |SkNl7ux84Jz) (:by |root) (:at 1510396011398)
                             :data $ {}
                               |T $ {} (:type :leaf) (:text |sort) (:id |HkSxXOe84yz) (:by |root) (:at 1510396011398)
-                              |j $ {} (:type :leaf) (:text |by-key) (:id |Hk8lmdlINJG) (:by |root) (:at 1510396011398)
                               |r $ {} (:type :expr) (:by |SygU7c6BlG) (:at 1611982657526)
                                 :data $ {}
                                   |T $ {} (:type :expr) (:by |SygU7c6BlG) (:at 1611982564282)
@@ -2639,6 +2638,7 @@
                                       |T $ {} (:type :leaf) (:text |b) (:id |BkDgXuxLNyf) (:by |root) (:at 1510396011398)
                                       |D $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1611982566487) (:text |to-pairs)
                                   |D $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1611982659295) (:text |set->list)
+                              |v $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1619456175683) (:text |by-key)
                       |r $ {} (:type :expr) (:id |BJulQ_xIV1M) (:by |root) (:at 1510396011398)
                         :data $ {}
                           |T $ {} (:type :leaf) (:text |k) (:id |rktxXOgL4yM) (:by |root) (:at 1510396011398)
@@ -2888,11 +2888,8 @@
                               |T $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1615126007183) (:text |a-pairs)
                               |j $ {} (:type :expr) (:by |SygU7c6BlG) (:at 1615126007183)
                                 :data $ {}
-                                  |T $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1615126007183) (:text |set->list)
-                                  |j $ {} (:type :expr) (:by |SygU7c6BlG) (:at 1615126007183)
-                                    :data $ {}
-                                      |T $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1615126007183) (:text |to-pairs)
-                                      |j $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1615126007183) (:text |a)
+                                  |T $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1615126007183) (:text |to-pairs)
+                                  |j $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1615126007183) (:text |a)
                       |r $ {} (:type :expr) (:by |SygU7c6BlG) (:at 1615126475752)
                         :data $ {}
                           |T $ {} (:type :leaf) (:by |SygU7c6BlG) (:at 1615126480062) (:text |&doseq)
@@ -3987,4 +3984,4 @@
     :init-fn |recollect.app.main/main!
     :compact-output? true
     :storage-key |calcit.cirru
-    :version |0.0.3
+    :version |0.0.4
