@@ -2,7 +2,7 @@
 {} (:package |recollect)
   :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/ |calcit-test/
-    :version |0.0.3
+    :version |0.0.4
   :files $ {}
     |recollect.patch $ {}
       :ns $ quote
@@ -132,8 +132,8 @@
                 b $ %{} Person (:name "\"Lucy") (:age 11)
                 options $ {}
                 changes $ []
-                  [] schema/tree-op-assoc ([] 'age) 11
-                  [] schema/tree-op-assoc ([] 'name) "\"Lucy"
+                  [] schema/tree-op-assoc ([] :age) 11
+                  [] schema/tree-op-assoc ([] :name) "\"Lucy"
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |run-tests $ quote
@@ -382,10 +382,12 @@
         |diff-map $ quote
           defn diff-map (collect! coord a b options)
             let
-                a-pairs $ sort by-key
+                a-pairs $ sort
                   set->list $ to-pairs a
-                b-pairs $ sort by-key
+                  , by-key
+                b-pairs $ sort
                   set->list $ to-pairs b
+                  , by-key
                 k $ :key options
               if
                 not= (get a k) (get b k)
@@ -419,7 +421,7 @@
           defn diff-record (collect! coord a b options)
             if (relevant-record? a b)
               let
-                  a-pairs $ set->list (to-pairs a)
+                  a-pairs $ to-pairs a
                 &doseq (pair a-pairs)
                   let[] (k va) pair $ diff-twig-iterate collect! (conj coord k) va (&get b k) options
               collect! $ [] schema/tree-op-assoc coord b
