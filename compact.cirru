@@ -2,7 +2,7 @@
 {} (:package |recollect)
   :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/ |calcit-test/
-    :version |0.0.4
+    :version |0.0.5
   :files $ {}
     |recollect.patch $ {}
       :ns $ quote
@@ -382,12 +382,8 @@
         |diff-map $ quote
           defn diff-map (collect! coord a b options)
             let
-                a-pairs $ sort
-                  set->list $ to-pairs a
-                  , by-key
-                b-pairs $ sort
-                  set->list $ to-pairs b
-                  , by-key
+                a-pairs $ sort (.to-list a) by-key
+                b-pairs $ sort (.to-list b) by-key
                 k $ :key options
               if
                 not= (get a k) (get b k)
@@ -419,11 +415,11 @@
           defn diff-vector (collect! coord a b options) (find-vector-changes collect! 0 coord a b options)
         |diff-record $ quote
           defn diff-record (collect! coord a b options)
-            if (relevant-record? a b)
+            if (.matches? a b)
               let
                   a-pairs $ to-pairs a
                 &doseq (pair a-pairs)
-                  let[] (k va) pair $ diff-twig-iterate collect! (conj coord k) va (&get b k) options
+                  let[] (k va) pair $ diff-twig-iterate collect! (conj coord k) va (&record:get b k) options
               collect! $ [] schema/tree-op-assoc coord b
         |find-map-changes $ quote
           defn find-map-changes (collect! coord a-pairs b-pairs options)
@@ -499,7 +495,8 @@
               :map-0-rm $ update-in store ([] :map-0)
                 fn (cursor) (dissoc cursor :y)
               :vec-0 $ update store :vec-0
-                fn (vec-0) (conj vec-0 op-data :cursor)
+                fn (vec-0)
+                  -> vec-0 (conj op-data) (conj :cursor)
               :vec-0-rm $ update store :vec-0
                 fn (vec-0)
                   either (butlast vec-0) ([])

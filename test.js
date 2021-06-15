@@ -1,4 +1,4 @@
 
-import { test_BANG_ } from "./js-out/recollect.app.main.js"
+import { test_$x_ } from "./js-out/recollect.app.main.js"
 
-test_BANG_()
+test_$x_()
