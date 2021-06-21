@@ -2,7 +2,7 @@
 {} (:package |recollect)
   :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/ |calcit-test/
-    :version |0.0.5
+    :version |0.0.6
   :files $ {}
     |recollect.patch $ {}
       :ns $ quote
@@ -27,6 +27,7 @@
               (= op schema/tree-op-dissoc) (patch-map-remove base coord data)
               (= op schema/tree-op-assoc) (patch-map-set base coord data)
               (= op schema/tree-op-set-splice) (patch-set base coord data)
+              (= op schema/tree-op-map-splice) (patch-map base coord data)
               true $ do (println "|Unkown op:" op) base
         |patch-set $ quote
           defn patch-set (base coord data)
@@ -45,6 +46,12 @@
         |patch-vector-drop $ quote
           defn patch-vector-drop (base coord data)
             update-in base coord $ fn (cursor) (slice cursor 0 data)
+        |patch-map $ quote
+          defn patch-map (base coord data)
+            let[] (removed added) data $ if (empty? coord)
+              -> base (unselect-keys removed) (merge added)
+              update-in base coord $ fn (m) (println "\"m" m)
+                -> m (unselect-keys removed) (merge added)
       :proc $ quote ()
     |recollect.schema $ {}
       :ns $ quote (ns recollect.schema)
@@ -57,6 +64,7 @@
         |tree-op-set-splice $ quote (def tree-op-set-splice 4)
         |tree-op-vec-append $ quote (def tree-op-vec-append 2)
         |tree-op-vec-drop $ quote (def tree-op-vec-drop 3)
+        |tree-op-map-splice $ quote (def tree-op-map-splice 5)
       :proc $ quote ()
     |recollect.test $ {}
       :ns $ quote
@@ -85,8 +93,9 @@
                   :a $ {} (:c 2)
                 options $ {} (:key :id)
                 changes $ []
-                  [] schema/tree-op-dissoc ([] :a) :b
-                  [] schema/tree-op-assoc ([] :a :c) 2
+                  [] schema/tree-op-map-splice ([] :a)
+                    [] (#{} :b)
+                      {} $ :c 2
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |test-diff-sets $ quote
@@ -235,7 +244,7 @@
               :user $ {} (:name |Chen)
               :types $ {} (:name 1) (|name 2)
         |main! $ quote
-          defn main! ()
+          defn main! () (load-console-formatter!)
             println "\"Running mode:" $ if config/dev? "\"dev" "\"release"
             if ssr? $ render-app! realize-ssr!
             render-app! render!
@@ -371,101 +380,88 @@
         |diff-set $ quote
           defn diff-set (collect! coord a b)
             ; assert "|[Recollect] sets to diff should hold literals" $ or (coll? a) (coll? b)
-            if (not= a b)
-              let
-                  added $ difference b a
-                  removed $ difference a b
-                collect! $ [] schema/tree-op-set-splice coord ([] removed added)
+            let
+                added $ difference b a
+                removed $ difference a b
+              collect! $ [] schema/tree-op-set-splice coord ([] removed added)
         |by-key $ quote
           defn by-key (x y)
-            compare-more (first x) (first y)
+            &compare (first x) (first y)
         |diff-map $ quote
           defn diff-map (collect! coord a b options)
             let
-                a-pairs $ sort (.to-list a) by-key
-                b-pairs $ sort (.to-list b) by-key
-                k $ :key options
+                id-k $ if (nil? options) :id (&map:get options :key)
+                ka $ &map:get a id-k
+                kb $ &map:get b id-k
               if
-                not= (get a k) (get b k)
+                and (some? ka) (not= ka kb)
                 collect! $ [] schema/tree-op-assoc coord b
-                find-map-changes collect! coord a-pairs b-pairs options
+                let
+                    new-diff $ &map:diff-new b a
+                    drop-keys $ &map:diff-keys a b
+                    common-keys $ &map:common-keys a b
+                    a-pairs $ sort (&map:to-list a) by-key
+                    b-pairs $ sort (&map:to-list b) by-key
+                  if
+                    not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
+                    collect! $ [] schema/tree-op-map-splice coord ([] drop-keys new-diff)
+                  &doseq (common-k common-keys) (; println "\"k" common-k)
+                    let
+                        va $ &map:get a common-k
+                        vb $ &map:get b common-k
+                      if (not= va vb)
+                        diff-twig-iterate collect! (conj coord common-k) va vb options
         |find-vector-changes $ quote
-          defn find-vector-changes (collect! idx coord a-pairs b-pairs options) (; println idx a-pairs b-pairs)
+          defn find-vector-changes (collect! idx coord a-items b-items options) (; println idx a-items b-items)
             cond
-                and (empty? a-pairs) (empty? b-pairs)
+                and (empty? a-items) (empty? b-items)
                 , nil
-              (empty? b-pairs)
+              (empty? b-items)
                 collect! $ [] schema/tree-op-vec-drop coord idx
-              (empty? a-pairs)
-                collect! $ [] schema/tree-op-vec-append coord b-pairs
+              (empty? a-items)
+                collect! $ [] schema/tree-op-vec-append coord b-items
               true $ do
-                diff-twig-iterate collect! (conj coord idx) (first a-pairs) (first b-pairs) options
-                recur collect! (inc idx) coord (rest a-pairs) (rest b-pairs) options
+                diff-twig-iterate collect! (conj coord idx) (first a-items) (first b-items) options
+                recur collect! (inc idx) coord (rest a-items) (rest b-items) options
         |diff-twig $ quote
           defn diff-twig (a b options)
-            let
-                *changes *diff-changes
-                collect! $ fn (x) (swap! *changes conj x)
-              reset! *changes $ []
-              diff-twig-iterate collect! ([]) a b options
-              , @*changes
+            if (identical? a b) ([])
+              let
+                  *changes *diff-changes
+                  collect! $ fn (x) (swap! *changes conj x)
+                reset! *changes $ []
+                diff-twig-iterate collect! ([]) a b options
+                , @*changes
         |*diff-changes $ quote
           defatom *diff-changes $ []
         |diff-vector $ quote
           defn diff-vector (collect! coord a b options) (find-vector-changes collect! 0 coord a b options)
         |diff-record $ quote
           defn diff-record (collect! coord a b options)
-            if (.matches? a b)
-              let
-                  a-pairs $ to-pairs a
-                &doseq (pair a-pairs)
-                  let[] (k va) pair $ diff-twig-iterate collect! (conj coord k) va (&record:get b k) options
-              collect! $ [] schema/tree-op-assoc coord b
-        |find-map-changes $ quote
-          defn find-map-changes (collect! coord a-pairs b-pairs options)
-            cond
-                and (empty? a-pairs) (empty? b-pairs)
-                , nil
-              (empty? a-pairs)
-                let[] (kb vb) (first b-pairs)
-                  collect! $ [] schema/tree-op-assoc (conj coord kb) vb
-                  recur collect! coord ([]) (rest b-pairs) options
-              (empty? b-pairs)
-                let[] (ka va) (first a-pairs)
-                  collect! $ [] schema/tree-op-dissoc coord ka
-                  recur collect! coord (rest a-pairs) ([]) options
-              true $ let[] (ka va) (first a-pairs)
-                let[] (kb vb) (first b-pairs)
-                  &let
-                    v $ compare-more ka kb
-                    case v
-                      -1 $ do
-                        collect! $ [] schema/tree-op-dissoc coord ka
-                        recur collect! coord (rest a-pairs) b-pairs options
-                      1 $ do
-                        collect! $ [] schema/tree-op-assoc (conj coord kb) vb
-                        recur collect! coord a-pairs (rest b-pairs) options
-                      v $ do
-                        diff-twig-iterate collect! (conj coord ka) va vb options
-                        recur collect! coord (rest a-pairs) (rest b-pairs) options
+            if-not (identical? a b)
+              if (.matches? a b)
+                let
+                    a-pairs $ to-pairs a
+                  &doseq (pair a-pairs)
+                    let[] (k va) pair $ diff-twig-iterate collect! (conj coord k) va (&record:get b k) options
+                collect! $ [] schema/tree-op-assoc coord b
         |diff-twig-iterate $ quote
           defn diff-twig-iterate (collect! coord a b options)
-            if
-              = (type-of a) (type-of b)
-              cond
-                  keyword? b
-                  if (not= a b)
+            if-not (identical? a b)
+              if
+                = (type-of a) (type-of b)
+                cond
+                    literal? b
                     collect! $ [] schema/tree-op-assoc coord b
-                (literal? b)
-                  if
-                    not $ identical? a b
+                  (symbol? b)
                     collect! $ [] schema/tree-op-assoc coord b
-                (map? b) (diff-map collect! coord a b options)
-                (set? b) (diff-set collect! coord a b)
-                (list? b) (diff-vector collect! coord a b options)
-                (record? b) (diff-record collect! coord a b options)
-                true $ do (println "|Unexpected data:" a b)
-              collect! $ [] schema/tree-op-assoc coord b
+                  (map? b) (diff-map collect! coord a b options)
+                  (set? b) (diff-set collect! coord a b)
+                  (list? b) (diff-vector collect! coord a b options)
+                  (record? b) (diff-record collect! coord a b options)
+                  (ref? b) (println "\"[Error] unexpected ref to compare")
+                  true $ do (println "|[Warning] unexpected data:" a b)
+                collect! $ [] schema/tree-op-assoc coord b
       :proc $ quote ()
     |recollect.app.twig.container $ {}
       :ns $ quote
@@ -531,27 +527,9 @@
                   do (; "\"functions changes designed to be ignored.") true
                   recur (rest xs) (rest ys)
                 , false
-        |compare-more $ quote
-          defn compare-more (x y)
-            let
-                type-x $ type->int x
-                type-y $ type->int y
-              if (= type-x type-y) (compare x y) (compare type-x type-y)
         |literal? $ quote
           defn literal? (x)
             or (string? x) (number? x) (bool? x) (nil? x) (keyword? x) (symbol? x)
-        |type->int $ quote
-          defn type->int (x)
-            cond
-                number? x
-                , 0
-              (keyword? x) 1
-              (string? x) 2
-              (nil? x) 3
-              (bool? x) 4
-              (symbol? x) 5
-              true $ raise
-                str "|Failed to compare, it's: " $ pr-str x
         |vec-add $ quote
           defn vec-add (xs ys)
             if (empty? ys) xs $ recur
