@@ -5612,14 +5612,6 @@
                                 :type :expr
                                 :at 1624090437558
                                 :by |SygU7c6BlG
-                              |f $ {}
-                                :data $ {}
-                                  |T $ {} (:text |println) (:type :leaf) (:at 1624091210233) (:by |SygU7c6BlG)
-                                  |j $ {} (:text "|\"m") (:type :leaf) (:at 1624091212490) (:by |SygU7c6BlG)
-                                  |r $ {} (:text |m) (:type :leaf) (:at 1624091212721) (:by |SygU7c6BlG)
-                                :type :expr
-                                :at 1624091207992
-                                :by |SygU7c6BlG
                               |j $ {}
                                 :data $ {}
                                   |T $ {} (:text |->) (:type :leaf) (:at 1624090421432) (:by |SygU7c6BlG)

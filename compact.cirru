@@ -398,7 +398,7 @@
           defn patch-map (base coord data)
             let[] (removed added) data $ if (empty? coord)
               -> base (unselect-keys removed) (merge added)
-              update-in base coord $ fn (m) (println "\"m" m)
+              update-in base coord $ fn (m)
                 -> m (unselect-keys removed) (merge added)
         |patch-one $ quote
           defn patch-one (base change)
