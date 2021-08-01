@@ -1,6 +1,6 @@
 
 {}
-  :configs $ {} (:reload-fn |recollect.app.main/reload!) (:port 6001) (:output |src) (:compact-output? true) (:storage-key |calcit.cirru) (:version |0.0.6)
+  :configs $ {} (:reload-fn |recollect.app.main/reload!) (:port 6001) (:output |src) (:compact-output? true) (:storage-key |calcit.cirru) (:version |0.0.7)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/ |calcit-test/
     :init-fn |recollect.app.main/main!
     :extension |.cljs

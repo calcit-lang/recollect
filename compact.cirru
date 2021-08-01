@@ -2,7 +2,7 @@
 {} (:package |recollect)
   :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/ |calcit-test/
-    :version |0.0.6
+    :version |0.0.7
   :files $ {}
     |recollect.diff $ {}
       :ns $ quote
