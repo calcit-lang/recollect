@@ -1,6 +1,6 @@
 
 {} (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.7)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.8)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!)
@@ -545,7 +545,7 @@
               true 0
         |literal? $ quote
           defn literal? (x)
-            or (string? x) (number? x) (bool? x) (nil? x) (keyword? x) (symbol? x)
+            or (string? x) (number? x) (bool? x) (nil? x) (tag? x) (symbol? x)
         |vec-add $ quote
           defn vec-add (xs ys)
             if (empty? ys) xs $ recur
