@@ -1,6 +1,6 @@
 
 {}
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:port 6001) (:reload-fn |recollect.app.main/reload!) (:version |0.0.7)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:port 6001) (:reload-fn |recollect.app.main/reload!) (:version |0.0.8)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!)
@@ -3893,7 +3893,7 @@
                       |j $ {} (:at 1611982515354) (:by |SygU7c6BlG) (:text |x) (:type :leaf)
                   |x $ {} (:at 1611982517993) (:by |SygU7c6BlG) (:type :expr)
                     :data $ {}
-                      |T $ {} (:at 1611982519610) (:by |SygU7c6BlG) (:text |keyword?) (:type :leaf)
+                      |T $ {} (:at 1685267877377) (:by |SygU7c6BlG) (:text |tag?) (:type :leaf)
                       |j $ {} (:at 1611982519929) (:by |SygU7c6BlG) (:text |x) (:type :leaf)
                   |y $ {} (:at 1611982520248) (:by |SygU7c6BlG) (:type :expr)
                     :data $ {}
