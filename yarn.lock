@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@calcit/procs@^0.7.0-a2":
-  version "0.7.0-a2"
-  resolved "https://registry.yarnpkg.com/@calcit/procs/-/procs-0.7.0-a2.tgz#4c3796e88ab7dce40be94003695f8f59ab3909e8"
-  integrity sha512-eP18B22NAV15dIecIGq8VL/l+zA6lC5DG8QiwHKbP/KP8+rMzLpD7ogGDKiHP0ZNH53v6wN+/l1Fvymn4pgl+Q==
+"@calcit/procs@^0.7.0-a7":
+  version "0.7.0-a7"
+  resolved "https://registry.yarnpkg.com/@calcit/procs/-/procs-0.7.0-a7.tgz#c442dc33a565836e675d6e90be7ae0c0ed5fe27a"
+  integrity sha512-OaQQWl7LYfZn1a+HtkoAvIqAGsHltV455iLiAiforGctJ0nP8+BrKm9crz0nCmVxOvlobmur7CWxoNCgEuQHeg==
   dependencies:
     "@calcit/ternary-tree" "0.0.19"
     "@cirru/parser.ts" "^0.0.6"
@@ -268,9 +268,9 @@ process@^0.11.10:
   integrity sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==
 
 rollup@^3.21.0:
-  version "3.23.0"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-3.23.0.tgz#b8d6146dac4bf058ee817f92820988e9b358b564"
-  integrity sha512-h31UlwEi7FHihLe1zbk+3Q7z1k/84rb9BSwmBSr/XjOCEaBJ2YyedQDuM0t/kfOS0IxM+vk1/zI9XxYj9V+NJQ==
+  version "3.24.0"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-3.24.0.tgz#865dee1fe0bb528747b59914dfab25e6f480e370"
+  integrity sha512-OgraHOIg2YpHQTjl0/ymWfFNBEyPucB7lmhXrQUh38qNOegxLapSPFs9sNr0qKR75awW41D93XafoR2QfhBdUQ==
   optionalDependencies:
     fsevents "~2.3.2"
 
