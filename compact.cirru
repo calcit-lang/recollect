@@ -1,6 +1,6 @@
 
 {} (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.8)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.9)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!)
@@ -294,6 +294,9 @@
                   (list? b) (diff-vector collect! coord a b options)
                   (record? b) (diff-record collect! coord a b options)
                   (ref? b) (println "\"[Error] unexpected ref to compare")
+                  (tuple? b)
+                    if (not= a b)
+                      collect! $ [] schema/tree-op-assoc coord b
                   true $ do (println "|[Warning] unexpected data:" a b)
                 collect! $ [] schema/tree-op-assoc coord b
         |diff-vector $ quote
@@ -382,7 +385,7 @@
             when
               = "\"ci" $ get-env "\"env"
               reset! *quit-on-failure? true
-            test-diff-same-keyword
+            test-diff-same-tag
             test-diff-maps
             test-diff-records
             test-diff-sets
@@ -392,6 +395,7 @@
             test-vec-add
             test-diff-map-same-id
             test-diff-funcs
+            test-diff-tuple
         |test-diff-funcs $ quote
           deftest test-diff-funcs $ testing "\"diff functions"
             let
@@ -450,15 +454,6 @@
                   [] schema/tree-op-assoc ([] :name) "\"Lucy"
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
-        |test-diff-same-keyword $ quote
-          deftest test-diff-same-keyword $ testing "\"diff same keyword"
-            let
-                a :x
-                b :x
-                options $ {} (:key :id)
-                changes $ []
-              is $ = changes (diff-twig a b options)
-              is $ = b (patch-twig a changes)
         |test-diff-same-sets $ quote
           deftest test-diff-same-sets $ testing "\"diff same sets"
             let
@@ -470,6 +465,15 @@
                 changes $ []
               ; print changes
               is $ = changes (diff-twig a b options)
+        |test-diff-same-tag $ quote
+          deftest test-diff-same-tag $ testing "\"diff same tag"
+            let
+                a :x
+                b :x
+                options $ {} (:key :id)
+                changes $ []
+              is $ = changes (diff-twig a b options)
+              is $ = b (patch-twig a changes)
         |test-diff-sets $ quote
           deftest test-diff-sets $ testing "\"diff sets"
             let
@@ -482,6 +486,31 @@
                   [] schema/tree-op-set-splice ([] :a)
                     [] (#{} 1) (#{} 4)
               is $ = changes (diff-twig a b options)
+              is $ = b (patch-twig a changes)
+        |test-diff-tuple $ quote
+          deftest test-diff-tuple
+            testing "\"diff tuples" $ let
+                a $ :: :a 1 2
+                b $ :: :a 2 3 4
+                changes $ []
+                  [] schema/tree-op-assoc ([]) (:: :a 2 3 4)
+              is $ = changes
+                diff-twig a b $ {}
+              is $ = b (patch-twig a changes)
+            testing "\"diff tuples" $ let
+                a $ :: :a 1 2
+                b $ :: :b 2 3 4
+                changes $ []
+                  [] schema/tree-op-assoc ([]) (:: :b 2 3 4)
+              is $ = changes
+                diff-twig a b $ {}
+              is $ = b (patch-twig a changes)
+            testing "\"diff tuples" $ let
+                a $ :: :a 1 2
+                b $ :: :a 1 2
+                changes $ []
+              is $ = changes
+                diff-twig a b $ {}
               is $ = b (patch-twig a changes)
         |test-diff-vectors $ quote
           deftest test-diff-vectors $ testing "\"diff vectors"
