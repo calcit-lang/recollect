@@ -118,11 +118,9 @@
               :user $ {} (:name |Chen)
               :types $ {} (:name 1) (|name 2)
         |dispatch! $ quote
-          defn dispatch! (op op-data)
-            when
-              and config/dev? $ not= op :states
-              println "\"Dispatch:" op op-data
-            reset! *store $ updater @*store op op-data
+          defn dispatch! (op)
+            when (and config/dev?) (println "\"Dispatch:" op)
+            reset! *store $ updater @*store op
         |main! $ quote
           defn main! () (load-console-formatter!)
             println "\"Running mode:" $ if config/dev? "\"dev" "\"release"
@@ -192,34 +190,39 @@
     |recollect.app.updater $ {}
       :defs $ {}
         |updater $ quote
-          defn updater (store op op-data)
-            case op
-              :states $ update-states store op-data
-              :lit-0 $ assoc store :lit-0 op-data
-              :lit-1 $ assoc-in store ([] :in-map :lit-1) op-data
-              :map-0 $ assoc-in store ([] :map-0 :y) op-data
-              :map-0-rm $ update-in store ([] :map-0)
-                fn (cursor) (dissoc cursor :y)
-              :vec-0 $ update store :vec-0
-                fn (vec-0)
-                  -> vec-0 (conj op-data) (conj :cursor)
-              :vec-0-rm $ update store :vec-0
-                fn (vec-0)
+          defn updater (store op)
+            tag-match op
+                :states cursor s
+                update-states store cursor s
+              (:lit-0 d) (assoc store :lit-0 d)
+              (:lit-1 d)
+                assoc-in store ([] :in-map :lit-1) d
+              (:map-0 d)
+                assoc-in store ([] :map-0 :y) d
+              (:map-0-rm)
+                update-in store ([] :map-0)
+                  fn (cursor) (dissoc cursor :y)
+              (:vec-0 d)
+                update store :vec-0 $ fn (vec-0)
+                  -> vec-0 (conj d) (conj :cursor)
+              (:vec-0-rm)
+                update store :vec-0 $ fn (vec-0)
                   either (butlast vec-0) ([])
-              :seq-0 $ update store :seq-0
-                fn (seq-0) (prepend seq-0 op-data)
-              :seq-0-rm $ update store :seq-0
-                fn (seq-0)
+              (:seq-0 d)
+                update store :seq-0 $ fn (seq-0) (prepend seq-0 d)
+              (:seq-0-rm)
+                update store :seq-0 $ fn (seq-0)
                   either (rest seq-0) ([])
-              :set-0 $ update store :set-0
-                fn (set-0) (include set-0 op-data)
-              :set-0-rm $ update store :set-0
-                fn (set-0)
+              (:set-0 d)
+                update store :set-0 $ fn (set-0) (include set-0 d)
+              (:set-0-rm)
+                update store :set-0 $ fn (set-0)
                   either (rest set-0) (#{})
-              :date $ update-in store ([] :date :month) inc
-              :types $ update store :types
-                fn (types-map) (assoc types-map op-data true)
-              op $ do (println "|Unhandled op:" op) store
+              (:date)
+                update-in store ([] :date :month) inc
+              (:types d)
+                update store :types $ fn (types-map) (assoc types-map d true)
+              _ $ do (eprintln "|Unhandled op:" op) store
       :ns $ quote
         ns recollect.app.updater $ :require
           [] respo.cursor :refer $ [] update-states
