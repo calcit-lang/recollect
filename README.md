@@ -1,6 +1,4 @@
-
-Recollect in Calcit-js
-----
+## Recollect in Calcit-js
 
 > Cumulo/recollect in calcit-js.
 
@@ -20,8 +18,8 @@ recollect.diff/patch-twig old-data new-data changes
 
 Terms:
 
-* Twig: data wrapped with a renderer to caching purpose
-* `:key`: to help diff maps
+- Twig: data wrapped with a renderer to caching purpose
+- `:key`: to help diff maps
 
 ### Purpose
 
@@ -35,14 +33,14 @@ It's not tested yet, but is trying to trade memory and performance with caching.
 
 ### Diff Operations
 
-number | name | meaning
---- | --- | ---
-0 | tree-op-assoc | `assoc-in`
-1 | tree-op-dissoc | `dissoc-in`
-2 | tree-op-vec-append | append items to vector
-3 | tree-op-vec-drop | pop items from vector
-4 | tree-op-set-splice | remove and add to set
-5 | tree-op-map-splice | remove and add to map
+| tag         | meaning                |
+| ----------- | ---------------------- |
+| :assoc      | `assoc-in`             |
+| :dissoc     | `dissoc-in`            |
+| :vec-append | append items to vector |
+| :vec-drop   | pop items from vector  |
+| :set-splice | remove and add to set  |
+| :map-splice | remove and add to map  |
 
 For vectors, data is supposed to be manipulated from the tail.
 Items in the new vector are mapped to its old ones by index.

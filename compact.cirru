@@ -248,7 +248,7 @@
                     b-pairs $ sort (&map:to-list b) by-key
                   if
                     not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
-                    collect! $ :: :map-splice coord ([] drop-keys new-diff)
+                    collect! $ :: :map-splice coord drop-keys new-diff
                   &doseq (common-k common-keys) (; println "\"k" common-k)
                     let
                         va $ &map:get a common-k
@@ -270,7 +270,7 @@
             let
                 added $ difference b a
                 removed $ difference a b
-              collect! $ :: :set-splice coord ([] removed added)
+              collect! $ :: :set-splice coord removed added
         |diff-twig $ quote
           defn diff-twig (a b options)
             if (identical? a b) ([])
@@ -321,8 +321,8 @@
     |recollect.patch $ {}
       :defs $ {}
         |patch-map $ quote
-          defn patch-map (base coord data)
-            let[] (removed added) data $ if (empty? coord)
+          defn patch-map (base coord removed added)
+            if (empty? coord)
               -> base (unselect-keys removed) (merge added)
               update-in base coord $ fn (m)
                 -> m (unselect-keys removed) (merge added)
@@ -341,12 +341,12 @@
               (:vec-drop coord data) (patch-vector-drop base coord data)
               (:dissoc coord data) (patch-map-remove base coord data)
               (:assoc coord data) (patch-map-set base coord data)
-              (:set-splice coord data) (patch-set base coord data)
-              (:map-splice coord data) (patch-map base coord data)
+              (:set-splice coord removed added) (patch-set base coord removed added)
+              (:map-splice coord removed added) (patch-map base coord removed added)
               _ $ do (eprintln "|Unkown op:" change) base
         |patch-set $ quote
-          defn patch-set (base coord data)
-            let[] (removed added) data $ if (empty? coord)
+          defn patch-set (base coord removed added)
+            if (empty? coord)
               -> base (difference removed) (union added)
               update-in base coord $ fn (cursor)
                 -> cursor (difference removed) (union added)
@@ -431,9 +431,8 @@
                   :a $ {} (:c 2)
                 options $ {} (:key :id)
                 changes $ []
-                  :: :map-splice ([] :a)
-                    [] (#{} :b)
-                      {} $ :c 2
+                  :: :map-splice ([] :a) (#{} :b)
+                    {} $ :c 2
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |test-diff-records $ quote
@@ -477,8 +476,7 @@
                   :a $ #{} 2 3 4
                 options $ {} (:key :id)
                 changes $ []
-                  :: :set-splice ([] :a)
-                    [] (#{} 1) (#{} 4)
+                  :: :set-splice ([] :a) (#{} 1) (#{} 4)
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |test-diff-tuple $ quote
