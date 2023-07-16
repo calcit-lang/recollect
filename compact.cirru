@@ -1,6 +1,6 @@
 
 {} (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.9)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.10-a1)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!)
@@ -271,6 +271,20 @@
                 added $ difference b a
                 removed $ difference a b
               collect! $ :: :set-splice coord removed added
+        |diff-tuple $ quote
+          defn diff-tuple (collect! coord a b options)
+            if
+              or
+                not= (nth a 0) (nth b 0)
+                not= (&tuple:count a) (&tuple:count b)
+              collect! $ :: :assoc coord b
+              let
+                  rr $ range
+                    dec $ &tuple:count a
+                &doseq (idx rr)
+                  let
+                      i $ inc idx
+                    diff-twig-iterate collect! (conj coord i) (nth a i) (nth b i) options
         |diff-twig $ quote
           defn diff-twig (a b options)
             if (identical? a b) ([])
@@ -289,15 +303,13 @@
                     collect! $ :: :assoc coord b
                   (symbol? b)
                     collect! $ :: :assoc coord b
+                  (tuple? b) (diff-tuple collect! coord a b options)
                   (map? b) (diff-map collect! coord a b options)
-                  (set? b) (diff-set collect! coord a b)
                   (list? b) (diff-vector collect! coord a b options)
                   (record? b) (diff-record collect! coord a b options)
-                  (ref? b) (println "\"[Error] unexpected ref to compare")
-                  (tuple? b)
-                    if (not= a b)
-                      collect! $ :: :assoc coord b
-                  true $ do (println "|[Warning] unexpected data:" a b)
+                  (set? b) (diff-set collect! coord a b)
+                  (ref? b) (eprintln "\"[Error] unexpected ref to compare")
+                  true $ do (eprintln "|[Warning] unexpected data:" a b)
                 collect! $ :: :assoc coord b
         |diff-vector $ quote
           defn diff-vector (collect! coord a b options) (find-vector-changes collect! 0 coord a b options)
@@ -481,7 +493,7 @@
               is $ = b (patch-twig a changes)
         |test-diff-tuple $ quote
           deftest test-diff-tuple
-            testing "\"diff tuples" $ let
+            testing "\"diff different tuples" $ let
                 a $ :: :a 1 2
                 b $ :: :a 2 3 4
                 changes $ []
@@ -489,7 +501,7 @@
               is $ = changes
                 diff-twig a b $ {}
               is $ = b (patch-twig a changes)
-            testing "\"diff tuples" $ let
+            testing "\"diff tuples in different tag" $ let
                 a $ :: :a 1 2
                 b $ :: :b 2 3 4
                 changes $ []
@@ -497,10 +509,28 @@
               is $ = changes
                 diff-twig a b $ {}
               is $ = b (patch-twig a changes)
-            testing "\"diff tuples" $ let
+            testing "\"diff same tuples" $ let
                 a $ :: :a 1 2
                 b $ :: :a 1 2
                 changes $ []
+              is $ = changes
+                diff-twig a b $ {}
+              is $ = b (patch-twig a changes)
+            testing "\"diff tuples index" $ let
+                a $ :: :a 1 2
+                b $ :: :a 1 3
+                changes $ []
+                  :: :assoc ([] 2) 3
+              is $ = changes
+                diff-twig a b $ {}
+              is $ = b (patch-twig a changes)
+            testing "\"diff tuples index nested" $ let
+                a $ :: :a 1
+                  {} $ :a 1
+                b $ :: :a 1
+                  {} $ :a 2
+                changes $ []
+                  :: :assoc ([] 2 :a) 2
               is $ = changes
                 diff-twig a b $ {}
               is $ = b (patch-twig a changes)
