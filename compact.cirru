@@ -1,6 +1,6 @@
 
 {} (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.9)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.10-a1)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!)
@@ -61,9 +61,9 @@
               render-button "|Remove vec-0" :vec-0-rm
             div
               {} $ :style style-line
-              render-button "|Change seq-0" :seq-0
+              render-button "|Change vec-0" :vec-0
               =< 8 nil
-              render-button "|Change seq-0 remove" :seq-0-rm
+              render-button "|Change vec-0 remove" :vec-0-rm
             div
               {} $ :style style-line
               render-button "|Change set-0" :set-0
@@ -107,7 +107,7 @@
             {} (:lit-0 1)
               :vec-0 $ []
                 {} $ :a 1
-              :seq-0 $ []
+              :vec-0 $ []
                 {} $ :a 1
               :set-0 $ #{} 1 :a
               :map-0 $ {} (:x 0)
@@ -118,11 +118,9 @@
               :user $ {} (:name |Chen)
               :types $ {} (:name 1) (|name 2)
         |dispatch! $ quote
-          defn dispatch! (op op-data)
-            when
-              and config/dev? $ not= op :states
-              println "\"Dispatch:" op op-data
-            reset! *store $ updater @*store op op-data
+          defn dispatch! (op)
+            when (and config/dev?) (js/console.log "\"Dispatch:" op)
+            reset! *store $ updater @*store op
         |main! $ quote
           defn main! () (load-console-formatter!)
             println "\"Running mode:" $ if config/dev? "\"dev" "\"release"
@@ -152,7 +150,7 @@
               data-twig $ twig-container @*store
               options $ {} (:key :id)
               changes $ diff-twig @*data-twig data-twig options
-            println "\"Changes" changes
+            js/console.log "\"Changes" changes
             ; println "|Data twig:" data-twig
             reset! *data-twig data-twig
             let
@@ -192,41 +190,44 @@
     |recollect.app.updater $ {}
       :defs $ {}
         |updater $ quote
-          defn updater (store op op-data)
-            case op
-              :states $ update-states store op-data
-              :lit-0 $ assoc store :lit-0 op-data
-              :lit-1 $ assoc-in store ([] :in-map :lit-1) op-data
-              :map-0 $ assoc-in store ([] :map-0 :y) op-data
-              :map-0-rm $ update-in store ([] :map-0)
-                fn (cursor) (dissoc cursor :y)
-              :vec-0 $ update store :vec-0
-                fn (vec-0)
-                  -> vec-0 (conj op-data) (conj :cursor)
-              :vec-0-rm $ update store :vec-0
-                fn (vec-0)
+          defn updater (store op)
+            tag-match op
+                :states cursor s
+                update-states store cursor s
+              (:lit-0 d) (assoc store :lit-0 d)
+              (:lit-1 d)
+                assoc-in store ([] :in-map :lit-1) d
+              (:map-0 d)
+                assoc-in store ([] :map-0 :y) d
+              (:map-0-rm)
+                update-in store ([] :map-0)
+                  fn (cursor) (dissoc cursor :y)
+              (:vec-0 d)
+                update store :vec-0 $ fn (vec-0)
+                  -> vec-0 (conj d) (conj :cursor)
+              (:vec-0-rm)
+                update store :vec-0 $ fn (vec-0)
                   either (butlast vec-0) ([])
-              :seq-0 $ update store :seq-0
-                fn (seq-0) (prepend seq-0 op-data)
-              :seq-0-rm $ update store :seq-0
-                fn (seq-0)
-                  either (rest seq-0) ([])
-              :set-0 $ update store :set-0
-                fn (set-0) (include set-0 op-data)
-              :set-0-rm $ update store :set-0
-                fn (set-0)
+              (:vec-0 d)
+                update store :vec-0 $ fn (vec-0) (prepend vec-0 d)
+              (:vec-0-rm)
+                update store :vec-0 $ fn (vec-0)
+                  either (rest vec-0) ([])
+              (:set-0 d)
+                update store :set-0 $ fn (set-0) (include set-0 d)
+              (:set-0-rm)
+                update store :set-0 $ fn (set-0)
                   either (rest set-0) (#{})
-              :date $ update-in store ([] :date :month) inc
-              :types $ update store :types
-                fn (types-map) (assoc types-map op-data true)
-              op $ do (println "|Unhandled op:" op) store
+              (:date)
+                update-in store ([] :date :month) inc
+              (:types d)
+                update store :types $ fn (types-map) (assoc types-map d true)
+              _ $ do (eprintln "|Unhandled op:" op) store
       :ns $ quote
         ns recollect.app.updater $ :require
           [] respo.cursor :refer $ [] update-states
     |recollect.diff $ {}
       :defs $ {}
-        |*diff-changes $ quote
-          defatom *diff-changes $ []
         |by-key $ quote
           defn by-key (x y)
             &compare (first x) (first y)
@@ -238,7 +239,7 @@
                 kb $ &map:get b id-k
               if
                 and (some? ka) (not= ka kb)
-                collect! $ [] schema/tree-op-assoc coord b
+                collect! $ :: :assoc coord b
                 let
                     new-diff $ &map:diff-new b a
                     drop-keys $ &map:diff-keys a b
@@ -247,7 +248,7 @@
                     b-pairs $ sort (&map:to-list b) by-key
                   if
                     not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
-                    collect! $ [] schema/tree-op-map-splice coord ([] drop-keys new-diff)
+                    collect! $ :: :map-splice coord drop-keys new-diff
                   &doseq (common-k common-keys) (; println "\"k" common-k)
                     let
                         va $ &map:get a common-k
@@ -262,21 +263,34 @@
                     a-pairs $ to-pairs a
                   &doseq (pair a-pairs)
                     let[] (k va) pair $ diff-twig-iterate collect! (conj coord k) va (&record:get b k) options
-                collect! $ [] schema/tree-op-assoc coord b
+                collect! $ :: :assoc coord b
         |diff-set $ quote
           defn diff-set (collect! coord a b)
             ; assert "|[Recollect] sets to diff should hold literals" $ or (coll? a) (coll? b)
             let
                 added $ difference b a
                 removed $ difference a b
-              collect! $ [] schema/tree-op-set-splice coord ([] removed added)
+              collect! $ :: :set-splice coord removed added
+        |diff-tuple $ quote
+          defn diff-tuple (collect! coord a b options)
+            if
+              or
+                not= (nth a 0) (nth b 0)
+                not= (&tuple:count a) (&tuple:count b)
+              collect! $ :: :assoc coord b
+              let
+                  rr $ range
+                    dec $ &tuple:count a
+                &doseq (idx rr)
+                  let
+                      i $ inc idx
+                    diff-twig-iterate collect! (conj coord i) (nth a i) (nth b i) options
         |diff-twig $ quote
           defn diff-twig (a b options)
             if (identical? a b) ([])
               let
-                  *changes *diff-changes
+                  *changes $ atom ([])
                   collect! $ fn (x) (swap! *changes conj x)
-                reset! *changes $ []
                 diff-twig-iterate collect! ([]) a b options
                 , @*changes
         |diff-twig-iterate $ quote
@@ -286,19 +300,17 @@
                 = (type-of a) (type-of b)
                 cond
                     literal? b
-                    collect! $ [] schema/tree-op-assoc coord b
+                    collect! $ :: :assoc coord b
                   (symbol? b)
-                    collect! $ [] schema/tree-op-assoc coord b
+                    collect! $ :: :assoc coord b
+                  (tuple? b) (diff-tuple collect! coord a b options)
                   (map? b) (diff-map collect! coord a b options)
-                  (set? b) (diff-set collect! coord a b)
                   (list? b) (diff-vector collect! coord a b options)
                   (record? b) (diff-record collect! coord a b options)
-                  (ref? b) (println "\"[Error] unexpected ref to compare")
-                  (tuple? b)
-                    if (not= a b)
-                      collect! $ [] schema/tree-op-assoc coord b
-                  true $ do (println "|[Warning] unexpected data:" a b)
-                collect! $ [] schema/tree-op-assoc coord b
+                  (set? b) (diff-set collect! coord a b)
+                  (ref? b) (eprintln "\"[Error] unexpected ref to compare")
+                  true $ do (eprintln "|[Warning] unexpected data:" a b)
+                collect! $ :: :assoc coord b
         |diff-vector $ quote
           defn diff-vector (collect! coord a b options) (find-vector-changes collect! 0 coord a b options)
         |find-vector-changes $ quote
@@ -307,9 +319,9 @@
                 and (empty? a-items) (empty? b-items)
                 , nil
               (empty? b-items)
-                collect! $ [] schema/tree-op-vec-drop coord idx
+                collect! $ :: :vec-drop coord idx
               (empty? a-items)
-                collect! $ [] schema/tree-op-vec-append coord b-items
+                collect! $ :: :vec-append coord b-items
               true $ do
                 diff-twig-iterate collect! (conj coord idx) (first a-items) (first b-items) options
                 recur collect! (inc idx) coord (rest a-items) (rest b-items) options
@@ -321,8 +333,8 @@
     |recollect.patch $ {}
       :defs $ {}
         |patch-map $ quote
-          defn patch-map (base coord data)
-            let[] (removed added) data $ if (empty? coord)
+          defn patch-map (base coord removed added)
+            if (empty? coord)
               -> base (unselect-keys removed) (merge added)
               update-in base coord $ fn (m)
                 -> m (unselect-keys removed) (merge added)
@@ -335,18 +347,18 @@
             if (empty? coord) data $ assoc-in base coord data
         |patch-one $ quote
           defn patch-one (base change)
-            let[] (op coord data) change $ cond
-                = op schema/tree-op-vec-append
+            tag-match change
+                :vec-append coord data
                 patch-vector-append base coord data
-              (= op schema/tree-op-vec-drop) (patch-vector-drop base coord data)
-              (= op schema/tree-op-dissoc) (patch-map-remove base coord data)
-              (= op schema/tree-op-assoc) (patch-map-set base coord data)
-              (= op schema/tree-op-set-splice) (patch-set base coord data)
-              (= op schema/tree-op-map-splice) (patch-map base coord data)
-              true $ do (println "|Unkown op:" op) base
+              (:vec-drop coord data) (patch-vector-drop base coord data)
+              (:dissoc coord data) (patch-map-remove base coord data)
+              (:assoc coord data) (patch-map-set base coord data)
+              (:set-splice coord removed added) (patch-set base coord removed added)
+              (:map-splice coord removed added) (patch-map base coord removed added)
+              _ $ do (eprintln "|Unkown op:" change) base
         |patch-set $ quote
-          defn patch-set (base coord data)
-            let[] (removed added) data $ if (empty? coord)
+          defn patch-set (base coord removed added)
+            if (empty? coord)
               -> base (difference removed) (union added)
               update-in base coord $ fn (cursor)
                 -> cursor (difference removed) (union added)
@@ -371,12 +383,6 @@
         |store $ quote
           def store $ {}
             :states $ {}
-        |tree-op-assoc $ quote (def tree-op-assoc 0)
-        |tree-op-dissoc $ quote (def tree-op-dissoc 1)
-        |tree-op-map-splice $ quote (def tree-op-map-splice 5)
-        |tree-op-set-splice $ quote (def tree-op-set-splice 4)
-        |tree-op-vec-append $ quote (def tree-op-vec-append 2)
-        |tree-op-vec-drop $ quote (def tree-op-vec-drop 3)
       :ns $ quote (ns recollect.schema)
     |recollect.test $ {}
       :defs $ {}
@@ -414,7 +420,7 @@
                 b $ {} (:id 2) (:data 1)
                 options $ {} (:key :id)
                 changes $ []
-                  [] schema/tree-op-assoc ([])
+                  :: :assoc ([])
                     {} (:id 2) (:data 1)
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
@@ -425,7 +431,7 @@
                 b $ {} (:id 1) (:data 2)
                 options $ {} (:key :id)
                 changes $ []
-                  [] schema/tree-op-assoc ([] :data) 2
+                  :: :assoc ([] :data) 2
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |test-diff-maps $ quote
@@ -437,9 +443,8 @@
                   :a $ {} (:c 2)
                 options $ {} (:key :id)
                 changes $ []
-                  [] schema/tree-op-map-splice ([] :a)
-                    [] (#{} :b)
-                      {} $ :c 2
+                  :: :map-splice ([] :a) (#{} :b)
+                    {} $ :c 2
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |test-diff-records $ quote
@@ -450,8 +455,8 @@
                 b $ %{} Person (:name "\"Lucy") (:age 11)
                 options $ {}
                 changes $ []
-                  [] schema/tree-op-assoc ([] :age) 11
-                  [] schema/tree-op-assoc ([] :name) "\"Lucy"
+                  :: :assoc ([] :age) 11
+                  :: :assoc ([] :name) "\"Lucy"
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |test-diff-same-sets $ quote
@@ -483,32 +488,49 @@
                   :a $ #{} 2 3 4
                 options $ {} (:key :id)
                 changes $ []
-                  [] schema/tree-op-set-splice ([] :a)
-                    [] (#{} 1) (#{} 4)
+                  :: :set-splice ([] :a) (#{} 1) (#{} 4)
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |test-diff-tuple $ quote
           deftest test-diff-tuple
-            testing "\"diff tuples" $ let
+            testing "\"diff different tuples" $ let
                 a $ :: :a 1 2
                 b $ :: :a 2 3 4
                 changes $ []
-                  [] schema/tree-op-assoc ([]) (:: :a 2 3 4)
+                  :: :assoc ([]) (:: :a 2 3 4)
               is $ = changes
                 diff-twig a b $ {}
               is $ = b (patch-twig a changes)
-            testing "\"diff tuples" $ let
+            testing "\"diff tuples in different tag" $ let
                 a $ :: :a 1 2
                 b $ :: :b 2 3 4
                 changes $ []
-                  [] schema/tree-op-assoc ([]) (:: :b 2 3 4)
+                  :: :assoc ([]) (:: :b 2 3 4)
               is $ = changes
                 diff-twig a b $ {}
               is $ = b (patch-twig a changes)
-            testing "\"diff tuples" $ let
+            testing "\"diff same tuples" $ let
                 a $ :: :a 1 2
                 b $ :: :a 1 2
                 changes $ []
+              is $ = changes
+                diff-twig a b $ {}
+              is $ = b (patch-twig a changes)
+            testing "\"diff tuples index" $ let
+                a $ :: :a 1 2
+                b $ :: :a 1 3
+                changes $ []
+                  :: :assoc ([] 2) 3
+              is $ = changes
+                diff-twig a b $ {}
+              is $ = b (patch-twig a changes)
+            testing "\"diff tuples index nested" $ let
+                a $ :: :a 1
+                  {} $ :a 1
+                b $ :: :a 1
+                  {} $ :a 2
+                changes $ []
+                  :: :assoc ([] 2 :a) 2
               is $ = changes
                 diff-twig a b $ {}
               is $ = b (patch-twig a changes)
@@ -521,9 +543,9 @@
                   :a $ [] 1 6 7 8
                 options $ {} (:key :id)
                 changes $ []
-                  [] schema/tree-op-assoc ([] :a 1) 6
-                  [] schema/tree-op-assoc ([] :a 2) 7
-                  [] schema/tree-op-assoc ([] :a 3) 8
+                  :: :assoc ([] :a 1) 6
+                  :: :assoc ([] :a 2) 7
+                  :: :assoc ([] :a 3) 8
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |test-vec-add $ quote
