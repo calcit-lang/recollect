@@ -1,6 +1,6 @@
 
 {} (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.10-a1)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.11-a1)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!)
@@ -290,7 +290,7 @@
                   &doseq (pair a-pairs)
                     let[] (k va) pair $ wrap-pick collect! k
                       fn (collect-children!)
-                        diff-twig-iterate collect! k va (&record:get b k) options
+                        diff-twig-iterate collect-children! va (&record:get b k) options
                 collect! $ :: :replace b
         |diff-set $ quote
           defn diff-set (collect! a b)
@@ -312,12 +312,8 @@
                 &doseq (idx rr)
                   let
                       i $ inc idx
-                      *chunk $ atom ([])
-                      collect-children! $ fn (x) (swap! *chunk conj x)
-                    diff-twig-iterate collect-children! i (nth a i) (nth b i) options
-                    if
-                      > (count @*chunk) 0
-                      collect! $ :: :pick i @*chunk
+                    wrap-pick collect! i $ fn (collect-children!)
+                      diff-twig-iterate collect-children! (nth a i) (nth b i) options
         |diff-twig $ quote
           defn diff-twig (a b options)
             if (identical? a b) ([])
@@ -357,6 +353,18 @@
                 wrap-pick collect! idx $ fn (collect-children!)
                   diff-twig-iterate collect-children! (first a-items) (first b-items) options
                 recur collect! (inc idx) (rest a-items) (rest b-items) options
+        |fold-update $ quote
+          defn fold-update (k c0)
+            tag-match c0
+                :update k1 c1
+                :: :update-in ([] k k1) c1
+              (:update-in ks c2)
+                :: :update-in (prepend ks k) c2
+              (:pick k1 cs)
+                :: :pick-in ([] k k1) cs
+              (:pick-in ks cs)
+                :: :pick-in (prepend ks k) cs
+              _ $ :: :update k c0
         |wrap-pick $ quote
           defn wrap-pick (collect! k callback)
             let
@@ -373,7 +381,9 @@
                       tag-match c0
                           :replace v
                           collect! $ :: :assoc k v
-                        _ $ collect! (:: :update k c0)
+                        (:assoc k1 v)
+                          collect! $ :: :update k c0
+                        _ $ collect! (fold-update k c0)
                     collect! $ :: :pick k chunk
       :ns $ quote
         ns recollect.diff $ :require
@@ -383,46 +393,41 @@
     |recollect.patch $ {}
       :defs $ {}
         |patch-map $ quote
-          defn patch-map (base coord removed added)
-            if (empty? coord)
-              -> base (unselect-keys removed) (merge added)
-              update-in base coord $ fn (m)
-                -> m (unselect-keys removed) (merge added)
-        |patch-map-remove $ quote
-          defn patch-map-remove (base coord path)
-            if (empty? coord) (dissoc base path)
-              update-in base coord $ fn (cursor) (dissoc cursor path)
+          defn patch-map (base removed added)
+            -> base (unselect-keys removed) (merge added)
         |patch-map-set $ quote
-          defn patch-map-set (base coord data)
-            if (empty? coord) data $ assoc-in base coord data
+          defn patch-map-set (base k data) (assoc base k data)
         |patch-one $ quote
           defn patch-one (base change)
             tag-match change
-                :vec-append coord data
-                patch-vector-append base coord data
-              (:vec-drop coord data) (patch-vector-drop base coord data)
-              (:dissoc coord data) (patch-map-remove base coord data)
-              (:assoc coord data) (patch-map-set base coord data)
-              (:set-splice coord removed added) (patch-set base coord removed added)
-              (:map-splice coord removed added) (patch-map base coord removed added)
+                :replace data
+                , data
+              (:vec-append data) (patch-vector-append base data)
+              (:vec-drop data) (patch-vector-drop base data)
+              (:assoc k data) (patch-map-set base k data)
+              (:set-splice removed added) (patch-set base removed added)
+              (:map-splice removed added) (patch-map base removed added)
+              (:update k c0)
+                update base k $ fn (o) (patch-one o c0)
+              (:update-in ks c0)
+                update-in base ks $ fn (o) (patch-one o c0)
+              (:pick k changes)
+                update base k $ fn (o) (patch-twig o changes)
+              (:pick-in ks changes)
+                update-in base ks $ fn (o) (patch-twig o changes)
               _ $ do (eprintln "|Unkown op:" change) base
         |patch-set $ quote
-          defn patch-set (base coord removed added)
-            if (empty? coord)
-              -> base (difference removed) (union added)
-              update-in base coord $ fn (cursor)
-                -> cursor (difference removed) (union added)
+          defn patch-set (base removed added)
+            -> base (difference removed) (union added)
         |patch-twig $ quote
           defn patch-twig (base changes)
             if (empty? changes) base $ recur
               patch-one base $ first changes
               rest changes
         |patch-vector-append $ quote
-          defn patch-vector-append (base coord data)
-            update-in base coord $ fn (cursor) (vec-add cursor data)
+          defn patch-vector-append (base data) (vec-add base data)
         |patch-vector-drop $ quote
-          defn patch-vector-drop (base coord data)
-            update-in base coord $ fn (cursor) (slice cursor 0 data)
+          defn patch-vector-drop (base data) (slice base 0 data)
       :ns $ quote
         ns recollect.patch $ :require
           [] clojure.set :refer $ [] union difference
@@ -470,8 +475,7 @@
                 b $ {} (:id 2) (:data 1)
                 options $ {} (:key :id)
                 changes $ []
-                  :: :assoc ([])
-                    {} (:id 2) (:data 1)
+                  :: :replace $ {} (:id 2) (:data 1)
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |test-diff-map-same-id $ quote
@@ -480,8 +484,7 @@
                 a $ {} (:id 1) (:data 1)
                 b $ {} (:id 1) (:data 2)
                 options $ {} (:key :id)
-                changes $ []
-                  :: :assoc ([] :data) 2
+                changes $ [] (:: :assoc :data 2)
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |test-diff-maps $ quote
@@ -493,7 +496,7 @@
                   :a $ {} (:c 2)
                 options $ {} (:key :id)
                 changes $ []
-                  :: :map-splice ([] :a) (#{} :b)
+                  :: :update :a $ :: :map-splice (#{} :b)
                     {} $ :c 2
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
@@ -504,9 +507,7 @@
                 a $ %{} Person (:name "\"Lily") (:age 10)
                 b $ %{} Person (:name "\"Lucy") (:age 11)
                 options $ {}
-                changes $ []
-                  :: :assoc ([] :age) 11
-                  :: :assoc ([] :name) "\"Lucy"
+                changes $ [] (:: :assoc :age 11) (:: :assoc :name "\"Lucy")
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |test-diff-same-sets $ quote
@@ -538,7 +539,7 @@
                   :a $ #{} 2 3 4
                 options $ {} (:key :id)
                 changes $ []
-                  :: :set-splice ([] :a) (#{} 1) (#{} 4)
+                  :: :update :a $ :: :set-splice (#{} 1) (#{} 4)
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |test-diff-tuple $ quote
@@ -547,7 +548,7 @@
                 a $ :: :a 1 2
                 b $ :: :a 2 3 4
                 changes $ []
-                  :: :assoc ([]) (:: :a 2 3 4)
+                  :: :replace $ :: :a 2 3 4
               is $ = changes
                 diff-twig a b $ {}
               is $ = b (patch-twig a changes)
@@ -555,7 +556,7 @@
                 a $ :: :a 1 2
                 b $ :: :b 2 3 4
                 changes $ []
-                  :: :assoc ([]) (:: :b 2 3 4)
+                  :: :replace $ :: :b 2 3 4
               is $ = changes
                 diff-twig a b $ {}
               is $ = b (patch-twig a changes)
@@ -569,8 +570,7 @@
             testing "\"diff tuples index" $ let
                 a $ :: :a 1 2
                 b $ :: :a 1 3
-                changes $ []
-                  :: :assoc ([] 2) 3
+                changes $ [] (:: :assoc 2 3)
               is $ = changes
                 diff-twig a b $ {}
               is $ = b (patch-twig a changes)
@@ -580,7 +580,7 @@
                 b $ :: :a 1
                   {} $ :a 2
                 changes $ []
-                  :: :assoc ([] 2 :a) 2
+                  :: :update 2 $ :: :assoc :a 2
               is $ = changes
                 diff-twig a b $ {}
               is $ = b (patch-twig a changes)
@@ -593,9 +593,7 @@
                   :a $ [] 1 6 7 8
                 options $ {} (:key :id)
                 changes $ []
-                  :: :assoc ([] :a 1) 6
-                  :: :assoc ([] :a 2) 7
-                  :: :assoc ([] :a 3) 8
+                  :: :pick :a $ [] (:: :assoc 1 6) (:: :assoc 2 7) (:: :assoc 3 8)
               is $ = changes (diff-twig a b options)
               is $ = b (patch-twig a changes)
         |test-vec-add $ quote
