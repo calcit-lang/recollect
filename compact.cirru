@@ -13,23 +13,48 @@
             let
                 states $ :states client-store
               div
-                {} $ :style (merge ui/global ui/fullscreen ui/row)
-                memof-call comp-panel
+                {} $ :style (merge ui/global ui/fullscreen)
                 div
-                  {} $ :style ui/expand
+                  {} $ :style ui/row
+                  memof-call comp-panel
                   div
-                    {} $ :style
-                      merge ui/row $ {} (:padding 8)
-                    pre $ {} (:class-name css-code-block)
-                      :inner-text $ trim (format-cirru-edn data-twig)
-                    =< 8 nil
-                    pre $ {} (:class-name css-code-block)
-                      :inner-text $ trim (format-cirru-edn client-store)
-                  comp-value (>> states :value) client-store 0
+                    {} $ :style ui/expand
+                    div
+                      {} $ :style
+                        merge ui/row $ {} (:padding 8)
+                      pre $ {} (:class-name css-code-block)
+                        :inner-text $ trim (format-cirru-edn data-twig)
+                      =< 8 nil
+                      pre $ {} (:class-name css-code-block)
+                        :inner-text $ trim (format-cirru-edn client-store)
+                    comp-value (>> states :value) client-store 0
+                div ({})
+                  let
+                      changes $ diff-twig deep-a deep-b ({})
+                      changes2 $ diff-twig deep-a 1 ({})
+                    pre $ {}
+                      :style $ {} (:line-height "\"1.4") (:margin "\"0 8px")
+                      :inner-text $ format-cirru-edn changes
         |css-code-block $ quote
           defstyle css-code-block $ {}
             "\"$0" $ {} (:line-height "\"20px") (:margin 0) (:padding "\"8px") (:border-radius "\"4px")
               :background-color $ hsl 0 0 90
+        |deep-a $ quote
+          def deep-a $ {}
+            :a $ {}
+              :b $ [] 1 2
+                {} $ :c
+                  {} (:kind :leaf) (:text "\"demo") (:time :a) (:by "\"me")
+                    :children $ {} (:a 1) (:b 2)
+            :aa1 2
+        |deep-b $ quote
+          def deep-b $ {}
+            :a $ {}
+              :b $ [] 1 2
+                {} $ :c
+                  {} (:kind :leaf) (:text "\"demo2") (:time 112) (:by "\"me2")
+                    :children $ {} (:a 1) (:b 3)
+            :aa1 4
       :ns $ quote
         ns recollect.app.comp.container $ :require
           respo-ui.core :refer $ hsl
@@ -40,6 +65,7 @@
           recollect.app.comp.panel :refer $ comp-panel
           respo-value.comp.value :refer $ comp-value
           memof.alias :refer $ memof-call
+          recollect.diff :refer $ diff-twig
     |recollect.app.comp.panel $ {}
       :defs $ {}
         |comp-panel $ quote
@@ -128,7 +154,7 @@
             render-app! render!
             add-watch *store :changes $ fn (store prev) (render-data-twig!)
             add-watch *client-store :changes $ fn (client-store prev) (render-app! render!)
-            render-data-twig!
+            ; render-data-twig!
             println "|app started!"
         |mount-target $ quote
           def mount-target $ .querySelector js/document |.app
@@ -138,7 +164,7 @@
               add-watch *store :changes $ fn (store prev) (render-data-twig!)
               add-watch *client-store :changes $ fn (client-store prev) (render-app! render!)
               clear-twig-caches!
-              render-data-twig!
+              ; render-data-twig!
               render-app! render!
               hud! "\"ok~" "\"Ok"
             hud! "\"error" build-errors
@@ -232,14 +258,14 @@
           defn by-key (x y)
             &compare (first x) (first y)
         |diff-map $ quote
-          defn diff-map (collect! coord a b options)
+          defn diff-map (collect! a b options)
             let
                 id-k $ if (nil? options) :id (&map:get options :key)
                 ka $ &map:get a id-k
                 kb $ &map:get b id-k
               if
                 and (some? ka) (not= ka kb)
-                collect! $ :: :assoc coord b
+                collect! $ :: :replace b
                 let
                     new-diff $ &map:diff-new b a
                     drop-keys $ &map:diff-keys a b
@@ -248,83 +274,107 @@
                     b-pairs $ sort (&map:to-list b) by-key
                   if
                     not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
-                    collect! $ :: :map-splice coord drop-keys new-diff
-                  &doseq (common-k common-keys) (; println "\"k" common-k)
+                    collect! $ :: :map-splice drop-keys new-diff
+                  &doseq (common-k common-keys)
                     let
                         va $ &map:get a common-k
                         vb $ &map:get b common-k
-                      if (not= va vb)
-                        diff-twig-iterate collect! (conj coord common-k) va vb options
+                      wrap-pick collect! common-k $ fn (collect-children!)
+                        if (not= va vb) (diff-twig-iterate collect-children! va vb options)
         |diff-record $ quote
-          defn diff-record (collect! coord a b options)
+          defn diff-record (collect! a b options)
             if-not (identical? a b)
               if (.matches? a b)
                 let
                     a-pairs $ to-pairs a
                   &doseq (pair a-pairs)
-                    let[] (k va) pair $ diff-twig-iterate collect! (conj coord k) va (&record:get b k) options
-                collect! $ :: :assoc coord b
+                    let[] (k va) pair $ wrap-pick collect! k
+                      fn (collect-children!)
+                        diff-twig-iterate collect! k va (&record:get b k) options
+                collect! $ :: :replace b
         |diff-set $ quote
-          defn diff-set (collect! coord a b)
+          defn diff-set (collect! a b)
             ; assert "|[Recollect] sets to diff should hold literals" $ or (coll? a) (coll? b)
             let
                 added $ difference b a
                 removed $ difference a b
-              collect! $ :: :set-splice coord removed added
+              collect! $ :: :set-splice removed added
         |diff-tuple $ quote
-          defn diff-tuple (collect! coord a b options)
+          defn diff-tuple (collect! a b options)
             if
               or
                 not= (nth a 0) (nth b 0)
                 not= (&tuple:count a) (&tuple:count b)
-              collect! $ :: :assoc coord b
+              collect! $ :: :replace b
               let
                   rr $ range
                     dec $ &tuple:count a
                 &doseq (idx rr)
                   let
                       i $ inc idx
-                    diff-twig-iterate collect! (conj coord i) (nth a i) (nth b i) options
+                      *chunk $ atom ([])
+                      collect-children! $ fn (x) (swap! *chunk conj x)
+                    diff-twig-iterate collect-children! i (nth a i) (nth b i) options
+                    if
+                      > (count @*chunk) 0
+                      collect! $ :: :pick i @*chunk
         |diff-twig $ quote
           defn diff-twig (a b options)
             if (identical? a b) ([])
               let
                   *changes $ atom ([])
                   collect! $ fn (x) (swap! *changes conj x)
-                diff-twig-iterate collect! ([]) a b options
+                diff-twig-iterate collect! a b options
                 , @*changes
         |diff-twig-iterate $ quote
-          defn diff-twig-iterate (collect! coord a b options)
+          defn diff-twig-iterate (collect! a b options)
             if-not (identical? a b)
               if
-                = (type-of a) (type-of b)
+                not= (type-of a) (type-of b)
+                collect! $ :: :replace b
                 cond
                     literal? b
-                    collect! $ :: :assoc coord b
+                    collect! $ :: :replace b
                   (symbol? b)
-                    collect! $ :: :assoc coord b
-                  (tuple? b) (diff-tuple collect! coord a b options)
-                  (map? b) (diff-map collect! coord a b options)
-                  (list? b) (diff-vector collect! coord a b options)
-                  (record? b) (diff-record collect! coord a b options)
-                  (set? b) (diff-set collect! coord a b)
+                    collect! $ :: :replace b
+                  (set? b) (diff-set collect! a b)
+                  (tuple? b) (diff-tuple collect! a b options)
+                  (map? b) (diff-map collect! a b options)
+                  (list? b) (find-vector-changes collect! 0 a b options)
+                  (record? b) (diff-record collect! a b options)
                   (ref? b) (eprintln "\"[Error] unexpected ref to compare")
                   true $ do (eprintln "|[Warning] unexpected data:" a b)
-                collect! $ :: :assoc coord b
-        |diff-vector $ quote
-          defn diff-vector (collect! coord a b options) (find-vector-changes collect! 0 coord a b options)
         |find-vector-changes $ quote
-          defn find-vector-changes (collect! idx coord a-items b-items options) (; println idx a-items b-items)
+          defn find-vector-changes (collect! idx a-items b-items options) (; println idx a-items b-items)
             cond
                 and (empty? a-items) (empty? b-items)
                 , nil
               (empty? b-items)
-                collect! $ :: :vec-drop coord idx
+                collect! $ :: :vec-drop idx
               (empty? a-items)
-                collect! $ :: :vec-append coord b-items
+                collect! $ :: :vec-append b-items
               true $ do
-                diff-twig-iterate collect! (conj coord idx) (first a-items) (first b-items) options
-                recur collect! (inc idx) coord (rest a-items) (rest b-items) options
+                wrap-pick collect! idx $ fn (collect-children!)
+                  diff-twig-iterate collect-children! (first a-items) (first b-items) options
+                recur collect! (inc idx) (rest a-items) (rest b-items) options
+        |wrap-pick $ quote
+          defn wrap-pick (collect! k callback)
+            let
+                *chunk $ atom ([])
+                collect-children! $ fn (x) (swap! *chunk conj x)
+              callback collect-children!
+              let
+                  chunk $ deref *chunk
+                  size $ count chunk
+                if (> size 0)
+                  if (= size 1)
+                    let
+                        c0 $ nth chunk 0
+                      tag-match c0
+                          :replace v
+                          collect! $ :: :assoc k v
+                        _ $ collect! (:: :update k c0)
+                    collect! $ :: :pick k chunk
       :ns $ quote
         ns recollect.diff $ :require
           [] recollect.util :refer $ [] literal? =seq compare-more
