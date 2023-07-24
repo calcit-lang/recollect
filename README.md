@@ -33,14 +33,46 @@ It's not tested yet, but is trying to trade memory and performance with caching.
 
 ### Diff Operations
 
-| tag         | meaning                |
-| ----------- | ---------------------- |
-| :assoc      | `assoc-in`             |
-| :dissoc     | `dissoc-in`            |
-| :vec-append | append items to vector |
-| :vec-drop   | pop items from vector  |
-| :set-splice | remove and add to set  |
-| :map-splice | remove and add to map  |
+| tag         | meaning                        |
+| ----------- | ------------------------------ |
+| :update     | update field with single op    |
+| :update-in  | update path with single op     |
+| :pick       | update field with multiple ops |
+| :pick-in    | update path with multiple ops  |
+| :assoc      | set in field                   |
+| :replace    | replace                        |
+| :vec-append | append items to vector         |
+| :vec-drop   | pop items from vector          |
+| :set-splice | remove and add to set          |
+| :map-splice | remove and add to map          |
+
+```cirru
+tag-match change
+  (:replace data) data
+  (:vec-append data)
+    patch-vector-append base data
+  (:vec-drop data)
+    patch-vector-drop base data
+  (:assoc k data)
+    patch-map-set base k data
+  (:set-splice removed added)
+    patch-set base removed added
+  (:map-splice removed added)
+    patch-map base removed added
+  (:update k c0)
+    update base k $ fn (o)
+      patch-one o c0
+  (:update-in ks c0)
+    update-in base ks $ fn (o)
+      patch-one o c0
+  (:pick k changes)
+    update base k $ fn (o)
+      patch-twig o changes
+  (:pick-in ks changes)
+    update-in base ks $ fn (o)
+      patch-twig o changes
+  _ $ do (eprintln "|Unkown op:" change) base
+```
 
 For vectors, data is supposed to be manipulated from the tail.
 Items in the new vector are mapped to its old ones by index.
