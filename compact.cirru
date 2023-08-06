@@ -622,17 +622,18 @@
       :defs $ {}
         |=seq $ quote
           defn =seq (xs ys)
-            if (empty? xs)
-              if (empty? ys) true false
-              if (empty? ys) false $ if
-                identical? (first xs) (first ys)
-                if
-                  and
-                    fn? $ first xs
-                    fn? $ first ys
-                  do (; "\"functions changes designed to be ignored.") true
-                  recur (rest xs) (rest ys)
-                , false
+            list-match xs
+              () $ empty? ys
+              (x0 xss)
+                list-match ys
+                  () false
+                  (y0 yss)
+                    if (identical? x0 y0)
+                      if
+                        and (fn? x9) (fn? y0)
+                        do (; "\"functions changes designed to be ignored.") true
+                        recur xss yss
+                      , false
         |compare $ quote
           defn compare (x y)
             cond
