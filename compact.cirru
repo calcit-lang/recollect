@@ -1,6 +1,6 @@
 
 {} (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.11-a1)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.11)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!)
@@ -387,9 +387,8 @@
                     collect! $ :: :pick k chunk
       :ns $ quote
         ns recollect.diff $ :require
-          [] recollect.util :refer $ [] literal? =seq compare-more
-          [] clojure.set :refer $ [] difference
-          [] recollect.schema :as schema
+          recollect.util :refer $ literal? =seq compare-more
+          recollect.schema :as schema
     |recollect.patch $ {}
       :defs $ {}
         |patch-map $ quote
@@ -421,18 +420,17 @@
             -> base (difference removed) (union added)
         |patch-twig $ quote
           defn patch-twig (base changes)
-            if (empty? changes) base $ recur
-              patch-one base $ first changes
-              rest changes
+            list-match changes
+              () base
+              (c0 cs)
+                recur (patch-one base c0) cs
         |patch-vector-append $ quote
           defn patch-vector-append (base data) (vec-add base data)
         |patch-vector-drop $ quote
           defn patch-vector-drop (base data) (slice base 0 data)
       :ns $ quote
-        ns recollect.patch $ :require
-          [] clojure.set :refer $ [] union difference
-          [] recollect.schema :as schema
-          [] recollect.util :refer $ [] vec-add seq-add
+        ns recollect.patch $ :require (recollect.schema :as schema)
+          recollect.util :refer $ vec-add seq-add
     |recollect.schema $ {}
       :defs $ {}
         |store $ quote
@@ -604,11 +602,11 @@
               is $ = (vec-add a b) ([] 1 2 3 4 5 6 7 8)
       :ns $ quote
         ns recollect.test $ :require
-          [] calcit-test.core :refer $ [] deftest testing is *quit-on-failure?
-          [] recollect.diff :refer $ [] diff-twig
-          [] recollect.patch :refer $ [] patch-twig
-          [] recollect.schema :as schema
-          [] recollect.util :refer $ [] vec-add
+          calcit-test.core :refer $ deftest testing is *quit-on-failure?
+          recollect.diff :refer $ diff-twig
+          recollect.patch :refer $ patch-twig
+          recollect.schema :as schema
+          recollect.util :refer $ vec-add
     |recollect.twig $ {}
       :defs $ {}
         |clear-twig-caches! $ quote
@@ -624,17 +622,18 @@
       :defs $ {}
         |=seq $ quote
           defn =seq (xs ys)
-            if (empty? xs)
-              if (empty? ys) true false
-              if (empty? ys) false $ if
-                identical? (first xs) (first ys)
-                if
-                  and
-                    fn? $ first xs
-                    fn? $ first ys
-                  do (; "\"functions changes designed to be ignored.") true
-                  recur (rest xs) (rest ys)
-                , false
+            list-match xs
+              () $ empty? ys
+              (x0 xss)
+                list-match ys
+                  () false
+                  (y0 yss)
+                    if (identical? x0 y0)
+                      if
+                        and (fn? x9) (fn? y0)
+                        do (; "\"functions changes designed to be ignored.") true
+                        recur xss yss
+                      , false
         |compare $ quote
           defn compare (x y)
             cond
@@ -647,7 +646,8 @@
             or (string? x) (number? x) (bool? x) (nil? x) (tag? x) (symbol? x)
         |vec-add $ quote
           defn vec-add (xs ys)
-            if (empty? ys) xs $ recur
-              conj xs $ first ys
-              rest ys
+            list-match ys
+              () xs
+              (y0 yss)
+                recur (conj xs y0) yss
       :ns $ quote (ns recollect.util)
