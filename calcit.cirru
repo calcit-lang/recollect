@@ -1,14 +1,14 @@
 
 {} (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:port 6001) (:reload-fn |recollect.app.main/reload!) (:version |0.0.13)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:port 6001) (:reload-fn |recollect.app.main/reload!) (:version |0.0.14)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!)
       :modules $ [] |calcit-test/
   :files $ {}
-    |recollect.app.comp.container $ {}
+    |recollect.app.comp.container $ %{} :FileEntry
       :defs $ {}
-        |comp-container $ %{} :CodeEntry
+        |comp-container $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1509464095098) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1509464095098) (:by |root) (:text |defcomp)
@@ -202,8 +202,7 @@
                                             :data $ {}
                                               |D $ %{} :Leaf (:at 1690104270140) (:by |SygU7c6BlG) (:text |format-cirru-edn)
                                               |T $ %{} :Leaf (:at 1690111932135) (:by |SygU7c6BlG) (:text |changes)
-          :doc |
-        |css-code-block $ %{} :CodeEntry
+        |css-code-block $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1656927142983) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1656927144532) (:by |SygU7c6BlG) (:text |defstyle)
@@ -242,8 +241,7 @@
                                   |b $ %{} :Leaf (:at 1656927178312) (:by |SygU7c6BlG) (:text |0)
                                   |h $ %{} :Leaf (:at 1656927178581) (:by |SygU7c6BlG) (:text |0)
                                   |l $ %{} :Leaf (:at 1656927179070) (:by |SygU7c6BlG) (:text |90)
-          :doc |
-        |deep-a $ %{} :CodeEntry
+        |deep-a $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1690104034282) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1690104034282) (:by |SygU7c6BlG) (:text |def)
@@ -308,8 +306,7 @@
                     :data $ {}
                       |T $ %{} :Leaf (:at 1690107561085) (:by |SygU7c6BlG) (:text |:aa1)
                       |b $ %{} :Leaf (:at 1690107562231) (:by |SygU7c6BlG) (:text |2)
-          :doc |
-        |deep-b $ %{} :CodeEntry
+        |deep-b $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1690104164455) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1690104164455) (:by |SygU7c6BlG) (:text |def)
@@ -374,8 +371,7 @@
                     :data $ {}
                       |T $ %{} :Leaf (:at 1690107568566) (:by |SygU7c6BlG) (:text |:aa1)
                       |b $ %{} :Leaf (:at 1690111872661) (:by |SygU7c6BlG) (:text |4)
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ %{} :Expr (:at 1509464131106) (:by |root)
           :data $ {}
             |T $ %{} :Leaf (:at 1509464131106) (:by |root) (:text |ns)
@@ -449,10 +445,9 @@
                     |h $ %{} :Expr (:at 1690104011782) (:by |SygU7c6BlG)
                       :data $ {}
                         |T $ %{} :Leaf (:at 1690104015349) (:by |SygU7c6BlG) (:text |diff-twig)
-        :doc |
-    |recollect.app.comp.panel $ {}
+    |recollect.app.comp.panel $ %{} :FileEntry
       :defs $ {}
-        |comp-panel $ %{} :CodeEntry
+        |comp-panel $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1509465285678) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1509465285678) (:by |root) (:text |defcomp)
@@ -620,8 +615,7 @@
                           |T $ %{} :Leaf (:at 1509465285678) (:by |root) (:text |render-button)
                           |j $ %{} :Leaf (:at 1509465285678) (:by |root) (:text "||Change types")
                           |r $ %{} :Leaf (:at 1509465285678) (:by |root) (:text |:types)
-          :doc |
-        |on-click $ %{} :CodeEntry
+        |on-click $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -650,8 +644,7 @@
                               |T $ %{} :Expr (:at 1500476982536) (:by nil)
                                 :data $ {}
                                   |T $ %{} :Leaf (:at 1656926702630) (:by |SygU7c6BlG) (:text |js/Math.random)
-          :doc |
-        |render-button $ %{} :CodeEntry
+        |render-button $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1509465301721) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1509465301721) (:by |root) (:text |defn)
@@ -681,8 +674,7 @@
                             :data $ {}
                               |T $ %{} :Leaf (:at 1509465301721) (:by |root) (:text |on-click)
                               |j $ %{} :Leaf (:at 1509465301721) (:by |root) (:text |op)
-          :doc |
-        |style-line $ %{} :CodeEntry
+        |style-line $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |def)
@@ -694,8 +686,7 @@
                     :data $ {}
                       |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |:height)
                       |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text ||40px)
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ %{} :Expr (:at 1500476982536) (:by nil)
           :data $ {}
             |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |ns)
@@ -739,17 +730,15 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |[])
                         |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |=<)
-        :doc |
-    |recollect.app.config $ {}
+    |recollect.app.config $ %{} :FileEntry
       :defs $ {}
-        |dev? $ %{} :CodeEntry
+        |dev? $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1561172113809) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1561172113809) (:by |SygU7c6BlG) (:text |def)
               |j $ %{} :Leaf (:at 1561172113809) (:by |SygU7c6BlG) (:text |dev?)
               |r $ %{} :Leaf (:at 1611982261419) (:by |SygU7c6BlG) (:text |true)
-          :doc |
-        |site $ %{} :CodeEntry
+        |site $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1561172113809) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1561172113809) (:by |SygU7c6BlG) (:text |def)
@@ -789,30 +778,26 @@
                     :data $ {}
                       |T $ %{} :Leaf (:at 1561172113809) (:by |SygU7c6BlG) (:text |:upload-folder)
                       |j $ %{} :Leaf (:at 1561172149622) (:by |SygU7c6BlG) (:text "|\"tiye.me:repo/Cumulo/recollect/")
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ %{} :Expr (:at 1561172113809) (:by |SygU7c6BlG)
           :data $ {}
             |T $ %{} :Leaf (:at 1561172113809) (:by |SygU7c6BlG) (:text |ns)
             |j $ %{} :Leaf (:at 1561172113809) (:by |SygU7c6BlG) (:text |recollect.app.config)
-        :doc |
-    |recollect.app.main $ {}
+    |recollect.app.main $ %{} :FileEntry
       :defs $ {}
-        |*client-store $ %{} :CodeEntry
+        |*client-store $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1611982300164) (:by |SygU7c6BlG) (:text |defatom)
               |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |*client-store)
               |r $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |schema/store)
-          :doc |
-        |*data-twig $ %{} :CodeEntry
+        |*data-twig $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1611982284418) (:by |SygU7c6BlG) (:text |defatom)
               |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |*data-twig)
               |r $ %{} :Leaf (:at 1611987849251) (:by |SygU7c6BlG) (:text |nil)
-          :doc |
-        |*store $ %{} :CodeEntry
+        |*store $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1611982277807) (:by |SygU7c6BlG) (:text |defatom)
@@ -933,8 +918,7 @@
                                 :data $ {}
                                   |T $ %{} :Leaf (:at 1611987868935) (:by |SygU7c6BlG) (:text ||name)
                                   |j $ %{} :Leaf (:at 1611987868935) (:by |SygU7c6BlG) (:text |2)
-          :doc |
-        |dispatch! $ %{} :CodeEntry
+        |dispatch! $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -963,8 +947,7 @@
                       |T $ %{} :Leaf (:at 1590921612301) (:by |SygU7c6BlG) (:text |updater)
                       |j $ %{} :Leaf (:at 1611989197658) (:by |SygU7c6BlG) (:text |@*store)
                       |r $ %{} :Leaf (:at 1590921612301) (:by |SygU7c6BlG) (:text |op)
-          :doc |
-        |main! $ %{} :CodeEntry
+        |main! $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1511002230884) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1511002230884) (:by |root) (:text |defn)
@@ -1035,8 +1018,7 @@
                 :data $ {}
                   |T $ %{} :Leaf (:at 1511002230884) (:by |root) (:text |println)
                   |j $ %{} :Leaf (:at 1511002230884) (:by |root) (:text "||app started!")
-          :doc |
-        |mount-target $ %{} :CodeEntry
+        |mount-target $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |def)
@@ -1046,8 +1028,7 @@
                   |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |.querySelector)
                   |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |js/document)
                   |r $ %{} :Leaf (:at 1500476982536) (:by |root) (:text ||.app)
-          :doc |
-        |reload! $ %{} :CodeEntry
+        |reload! $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -1129,8 +1110,7 @@
                       |T $ %{} :Leaf (:at 1656926946435) (:by |SygU7c6BlG) (:text |hud!)
                       |b $ %{} :Leaf (:at 1656926946435) (:by |SygU7c6BlG) (:text "|\"error")
                       |h $ %{} :Leaf (:at 1656926946435) (:by |SygU7c6BlG) (:text |build-errors)
-          :doc |
-        |render-app! $ %{} :CodeEntry
+        |render-app! $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -1148,8 +1128,7 @@
                       |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |@*data-twig)
                       |r $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |@*client-store)
                   |v $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |dispatch!)
-          :doc |
-        |render-data-twig! $ %{} :CodeEntry
+        |render-data-twig! $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1511002238242) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1511002238242) (:by |root) (:text |defn)
@@ -1221,8 +1200,7 @@
                           |T $ %{} :Leaf (:at 1511002238242) (:by |root) (:text |reset!)
                           |j $ %{} :Leaf (:at 1511002238242) (:by |root) (:text |*client-store)
                           |r $ %{} :Leaf (:at 1511002238242) (:by |root) (:text |new-client)
-          :doc |
-        |ssr? $ %{} :CodeEntry
+        |ssr? $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |def)
@@ -1235,8 +1213,7 @@
                       |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |.querySelector)
                       |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |js/document)
                       |r $ %{} :Leaf (:at 1500476982536) (:by |root) (:text ||meta.respo-ssr)
-          :doc |
-        |test! $ %{} :CodeEntry
+        |test! $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1614082439559) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1614082439559) (:by |SygU7c6BlG) (:text |defn)
@@ -1246,8 +1223,7 @@
               |v $ %{} :Expr (:at 1614082441842) (:by |SygU7c6BlG)
                 :data $ {}
                   |T $ %{} :Leaf (:at 1614082444210) (:by |SygU7c6BlG) (:text |run-tests)
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ %{} :Expr (:at 1500476982536) (:by nil)
           :data $ {}
             |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |ns)
@@ -1340,10 +1316,9 @@
                     |T $ %{} :Leaf (:at 1656927046320) (:by |SygU7c6BlG) (:text "|\"bottom-tip")
                     |b $ %{} :Leaf (:at 1656927046320) (:by |SygU7c6BlG) (:text |:default)
                     |h $ %{} :Leaf (:at 1656927046320) (:by |SygU7c6BlG) (:text |hud!)
-        :doc |
-    |recollect.app.twig.container $ {}
+    |recollect.app.twig.container $ %{} :FileEntry
       :defs $ {}
-        |twig-card $ %{} :CodeEntry
+        |twig-card $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1511002083653) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1611979046100) (:by |SygU7c6BlG) (:text |defn)
@@ -1363,8 +1338,7 @@
                     :data $ {}
                       |T $ %{} :Leaf (:at 1511002113481) (:by |root) (:text |:date)
                       |j $ %{} :Leaf (:at 1511002113481) (:by |root) (:text |date)
-          :doc |
-        |twig-container $ %{} :CodeEntry
+        |twig-container $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1511001893279) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1611979036348) (:by |SygU7c6BlG) (:text |defn)
@@ -1394,8 +1368,7 @@
                                 :data $ {}
                                   |T $ %{} :Leaf (:at 1511001917899) (:by |root) (:text |:date)
                                   |j $ %{} :Leaf (:at 1511001917899) (:by |root) (:text |store)
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ %{} :Expr (:at 1511002058945) (:by |root)
           :data $ {}
             |T $ %{} :Leaf (:at 1511002058945) (:by |root) (:text |ns)
@@ -1412,10 +1385,9 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1611979062085) (:by |SygU7c6BlG) (:text |[])
                         |j $ %{} :Leaf (:at 1611979065320) (:by |SygU7c6BlG) (:text |memof-call)
-        :doc |
-    |recollect.app.updater $ {}
+    |recollect.app.updater $ %{} :FileEntry
       :defs $ {}
-        |updater $ %{} :CodeEntry
+        |updater $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1509465187738) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1509465187738) (:by |root) (:text |defn)
@@ -1710,8 +1682,7 @@
                               |j $ %{} :Leaf (:at 1509465187738) (:by |root) (:text "||Unhandled op:")
                               |r $ %{} :Leaf (:at 1509465187738) (:by |root) (:text |op)
                           |r $ %{} :Leaf (:at 1509465187738) (:by |root) (:text |store)
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ %{} :Expr (:at 1500476982536) (:by nil)
           :data $ {}
             |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |ns)
@@ -1728,10 +1699,9 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1590921593635) (:by |SygU7c6BlG) (:text |[])
                         |j $ %{} :Leaf (:at 1590921600709) (:by |SygU7c6BlG) (:text |update-states)
-        :doc |
-    |recollect.diff $ {}
+    |recollect.diff $ %{} :FileEntry
       :defs $ {}
-        |by-key $ %{} :CodeEntry
+        |by-key $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -1751,8 +1721,7 @@
                     :data $ {}
                       |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |first)
                       |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |y)
-          :doc |
-        |diff-map $ %{} :CodeEntry
+        |diff-map $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1510396011398) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1510396011398) (:by |root) (:text |defn)
@@ -1954,8 +1923,7 @@
                                                   |h $ %{} :Leaf (:at 1690112353265) (:by |SygU7c6BlG) (:text |va)
                                                   |l $ %{} :Leaf (:at 1690112353265) (:by |SygU7c6BlG) (:text |vb)
                                                   |o $ %{} :Leaf (:at 1690112353265) (:by |SygU7c6BlG) (:text |options)
-          :doc |
-        |diff-record $ %{} :CodeEntry
+        |diff-record $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1615126001286) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1615126001286) (:by |SygU7c6BlG) (:text |defn)
@@ -2039,8 +2007,7 @@
                               |T $ %{} :Leaf (:at 1690112514366) (:by |SygU7c6BlG) (:text |::)
                               |b $ %{} :Leaf (:at 1690112521411) (:by |SygU7c6BlG) (:text |:replace)
                               |l $ %{} :Leaf (:at 1690112514366) (:by |SygU7c6BlG) (:text |b)
-          :doc |
-        |diff-set $ %{} :CodeEntry
+        |diff-set $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1510396149865) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1510396149865) (:by |root) (:text |defn)
@@ -2096,8 +2063,7 @@
                           |j $ %{} :Leaf (:at 1689478132851) (:by |SygU7c6BlG) (:text |:set-splice)
                           |t $ %{} :Leaf (:at 1689478742210) (:by |SygU7c6BlG) (:text |removed)
                           |v $ %{} :Leaf (:at 1624092073448) (:by |SygU7c6BlG) (:text |added)
-          :doc |
-        |diff-tuple $ %{} :CodeEntry
+        |diff-tuple $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1689479652965) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1689479652965) (:by |SygU7c6BlG) (:text |defn)
@@ -2209,8 +2175,7 @@
                                               |b $ %{} :Leaf (:at 1690120592747) (:by |SygU7c6BlG) (:text |b)
                                               |h $ %{} :Leaf (:at 1690120592747) (:by |SygU7c6BlG) (:text |i)
                                           |o $ %{} :Leaf (:at 1690120592747) (:by |SygU7c6BlG) (:text |options)
-          :doc |
-        |diff-twig $ %{} :CodeEntry
+        |diff-twig $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1510396128775) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1611979201604) (:by |SygU7c6BlG) (:text |defn)
@@ -2268,8 +2233,7 @@
                           |x $ %{} :Leaf (:at 1510396128775) (:by |root) (:text |b)
                           |y $ %{} :Leaf (:at 1510396128775) (:by |root) (:text |options)
                       |v $ %{} :Leaf (:at 1510396128775) (:by |root) (:text |@*changes)
-          :doc |
-        |diff-twig-iterate $ %{} :CodeEntry
+        |diff-twig-iterate $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1611979211841) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1611979211841) (:by |SygU7c6BlG) (:text |defn)
@@ -2428,8 +2392,7 @@
                                       |j $ %{} :Leaf (:at 1624020352708) (:by |SygU7c6BlG) (:text "||[Warning] unexpected data:")
                                       |r $ %{} :Leaf (:at 1611979213078) (:by |SygU7c6BlG) (:text |a)
                                       |v $ %{} :Leaf (:at 1611979213078) (:by |SygU7c6BlG) (:text |b)
-          :doc |
-        |find-vector-changes $ %{} :CodeEntry
+        |find-vector-changes $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1510396384441) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1510396384441) (:by |root) (:text |defn)
@@ -2540,8 +2503,7 @@
                                   |T $ %{} :Leaf (:at 1510396384441) (:by |root) (:text |rest)
                                   |j $ %{} :Leaf (:at 1510396384441) (:by |root) (:text |b-items)
                               |yT $ %{} :Leaf (:at 1510396384441) (:by |root) (:text |options)
-          :doc |
-        |fold-update $ %{} :CodeEntry
+        |fold-update $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1690118774459) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1690118774459) (:by |SygU7c6BlG) (:text |defn)
@@ -2631,8 +2593,7 @@
                           |b $ %{} :Leaf (:at 1690118867370) (:by |SygU7c6BlG) (:text |:update)
                           |h $ %{} :Leaf (:at 1690118869933) (:by |SygU7c6BlG) (:text |k)
                           |l $ %{} :Leaf (:at 1690118871817) (:by |SygU7c6BlG) (:text |c0)
-          :doc |
-        |wrap-pick $ %{} :CodeEntry
+        |wrap-pick $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1690112318412) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1690112318412) (:by |SygU7c6BlG) (:text |defn)
@@ -2778,8 +2739,7 @@
                                       |b $ %{} :Leaf (:at 1690112328255) (:by |SygU7c6BlG) (:text |:pick)
                                       |h $ %{} :Leaf (:at 1690112328255) (:by |SygU7c6BlG) (:text |k)
                                       |l $ %{} :Leaf (:at 1690112612560) (:by |SygU7c6BlG) (:text |chunk)
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ %{} :Expr (:at 1500476982536) (:by nil)
           :data $ {}
             |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |ns)
@@ -2801,10 +2761,9 @@
                     |j $ %{} :Leaf (:at 1510395992933) (:by |root) (:text |recollect.schema)
                     |r $ %{} :Leaf (:at 1510395993341) (:by |root) (:text |:as)
                     |v $ %{} :Leaf (:at 1510395994185) (:by |root) (:text |schema)
-        :doc |
-    |recollect.patch $ {}
+    |recollect.patch $ %{} :FileEntry
       :defs $ {}
-        |patch-map $ %{} :CodeEntry
+        |patch-map $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1624090074685) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1624090074685) (:by |SygU7c6BlG) (:text |defn)
@@ -2826,8 +2785,7 @@
                     :data $ {}
                       |T $ %{} :Leaf (:at 1624090138343) (:by |SygU7c6BlG) (:text |merge)
                       |j $ %{} :Leaf (:at 1624090140664) (:by |SygU7c6BlG) (:text |added)
-          :doc |
-        |patch-map-set $ %{} :CodeEntry
+        |patch-map-set $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -2843,8 +2801,7 @@
                   |b $ %{} :Leaf (:at 1690118267017) (:by |SygU7c6BlG) (:text |base)
                   |h $ %{} :Leaf (:at 1690118267017) (:by |SygU7c6BlG) (:text |k)
                   |l $ %{} :Leaf (:at 1690118267017) (:by |SygU7c6BlG) (:text |data)
-          :doc |
-        |patch-one $ %{} :CodeEntry
+        |patch-one $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1510396277262) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1510396277262) (:by |root) (:text |defn)
@@ -3029,8 +2986,7 @@
                               |b $ %{} :Leaf (:at 1689478273293) (:by |SygU7c6BlG) (:text "||Unkown op:")
                               |h $ %{} :Leaf (:at 1689478355845) (:by |SygU7c6BlG) (:text |change)
                           |h $ %{} :Leaf (:at 1689478273293) (:by |SygU7c6BlG) (:text |base)
-          :doc |
-        |patch-set $ %{} :CodeEntry
+        |patch-set $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1510399396189) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1510399396189) (:by |root) (:text |defn)
@@ -3052,8 +3008,7 @@
                     :data $ {}
                       |T $ %{} :Leaf (:at 1690118278659) (:by |SygU7c6BlG) (:text |union)
                       |b $ %{} :Leaf (:at 1690118278659) (:by |SygU7c6BlG) (:text |added)
-          :doc |
-        |patch-twig $ %{} :CodeEntry
+        |patch-twig $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1509465163977) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1509465163977) (:by |root) (:text |defn)
@@ -3086,8 +3041,7 @@
                               |b $ %{} :Leaf (:at 1691079062717) (:by |SygU7c6BlG) (:text |base)
                               |h $ %{} :Leaf (:at 1691079065810) (:by |SygU7c6BlG) (:text |c0)
                           |h $ %{} :Leaf (:at 1691079067747) (:by |SygU7c6BlG) (:text |cs)
-          :doc |
-        |patch-vector-append $ %{} :CodeEntry
+        |patch-vector-append $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1509465147384) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1509465147384) (:by |root) (:text |defn)
@@ -3101,8 +3055,7 @@
                   |T $ %{} :Leaf (:at 1690118142364) (:by |SygU7c6BlG) (:text |vec-add)
                   |b $ %{} :Leaf (:at 1690118142364) (:by |SygU7c6BlG) (:text |base)
                   |h $ %{} :Leaf (:at 1690118142364) (:by |SygU7c6BlG) (:text |data)
-          :doc |
-        |patch-vector-drop $ %{} :CodeEntry
+        |patch-vector-drop $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1509465155073) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1509465155073) (:by |root) (:text |defn)
@@ -3117,8 +3070,7 @@
                   |b $ %{} :Leaf (:at 1690118174847) (:by |SygU7c6BlG) (:text |base)
                   |h $ %{} :Leaf (:at 1690118174847) (:by |SygU7c6BlG) (:text |0)
                   |l $ %{} :Leaf (:at 1690118174847) (:by |SygU7c6BlG) (:text |data)
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ %{} :Expr (:at 1500476982536) (:by nil)
           :data $ {}
             |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |ns)
@@ -3139,10 +3091,9 @@
                       :data $ {}
                         |j $ %{} :Leaf (:at 1510399186231) (:by |root) (:text |vec-add)
                         |r $ %{} :Leaf (:at 1510399686395) (:by |root) (:text |seq-add)
-        :doc |
-    |recollect.schema $ {}
+    |recollect.schema $ %{} :FileEntry
       :defs $ {}
-        |store $ %{} :CodeEntry
+        |store $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |def)
@@ -3156,16 +3107,14 @@
                       |j $ %{} :Expr (:at 1500476982536) (:by nil)
                         :data $ {}
                           |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |{})
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ %{} :Expr (:at 1500476982536) (:by nil)
           :data $ {}
             |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |ns)
             |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |recollect.schema)
-        :doc |
-    |recollect.test $ {}
+    |recollect.test $ %{} :FileEntry
       :defs $ {}
-        |run-tests $ %{} :CodeEntry
+        |run-tests $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1613985396395) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1613985397931) (:by |SygU7c6BlG) (:text |defn)
@@ -3221,8 +3170,7 @@
               |z $ %{} :Expr (:at 1686721002460) (:by |SygU7c6BlG)
                 :data $ {}
                   |T $ %{} :Leaf (:at 1686721004486) (:by |SygU7c6BlG) (:text |test-diff-tuple)
-          :doc |
-        |test-diff-funcs $ %{} :CodeEntry
+        |test-diff-funcs $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1538851018925) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1538851027675) (:by |root) (:text |deftest)
@@ -3314,8 +3262,7 @@
                                   |j $ %{} :Leaf (:at 1538851617612) (:by |root) (:text |a0)
                                   |r $ %{} :Leaf (:at 1593252452693) (:by |SygU7c6BlG) (:text |b)
                                   |v $ %{} :Leaf (:at 1538851033364) (:by |root) (:text |options)
-          :doc |
-        |test-diff-map-by-ids $ %{} :CodeEntry
+        |test-diff-map-by-ids $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1510397046924) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1510397046924) (:by |root) (:text |deftest)
@@ -3413,8 +3360,7 @@
                                   |T $ %{} :Leaf (:at 1510422038244) (:by |root) (:text |patch-twig)
                                   |j $ %{} :Leaf (:at 1510422039199) (:by |root) (:text |a)
                                   |r $ %{} :Leaf (:at 1510422040112) (:by |root) (:text |changes)
-          :doc |
-        |test-diff-map-same-id $ %{} :CodeEntry
+        |test-diff-map-same-id $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1509465210258) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1509465210258) (:by |root) (:text |deftest)
@@ -3503,8 +3449,7 @@
                                   |T $ %{} :Leaf (:at 1510422067303) (:by |root) (:text |patch-twig)
                                   |j $ %{} :Leaf (:at 1510422068117) (:by |root) (:text |a)
                                   |r $ %{} :Leaf (:at 1510422069064) (:by |root) (:text |changes)
-          :doc |
-        |test-diff-maps $ %{} :CodeEntry
+        |test-diff-maps $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1510420619815) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1510420647356) (:by |root) (:text |deftest)
@@ -3611,8 +3556,7 @@
                                   |T $ %{} :Leaf (:at 1510421972785) (:by |root) (:text |patch-twig)
                                   |j $ %{} :Leaf (:at 1510421974420) (:by |root) (:text |a)
                                   |r $ %{} :Leaf (:at 1510421975433) (:by |root) (:text |changes)
-          :doc |
-        |test-diff-records $ %{} :CodeEntry
+        |test-diff-records $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1615126671907) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1615126680789) (:by |SygU7c6BlG) (:text |deftest)
@@ -3714,8 +3658,7 @@
                                   |T $ %{} :Leaf (:at 1615126676255) (:by |SygU7c6BlG) (:text |patch-twig)
                                   |j $ %{} :Leaf (:at 1615126676255) (:by |SygU7c6BlG) (:text |a)
                                   |r $ %{} :Leaf (:at 1615126676255) (:by |SygU7c6BlG) (:text |changes)
-          :doc |
-        |test-diff-same-sets $ %{} :CodeEntry
+        |test-diff-same-sets $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1511273800585) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1511273925279) (:by |root) (:text |deftest)
@@ -3793,8 +3736,7 @@
                                   |j $ %{} :Leaf (:at 1510411413111) (:by |root) (:text |a)
                                   |r $ %{} :Leaf (:at 1510411413808) (:by |root) (:text |b)
                                   |v $ %{} :Leaf (:at 1510415762374) (:by |root) (:text |options)
-          :doc |
-        |test-diff-same-tag $ %{} :CodeEntry
+        |test-diff-same-tag $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1511541455144) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1511541468395) (:by |SygU7c6BlG) (:text |deftest)
@@ -3857,8 +3799,7 @@
                                   |T $ %{} :Leaf (:at 1510422067303) (:by |root) (:text |patch-twig)
                                   |j $ %{} :Leaf (:at 1510422068117) (:by |root) (:text |a)
                                   |r $ %{} :Leaf (:at 1510422069064) (:by |root) (:text |changes)
-          :doc |
-        |test-diff-sets $ %{} :CodeEntry
+        |test-diff-sets $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1510421053075) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1510421065744) (:by |root) (:text |deftest)
@@ -3960,8 +3901,7 @@
                                   |T $ %{} :Leaf (:at 1510421859967) (:by |root) (:text |patch-twig)
                                   |j $ %{} :Leaf (:at 1510421860635) (:by |root) (:text |a)
                                   |r $ %{} :Leaf (:at 1510421862008) (:by |root) (:text |changes)
-          :doc |
-        |test-diff-tuple $ %{} :CodeEntry
+        |test-diff-tuple $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1686721007573) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1686721011367) (:by |SygU7c6BlG) (:text |deftest)
@@ -4319,8 +4259,7 @@
                                   |T $ %{} :Leaf (:at 1686721153834) (:by |SygU7c6BlG) (:text |patch-twig)
                                   |b $ %{} :Leaf (:at 1686721153834) (:by |SygU7c6BlG) (:text |a)
                                   |h $ %{} :Leaf (:at 1686721153834) (:by |SygU7c6BlG) (:text |changes)
-          :doc |
-        |test-diff-vectors $ %{} :CodeEntry
+        |test-diff-vectors $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1510415911018) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1510415718549) (:by |root) (:text |deftest)
@@ -4433,8 +4372,7 @@
                                   |T $ %{} :Leaf (:at 1510421939843) (:by |root) (:text |patch-twig)
                                   |j $ %{} :Leaf (:at 1510421942907) (:by |root) (:text |a)
                                   |r $ %{} :Leaf (:at 1510421943992) (:by |root) (:text |changes)
-          :doc |
-        |test-vec-add $ %{} :CodeEntry
+        |test-vec-add $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1510411256600) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1510411332347) (:by |root) (:text |deftest)
@@ -4490,8 +4428,7 @@
                                   |yT $ %{} :Leaf (:at 1613985755421) (:by |SygU7c6BlG) (:text |6)
                                   |yj $ %{} :Leaf (:at 1613985755421) (:by |SygU7c6BlG) (:text |7)
                                   |yr $ %{} :Leaf (:at 1613985755421) (:by |SygU7c6BlG) (:text |8)
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ %{} :Expr (:at 1510397062373) (:by |root)
           :data $ {}
             |T $ %{} :Leaf (:at 1510397062373) (:by |root) (:text |ns)
@@ -4535,10 +4472,9 @@
                     |v $ %{} :Expr (:at 1510411300732) (:by |root)
                       :data $ {}
                         |j $ %{} :Leaf (:at 1510411305460) (:by |root) (:text |vec-add)
-        :doc |
-    |recollect.twig $ {}
+    |recollect.twig $ %{} :FileEntry
       :defs $ {}
-        |clear-twig-caches! $ %{} :CodeEntry
+        |clear-twig-caches! $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1593252594077) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1593252594077) (:by |SygU7c6BlG) (:text |defn)
@@ -4548,8 +4484,7 @@
               |v $ %{} :Expr (:at 1593252596729) (:by |SygU7c6BlG)
                 :data $ {}
                   |T $ %{} :Leaf (:at 1611978865429) (:by |SygU7c6BlG) (:text |reset-calling-caches!)
-          :doc |
-        |new-twig-loop! $ %{} :CodeEntry
+        |new-twig-loop! $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1593253142551) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1593253142551) (:by |SygU7c6BlG) (:text |defn)
@@ -4559,8 +4494,7 @@
               |v $ %{} :Expr (:at 1593253153364) (:by |SygU7c6BlG)
                 :data $ {}
                   |T $ %{} :Leaf (:at 1611978896169) (:by |SygU7c6BlG) (:text |tick-calling-loop!)
-          :doc |
-        |show-tag-summay $ %{} :CodeEntry
+        |show-tag-summay $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1593965917428) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1593965917428) (:by |SygU7c6BlG) (:text |defn)
@@ -4571,8 +4505,7 @@
                 :data $ {}
                   |T $ %{} :Leaf (:at 1594531367490) (:by |SygU7c6BlG) (:text |memof/show-summary)
                   |j $ %{} :Leaf (:at 1611978928680) (:by |SygU7c6BlG) (:text |@*memof-call-states)
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ %{} :Expr (:at 1511003739385) (:by |root)
           :data $ {}
             |T $ %{} :Leaf (:at 1511003739385) (:by |root) (:text |ns)
@@ -4598,10 +4531,9 @@
                         |r $ %{} :Leaf (:at 1611978931210) (:by |SygU7c6BlG) (:text |*memof-call-states)
                         |v $ %{} :Leaf (:at 1611978940330) (:by |SygU7c6BlG) (:text |tick-calling-loop!)
                         |x $ %{} :Leaf (:at 1611978978848) (:by |SygU7c6BlG) (:text |memof-call)
-        :doc |
-    |recollect.util $ {}
+    |recollect.util $ %{} :FileEntry
       :defs $ {}
-        |=seq $ %{} :CodeEntry
+        |=seq $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -4679,8 +4611,7 @@
                                           |a $ %{} :Leaf (:at 1691337454219) (:by |SygU7c6BlG) (:text |xss)
                                           |g $ %{} :Leaf (:at 1691337455645) (:by |SygU7c6BlG) (:text |yss)
                                   |l $ %{} :Leaf (:at 1691337388733) (:by |SygU7c6BlG) (:text |false)
-          :doc |
-        |compare $ %{} :CodeEntry
+        |compare $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1611982713599) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1611982767795) (:by |SygU7c6BlG) (:text |defn)
@@ -4712,8 +4643,7 @@
                     :data $ {}
                       |T $ %{} :Leaf (:at 1611982750092) (:by |SygU7c6BlG) (:text |true)
                       |j $ %{} :Leaf (:at 1611982751120) (:by |SygU7c6BlG) (:text |0)
-          :doc |
-        |literal? $ %{} :CodeEntry
+        |literal? $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -4748,8 +4678,7 @@
                     :data $ {}
                       |T $ %{} :Leaf (:at 1611982522205) (:by |SygU7c6BlG) (:text |symbol?)
                       |j $ %{} :Leaf (:at 1611982522564) (:by |SygU7c6BlG) (:text |x)
-          :doc |
-        |vec-add $ %{} :CodeEntry
+        |vec-add $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1510399074262) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1510399074262) (:by |root) (:text |defn)
@@ -4782,18 +4711,16 @@
                               |b $ %{} :Leaf (:at 1691079194664) (:by |SygU7c6BlG) (:text |xs)
                               |h $ %{} :Leaf (:at 1691079197652) (:by |SygU7c6BlG) (:text |y0)
                           |h $ %{} :Leaf (:at 1691079199598) (:by |SygU7c6BlG) (:text |yss)
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ %{} :Expr (:at 1500476982536) (:by nil)
           :data $ {}
             |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |ns)
             |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |recollect.util)
-        :doc |
   :ir $ {} (:package |recollect)
     :files $ {}
       |recollect.app.comp.container $ {}
         :defs $ {}
-          |comp-container $ %{} :CodeEntry
+          |comp-container $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1509464095098) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1509464095098) (:by |root) (:text |defcomp)
@@ -4987,8 +4914,7 @@
                                               :data $ {}
                                                 |D $ %{} :Leaf (:at 1690104270140) (:by |SygU7c6BlG) (:text |format-cirru-edn)
                                                 |T $ %{} :Leaf (:at 1690111932135) (:by |SygU7c6BlG) (:text |changes)
-            :doc |
-          |css-code-block $ %{} :CodeEntry
+          |css-code-block $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1656927142983) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1656927144532) (:by |SygU7c6BlG) (:text |defstyle)
@@ -5027,8 +4953,7 @@
                                     |b $ %{} :Leaf (:at 1656927178312) (:by |SygU7c6BlG) (:text |0)
                                     |h $ %{} :Leaf (:at 1656927178581) (:by |SygU7c6BlG) (:text |0)
                                     |l $ %{} :Leaf (:at 1656927179070) (:by |SygU7c6BlG) (:text |90)
-            :doc |
-          |deep-a $ %{} :CodeEntry
+          |deep-a $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1690104034282) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1690104034282) (:by |SygU7c6BlG) (:text |def)
@@ -5093,8 +5018,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1690107561085) (:by |SygU7c6BlG) (:text |:aa1)
                         |b $ %{} :Leaf (:at 1690107562231) (:by |SygU7c6BlG) (:text |2)
-            :doc |
-          |deep-b $ %{} :CodeEntry
+          |deep-b $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1690104164455) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1690104164455) (:by |SygU7c6BlG) (:text |def)
@@ -5159,8 +5083,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1690107568566) (:by |SygU7c6BlG) (:text |:aa1)
                         |b $ %{} :Leaf (:at 1690111872661) (:by |SygU7c6BlG) (:text |4)
-            :doc |
-        :ns $ %{} :CodeEntry
+        :ns $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1509464131106) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1509464131106) (:by |root) (:text |ns)
@@ -5234,10 +5157,9 @@
                       |h $ %{} :Expr (:at 1690104011782) (:by |SygU7c6BlG)
                         :data $ {}
                           |T $ %{} :Leaf (:at 1690104015349) (:by |SygU7c6BlG) (:text |diff-twig)
-          :doc |
       |recollect.app.comp.panel $ {}
         :defs $ {}
-          |comp-panel $ %{} :CodeEntry
+          |comp-panel $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1509465285678) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1509465285678) (:by |root) (:text |defcomp)
@@ -5405,8 +5327,7 @@
                             |T $ %{} :Leaf (:at 1509465285678) (:by |root) (:text |render-button)
                             |j $ %{} :Leaf (:at 1509465285678) (:by |root) (:text "||Change types")
                             |r $ %{} :Leaf (:at 1509465285678) (:by |root) (:text |:types)
-            :doc |
-          |on-click $ %{} :CodeEntry
+          |on-click $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -5435,8 +5356,7 @@
                                 |T $ %{} :Expr (:at 1500476982536) (:by nil)
                                   :data $ {}
                                     |T $ %{} :Leaf (:at 1656926702630) (:by |SygU7c6BlG) (:text |js/Math.random)
-            :doc |
-          |render-button $ %{} :CodeEntry
+          |render-button $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1509465301721) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1509465301721) (:by |root) (:text |defn)
@@ -5466,8 +5386,7 @@
                               :data $ {}
                                 |T $ %{} :Leaf (:at 1509465301721) (:by |root) (:text |on-click)
                                 |j $ %{} :Leaf (:at 1509465301721) (:by |root) (:text |op)
-            :doc |
-          |style-line $ %{} :CodeEntry
+          |style-line $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |def)
@@ -5479,8 +5398,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |:height)
                         |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text ||40px)
-            :doc |
-        :ns $ %{} :CodeEntry
+        :ns $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |ns)
@@ -5524,17 +5442,15 @@
                         :data $ {}
                           |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |[])
                           |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |=<)
-          :doc |
       |recollect.app.config $ {}
         :defs $ {}
-          |dev? $ %{} :CodeEntry
+          |dev? $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1561172113809) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1561172113809) (:by |SygU7c6BlG) (:text |def)
                 |j $ %{} :Leaf (:at 1561172113809) (:by |SygU7c6BlG) (:text |dev?)
                 |r $ %{} :Leaf (:at 1611982261419) (:by |SygU7c6BlG) (:text |true)
-            :doc |
-          |site $ %{} :CodeEntry
+          |site $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1561172113809) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1561172113809) (:by |SygU7c6BlG) (:text |def)
@@ -5574,30 +5490,26 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1561172113809) (:by |SygU7c6BlG) (:text |:upload-folder)
                         |j $ %{} :Leaf (:at 1561172149622) (:by |SygU7c6BlG) (:text "|\"tiye.me:repo/Cumulo/recollect/")
-            :doc |
-        :ns $ %{} :CodeEntry
+        :ns $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1561172113809) (:by |SygU7c6BlG)
             :data $ {}
               |T $ %{} :Leaf (:at 1561172113809) (:by |SygU7c6BlG) (:text |ns)
               |j $ %{} :Leaf (:at 1561172113809) (:by |SygU7c6BlG) (:text |recollect.app.config)
-          :doc |
       |recollect.app.main $ {}
         :defs $ {}
-          |*client-store $ %{} :CodeEntry
+          |*client-store $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1611982300164) (:by |SygU7c6BlG) (:text |defatom)
                 |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |*client-store)
                 |r $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |schema/store)
-            :doc |
-          |*data-twig $ %{} :CodeEntry
+          |*data-twig $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1611982284418) (:by |SygU7c6BlG) (:text |defatom)
                 |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |*data-twig)
                 |r $ %{} :Leaf (:at 1611987849251) (:by |SygU7c6BlG) (:text |nil)
-            :doc |
-          |*store $ %{} :CodeEntry
+          |*store $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1611982277807) (:by |SygU7c6BlG) (:text |defatom)
@@ -5718,8 +5630,7 @@
                                   :data $ {}
                                     |T $ %{} :Leaf (:at 1611987868935) (:by |SygU7c6BlG) (:text ||name)
                                     |j $ %{} :Leaf (:at 1611987868935) (:by |SygU7c6BlG) (:text |2)
-            :doc |
-          |dispatch! $ %{} :CodeEntry
+          |dispatch! $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -5748,8 +5659,7 @@
                         |T $ %{} :Leaf (:at 1590921612301) (:by |SygU7c6BlG) (:text |updater)
                         |j $ %{} :Leaf (:at 1611989197658) (:by |SygU7c6BlG) (:text |@*store)
                         |r $ %{} :Leaf (:at 1590921612301) (:by |SygU7c6BlG) (:text |op)
-            :doc |
-          |main! $ %{} :CodeEntry
+          |main! $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1511002230884) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1511002230884) (:by |root) (:text |defn)
@@ -5820,8 +5730,7 @@
                   :data $ {}
                     |T $ %{} :Leaf (:at 1511002230884) (:by |root) (:text |println)
                     |j $ %{} :Leaf (:at 1511002230884) (:by |root) (:text "||app started!")
-            :doc |
-          |mount-target $ %{} :CodeEntry
+          |mount-target $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |def)
@@ -5831,8 +5740,7 @@
                     |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |.querySelector)
                     |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |js/document)
                     |r $ %{} :Leaf (:at 1500476982536) (:by |root) (:text ||.app)
-            :doc |
-          |reload! $ %{} :CodeEntry
+          |reload! $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -5914,8 +5822,7 @@
                         |T $ %{} :Leaf (:at 1656926946435) (:by |SygU7c6BlG) (:text |hud!)
                         |b $ %{} :Leaf (:at 1656926946435) (:by |SygU7c6BlG) (:text "|\"error")
                         |h $ %{} :Leaf (:at 1656926946435) (:by |SygU7c6BlG) (:text |build-errors)
-            :doc |
-          |render-app! $ %{} :CodeEntry
+          |render-app! $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -5933,8 +5840,7 @@
                         |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |@*data-twig)
                         |r $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |@*client-store)
                     |v $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |dispatch!)
-            :doc |
-          |render-data-twig! $ %{} :CodeEntry
+          |render-data-twig! $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1511002238242) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1511002238242) (:by |root) (:text |defn)
@@ -6006,8 +5912,7 @@
                             |T $ %{} :Leaf (:at 1511002238242) (:by |root) (:text |reset!)
                             |j $ %{} :Leaf (:at 1511002238242) (:by |root) (:text |*client-store)
                             |r $ %{} :Leaf (:at 1511002238242) (:by |root) (:text |new-client)
-            :doc |
-          |ssr? $ %{} :CodeEntry
+          |ssr? $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |def)
@@ -6020,8 +5925,7 @@
                         |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |.querySelector)
                         |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |js/document)
                         |r $ %{} :Leaf (:at 1500476982536) (:by |root) (:text ||meta.respo-ssr)
-            :doc |
-          |test! $ %{} :CodeEntry
+          |test! $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1614082439559) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1614082439559) (:by |SygU7c6BlG) (:text |defn)
@@ -6031,8 +5935,7 @@
                 |v $ %{} :Expr (:at 1614082441842) (:by |SygU7c6BlG)
                   :data $ {}
                     |T $ %{} :Leaf (:at 1614082444210) (:by |SygU7c6BlG) (:text |run-tests)
-            :doc |
-        :ns $ %{} :CodeEntry
+        :ns $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |ns)
@@ -6125,10 +6028,9 @@
                       |T $ %{} :Leaf (:at 1656927046320) (:by |SygU7c6BlG) (:text "|\"bottom-tip")
                       |b $ %{} :Leaf (:at 1656927046320) (:by |SygU7c6BlG) (:text |:default)
                       |h $ %{} :Leaf (:at 1656927046320) (:by |SygU7c6BlG) (:text |hud!)
-          :doc |
       |recollect.app.twig.container $ {}
         :defs $ {}
-          |twig-card $ %{} :CodeEntry
+          |twig-card $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1511002083653) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1611979046100) (:by |SygU7c6BlG) (:text |defn)
@@ -6148,8 +6050,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1511002113481) (:by |root) (:text |:date)
                         |j $ %{} :Leaf (:at 1511002113481) (:by |root) (:text |date)
-            :doc |
-          |twig-container $ %{} :CodeEntry
+          |twig-container $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1511001893279) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1611979036348) (:by |SygU7c6BlG) (:text |defn)
@@ -6179,8 +6080,7 @@
                                   :data $ {}
                                     |T $ %{} :Leaf (:at 1511001917899) (:by |root) (:text |:date)
                                     |j $ %{} :Leaf (:at 1511001917899) (:by |root) (:text |store)
-            :doc |
-        :ns $ %{} :CodeEntry
+        :ns $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1511002058945) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1511002058945) (:by |root) (:text |ns)
@@ -6197,10 +6097,9 @@
                         :data $ {}
                           |T $ %{} :Leaf (:at 1611979062085) (:by |SygU7c6BlG) (:text |[])
                           |j $ %{} :Leaf (:at 1611979065320) (:by |SygU7c6BlG) (:text |memof-call)
-          :doc |
       |recollect.app.updater $ {}
         :defs $ {}
-          |updater $ %{} :CodeEntry
+          |updater $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1509465187738) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1509465187738) (:by |root) (:text |defn)
@@ -6495,8 +6394,7 @@
                                 |j $ %{} :Leaf (:at 1509465187738) (:by |root) (:text "||Unhandled op:")
                                 |r $ %{} :Leaf (:at 1509465187738) (:by |root) (:text |op)
                             |r $ %{} :Leaf (:at 1509465187738) (:by |root) (:text |store)
-            :doc |
-        :ns $ %{} :CodeEntry
+        :ns $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |ns)
@@ -6513,10 +6411,9 @@
                         :data $ {}
                           |T $ %{} :Leaf (:at 1590921593635) (:by |SygU7c6BlG) (:text |[])
                           |j $ %{} :Leaf (:at 1590921600709) (:by |SygU7c6BlG) (:text |update-states)
-          :doc |
       |recollect.diff $ {}
         :defs $ {}
-          |by-key $ %{} :CodeEntry
+          |by-key $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -6536,8 +6433,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |first)
                         |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |y)
-            :doc |
-          |diff-map $ %{} :CodeEntry
+          |diff-map $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1510396011398) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1510396011398) (:by |root) (:text |defn)
@@ -6739,8 +6635,7 @@
                                                     |h $ %{} :Leaf (:at 1690112353265) (:by |SygU7c6BlG) (:text |va)
                                                     |l $ %{} :Leaf (:at 1690112353265) (:by |SygU7c6BlG) (:text |vb)
                                                     |o $ %{} :Leaf (:at 1690112353265) (:by |SygU7c6BlG) (:text |options)
-            :doc |
-          |diff-record $ %{} :CodeEntry
+          |diff-record $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1615126001286) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1615126001286) (:by |SygU7c6BlG) (:text |defn)
@@ -6824,8 +6719,7 @@
                                 |T $ %{} :Leaf (:at 1690112514366) (:by |SygU7c6BlG) (:text |::)
                                 |b $ %{} :Leaf (:at 1690112521411) (:by |SygU7c6BlG) (:text |:replace)
                                 |l $ %{} :Leaf (:at 1690112514366) (:by |SygU7c6BlG) (:text |b)
-            :doc |
-          |diff-set $ %{} :CodeEntry
+          |diff-set $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1510396149865) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1510396149865) (:by |root) (:text |defn)
@@ -6881,8 +6775,7 @@
                             |j $ %{} :Leaf (:at 1689478132851) (:by |SygU7c6BlG) (:text |:set-splice)
                             |t $ %{} :Leaf (:at 1689478742210) (:by |SygU7c6BlG) (:text |removed)
                             |v $ %{} :Leaf (:at 1624092073448) (:by |SygU7c6BlG) (:text |added)
-            :doc |
-          |diff-tuple $ %{} :CodeEntry
+          |diff-tuple $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1689479652965) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1689479652965) (:by |SygU7c6BlG) (:text |defn)
@@ -6994,8 +6887,7 @@
                                                 |b $ %{} :Leaf (:at 1690120592747) (:by |SygU7c6BlG) (:text |b)
                                                 |h $ %{} :Leaf (:at 1690120592747) (:by |SygU7c6BlG) (:text |i)
                                             |o $ %{} :Leaf (:at 1690120592747) (:by |SygU7c6BlG) (:text |options)
-            :doc |
-          |diff-twig $ %{} :CodeEntry
+          |diff-twig $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1510396128775) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1611979201604) (:by |SygU7c6BlG) (:text |defn)
@@ -7053,8 +6945,7 @@
                             |x $ %{} :Leaf (:at 1510396128775) (:by |root) (:text |b)
                             |y $ %{} :Leaf (:at 1510396128775) (:by |root) (:text |options)
                         |v $ %{} :Leaf (:at 1510396128775) (:by |root) (:text |@*changes)
-            :doc |
-          |diff-twig-iterate $ %{} :CodeEntry
+          |diff-twig-iterate $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1611979211841) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1611979211841) (:by |SygU7c6BlG) (:text |defn)
@@ -7213,8 +7104,7 @@
                                         |j $ %{} :Leaf (:at 1624020352708) (:by |SygU7c6BlG) (:text "||[Warning] unexpected data:")
                                         |r $ %{} :Leaf (:at 1611979213078) (:by |SygU7c6BlG) (:text |a)
                                         |v $ %{} :Leaf (:at 1611979213078) (:by |SygU7c6BlG) (:text |b)
-            :doc |
-          |find-vector-changes $ %{} :CodeEntry
+          |find-vector-changes $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1510396384441) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1510396384441) (:by |root) (:text |defn)
@@ -7325,8 +7215,7 @@
                                     |T $ %{} :Leaf (:at 1510396384441) (:by |root) (:text |rest)
                                     |j $ %{} :Leaf (:at 1510396384441) (:by |root) (:text |b-items)
                                 |yT $ %{} :Leaf (:at 1510396384441) (:by |root) (:text |options)
-            :doc |
-          |fold-update $ %{} :CodeEntry
+          |fold-update $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1690118774459) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1690118774459) (:by |SygU7c6BlG) (:text |defn)
@@ -7416,8 +7305,7 @@
                             |b $ %{} :Leaf (:at 1690118867370) (:by |SygU7c6BlG) (:text |:update)
                             |h $ %{} :Leaf (:at 1690118869933) (:by |SygU7c6BlG) (:text |k)
                             |l $ %{} :Leaf (:at 1690118871817) (:by |SygU7c6BlG) (:text |c0)
-            :doc |
-          |wrap-pick $ %{} :CodeEntry
+          |wrap-pick $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1690112318412) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1690112318412) (:by |SygU7c6BlG) (:text |defn)
@@ -7563,8 +7451,7 @@
                                         |b $ %{} :Leaf (:at 1690112328255) (:by |SygU7c6BlG) (:text |:pick)
                                         |h $ %{} :Leaf (:at 1690112328255) (:by |SygU7c6BlG) (:text |k)
                                         |l $ %{} :Leaf (:at 1690112612560) (:by |SygU7c6BlG) (:text |chunk)
-            :doc |
-        :ns $ %{} :CodeEntry
+        :ns $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |ns)
@@ -7586,10 +7473,9 @@
                       |j $ %{} :Leaf (:at 1510395992933) (:by |root) (:text |recollect.schema)
                       |r $ %{} :Leaf (:at 1510395993341) (:by |root) (:text |:as)
                       |v $ %{} :Leaf (:at 1510395994185) (:by |root) (:text |schema)
-          :doc |
       |recollect.patch $ {}
         :defs $ {}
-          |patch-map $ %{} :CodeEntry
+          |patch-map $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1624090074685) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1624090074685) (:by |SygU7c6BlG) (:text |defn)
@@ -7611,8 +7497,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1624090138343) (:by |SygU7c6BlG) (:text |merge)
                         |j $ %{} :Leaf (:at 1624090140664) (:by |SygU7c6BlG) (:text |added)
-            :doc |
-          |patch-map-set $ %{} :CodeEntry
+          |patch-map-set $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -7628,8 +7513,7 @@
                     |b $ %{} :Leaf (:at 1690118267017) (:by |SygU7c6BlG) (:text |base)
                     |h $ %{} :Leaf (:at 1690118267017) (:by |SygU7c6BlG) (:text |k)
                     |l $ %{} :Leaf (:at 1690118267017) (:by |SygU7c6BlG) (:text |data)
-            :doc |
-          |patch-one $ %{} :CodeEntry
+          |patch-one $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1510396277262) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1510396277262) (:by |root) (:text |defn)
@@ -7814,8 +7698,7 @@
                                 |b $ %{} :Leaf (:at 1689478273293) (:by |SygU7c6BlG) (:text "||Unkown op:")
                                 |h $ %{} :Leaf (:at 1689478355845) (:by |SygU7c6BlG) (:text |change)
                             |h $ %{} :Leaf (:at 1689478273293) (:by |SygU7c6BlG) (:text |base)
-            :doc |
-          |patch-set $ %{} :CodeEntry
+          |patch-set $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1510399396189) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1510399396189) (:by |root) (:text |defn)
@@ -7837,8 +7720,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1690118278659) (:by |SygU7c6BlG) (:text |union)
                         |b $ %{} :Leaf (:at 1690118278659) (:by |SygU7c6BlG) (:text |added)
-            :doc |
-          |patch-twig $ %{} :CodeEntry
+          |patch-twig $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1509465163977) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1509465163977) (:by |root) (:text |defn)
@@ -7871,8 +7753,7 @@
                                 |b $ %{} :Leaf (:at 1691079062717) (:by |SygU7c6BlG) (:text |base)
                                 |h $ %{} :Leaf (:at 1691079065810) (:by |SygU7c6BlG) (:text |c0)
                             |h $ %{} :Leaf (:at 1691079067747) (:by |SygU7c6BlG) (:text |cs)
-            :doc |
-          |patch-vector-append $ %{} :CodeEntry
+          |patch-vector-append $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1509465147384) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1509465147384) (:by |root) (:text |defn)
@@ -7886,8 +7767,7 @@
                     |T $ %{} :Leaf (:at 1690118142364) (:by |SygU7c6BlG) (:text |vec-add)
                     |b $ %{} :Leaf (:at 1690118142364) (:by |SygU7c6BlG) (:text |base)
                     |h $ %{} :Leaf (:at 1690118142364) (:by |SygU7c6BlG) (:text |data)
-            :doc |
-          |patch-vector-drop $ %{} :CodeEntry
+          |patch-vector-drop $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1509465155073) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1509465155073) (:by |root) (:text |defn)
@@ -7902,8 +7782,7 @@
                     |b $ %{} :Leaf (:at 1690118174847) (:by |SygU7c6BlG) (:text |base)
                     |h $ %{} :Leaf (:at 1690118174847) (:by |SygU7c6BlG) (:text |0)
                     |l $ %{} :Leaf (:at 1690118174847) (:by |SygU7c6BlG) (:text |data)
-            :doc |
-        :ns $ %{} :CodeEntry
+        :ns $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |ns)
@@ -7924,10 +7803,9 @@
                         :data $ {}
                           |j $ %{} :Leaf (:at 1510399186231) (:by |root) (:text |vec-add)
                           |r $ %{} :Leaf (:at 1510399686395) (:by |root) (:text |seq-add)
-          :doc |
       |recollect.schema $ {}
         :defs $ {}
-          |store $ %{} :CodeEntry
+          |store $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |def)
@@ -7941,16 +7819,14 @@
                         |j $ %{} :Expr (:at 1500476982536) (:by nil)
                           :data $ {}
                             |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |{})
-            :doc |
-        :ns $ %{} :CodeEntry
+        :ns $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |ns)
               |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |recollect.schema)
-          :doc |
       |recollect.test $ {}
         :defs $ {}
-          |run-tests $ %{} :CodeEntry
+          |run-tests $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1613985396395) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1613985397931) (:by |SygU7c6BlG) (:text |defn)
@@ -8006,8 +7882,7 @@
                 |z $ %{} :Expr (:at 1686721002460) (:by |SygU7c6BlG)
                   :data $ {}
                     |T $ %{} :Leaf (:at 1686721004486) (:by |SygU7c6BlG) (:text |test-diff-tuple)
-            :doc |
-          |test-diff-funcs $ %{} :CodeEntry
+          |test-diff-funcs $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1538851018925) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1538851027675) (:by |root) (:text |deftest)
@@ -8099,8 +7974,7 @@
                                     |j $ %{} :Leaf (:at 1538851617612) (:by |root) (:text |a0)
                                     |r $ %{} :Leaf (:at 1593252452693) (:by |SygU7c6BlG) (:text |b)
                                     |v $ %{} :Leaf (:at 1538851033364) (:by |root) (:text |options)
-            :doc |
-          |test-diff-map-by-ids $ %{} :CodeEntry
+          |test-diff-map-by-ids $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1510397046924) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1510397046924) (:by |root) (:text |deftest)
@@ -8198,8 +8072,7 @@
                                     |T $ %{} :Leaf (:at 1510422038244) (:by |root) (:text |patch-twig)
                                     |j $ %{} :Leaf (:at 1510422039199) (:by |root) (:text |a)
                                     |r $ %{} :Leaf (:at 1510422040112) (:by |root) (:text |changes)
-            :doc |
-          |test-diff-map-same-id $ %{} :CodeEntry
+          |test-diff-map-same-id $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1509465210258) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1509465210258) (:by |root) (:text |deftest)
@@ -8288,8 +8161,7 @@
                                     |T $ %{} :Leaf (:at 1510422067303) (:by |root) (:text |patch-twig)
                                     |j $ %{} :Leaf (:at 1510422068117) (:by |root) (:text |a)
                                     |r $ %{} :Leaf (:at 1510422069064) (:by |root) (:text |changes)
-            :doc |
-          |test-diff-maps $ %{} :CodeEntry
+          |test-diff-maps $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1510420619815) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1510420647356) (:by |root) (:text |deftest)
@@ -8396,8 +8268,7 @@
                                     |T $ %{} :Leaf (:at 1510421972785) (:by |root) (:text |patch-twig)
                                     |j $ %{} :Leaf (:at 1510421974420) (:by |root) (:text |a)
                                     |r $ %{} :Leaf (:at 1510421975433) (:by |root) (:text |changes)
-            :doc |
-          |test-diff-records $ %{} :CodeEntry
+          |test-diff-records $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1615126671907) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1615126680789) (:by |SygU7c6BlG) (:text |deftest)
@@ -8499,8 +8370,7 @@
                                     |T $ %{} :Leaf (:at 1615126676255) (:by |SygU7c6BlG) (:text |patch-twig)
                                     |j $ %{} :Leaf (:at 1615126676255) (:by |SygU7c6BlG) (:text |a)
                                     |r $ %{} :Leaf (:at 1615126676255) (:by |SygU7c6BlG) (:text |changes)
-            :doc |
-          |test-diff-same-sets $ %{} :CodeEntry
+          |test-diff-same-sets $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1511273800585) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1511273925279) (:by |root) (:text |deftest)
@@ -8578,8 +8448,7 @@
                                     |j $ %{} :Leaf (:at 1510411413111) (:by |root) (:text |a)
                                     |r $ %{} :Leaf (:at 1510411413808) (:by |root) (:text |b)
                                     |v $ %{} :Leaf (:at 1510415762374) (:by |root) (:text |options)
-            :doc |
-          |test-diff-same-tag $ %{} :CodeEntry
+          |test-diff-same-tag $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1511541455144) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1511541468395) (:by |SygU7c6BlG) (:text |deftest)
@@ -8642,8 +8511,7 @@
                                     |T $ %{} :Leaf (:at 1510422067303) (:by |root) (:text |patch-twig)
                                     |j $ %{} :Leaf (:at 1510422068117) (:by |root) (:text |a)
                                     |r $ %{} :Leaf (:at 1510422069064) (:by |root) (:text |changes)
-            :doc |
-          |test-diff-sets $ %{} :CodeEntry
+          |test-diff-sets $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1510421053075) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1510421065744) (:by |root) (:text |deftest)
@@ -8745,8 +8613,7 @@
                                     |T $ %{} :Leaf (:at 1510421859967) (:by |root) (:text |patch-twig)
                                     |j $ %{} :Leaf (:at 1510421860635) (:by |root) (:text |a)
                                     |r $ %{} :Leaf (:at 1510421862008) (:by |root) (:text |changes)
-            :doc |
-          |test-diff-tuple $ %{} :CodeEntry
+          |test-diff-tuple $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1686721007573) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1686721011367) (:by |SygU7c6BlG) (:text |deftest)
@@ -9104,8 +8971,7 @@
                                     |T $ %{} :Leaf (:at 1686721153834) (:by |SygU7c6BlG) (:text |patch-twig)
                                     |b $ %{} :Leaf (:at 1686721153834) (:by |SygU7c6BlG) (:text |a)
                                     |h $ %{} :Leaf (:at 1686721153834) (:by |SygU7c6BlG) (:text |changes)
-            :doc |
-          |test-diff-vectors $ %{} :CodeEntry
+          |test-diff-vectors $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1510415911018) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1510415718549) (:by |root) (:text |deftest)
@@ -9218,8 +9084,7 @@
                                     |T $ %{} :Leaf (:at 1510421939843) (:by |root) (:text |patch-twig)
                                     |j $ %{} :Leaf (:at 1510421942907) (:by |root) (:text |a)
                                     |r $ %{} :Leaf (:at 1510421943992) (:by |root) (:text |changes)
-            :doc |
-          |test-vec-add $ %{} :CodeEntry
+          |test-vec-add $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1510411256600) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1510411332347) (:by |root) (:text |deftest)
@@ -9275,8 +9140,7 @@
                                     |yT $ %{} :Leaf (:at 1613985755421) (:by |SygU7c6BlG) (:text |6)
                                     |yj $ %{} :Leaf (:at 1613985755421) (:by |SygU7c6BlG) (:text |7)
                                     |yr $ %{} :Leaf (:at 1613985755421) (:by |SygU7c6BlG) (:text |8)
-            :doc |
-        :ns $ %{} :CodeEntry
+        :ns $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1510397062373) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1510397062373) (:by |root) (:text |ns)
@@ -9320,10 +9184,9 @@
                       |v $ %{} :Expr (:at 1510411300732) (:by |root)
                         :data $ {}
                           |j $ %{} :Leaf (:at 1510411305460) (:by |root) (:text |vec-add)
-          :doc |
       |recollect.twig $ {}
         :defs $ {}
-          |clear-twig-caches! $ %{} :CodeEntry
+          |clear-twig-caches! $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1593252594077) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1593252594077) (:by |SygU7c6BlG) (:text |defn)
@@ -9333,8 +9196,7 @@
                 |v $ %{} :Expr (:at 1593252596729) (:by |SygU7c6BlG)
                   :data $ {}
                     |T $ %{} :Leaf (:at 1611978865429) (:by |SygU7c6BlG) (:text |reset-calling-caches!)
-            :doc |
-          |new-twig-loop! $ %{} :CodeEntry
+          |new-twig-loop! $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1593253142551) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1593253142551) (:by |SygU7c6BlG) (:text |defn)
@@ -9344,8 +9206,7 @@
                 |v $ %{} :Expr (:at 1593253153364) (:by |SygU7c6BlG)
                   :data $ {}
                     |T $ %{} :Leaf (:at 1611978896169) (:by |SygU7c6BlG) (:text |tick-calling-loop!)
-            :doc |
-          |show-tag-summay $ %{} :CodeEntry
+          |show-tag-summay $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1593965917428) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1593965917428) (:by |SygU7c6BlG) (:text |defn)
@@ -9356,8 +9217,7 @@
                   :data $ {}
                     |T $ %{} :Leaf (:at 1594531367490) (:by |SygU7c6BlG) (:text |memof/show-summary)
                     |j $ %{} :Leaf (:at 1611978928680) (:by |SygU7c6BlG) (:text |@*memof-call-states)
-            :doc |
-        :ns $ %{} :CodeEntry
+        :ns $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1511003739385) (:by |root)
             :data $ {}
               |T $ %{} :Leaf (:at 1511003739385) (:by |root) (:text |ns)
@@ -9383,10 +9243,9 @@
                           |r $ %{} :Leaf (:at 1611978931210) (:by |SygU7c6BlG) (:text |*memof-call-states)
                           |v $ %{} :Leaf (:at 1611978940330) (:by |SygU7c6BlG) (:text |tick-calling-loop!)
                           |x $ %{} :Leaf (:at 1611978978848) (:by |SygU7c6BlG) (:text |memof-call)
-          :doc |
       |recollect.util $ {}
         :defs $ {}
-          |=seq $ %{} :CodeEntry
+          |=seq $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -9464,8 +9323,7 @@
                                             |a $ %{} :Leaf (:at 1691337454219) (:by |SygU7c6BlG) (:text |xss)
                                             |g $ %{} :Leaf (:at 1691337455645) (:by |SygU7c6BlG) (:text |yss)
                                     |l $ %{} :Leaf (:at 1691337388733) (:by |SygU7c6BlG) (:text |false)
-            :doc |
-          |compare $ %{} :CodeEntry
+          |compare $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1611982713599) (:by |SygU7c6BlG)
               :data $ {}
                 |T $ %{} :Leaf (:at 1611982767795) (:by |SygU7c6BlG) (:text |defn)
@@ -9497,8 +9355,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1611982750092) (:by |SygU7c6BlG) (:text |true)
                         |j $ %{} :Leaf (:at 1611982751120) (:by |SygU7c6BlG) (:text |0)
-            :doc |
-          |literal? $ %{} :CodeEntry
+          |literal? $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1500476982536) (:by nil)
               :data $ {}
                 |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |defn)
@@ -9533,8 +9390,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1611982522205) (:by |SygU7c6BlG) (:text |symbol?)
                         |j $ %{} :Leaf (:at 1611982522564) (:by |SygU7c6BlG) (:text |x)
-            :doc |
-          |vec-add $ %{} :CodeEntry
+          |vec-add $ %{} :CodeEntry (:doc |)
             :code $ %{} :Expr (:at 1510399074262) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1510399074262) (:by |root) (:text |defn)
@@ -9567,13 +9423,11 @@
                                 |b $ %{} :Leaf (:at 1691079194664) (:by |SygU7c6BlG) (:text |xs)
                                 |h $ %{} :Leaf (:at 1691079197652) (:by |SygU7c6BlG) (:text |y0)
                             |h $ %{} :Leaf (:at 1691079199598) (:by |SygU7c6BlG) (:text |yss)
-            :doc |
-        :ns $ %{} :CodeEntry
+        :ns $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
             :data $ {}
               |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |ns)
               |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |recollect.util)
-          :doc |
     :root $ {} (:def |main!) (:ns |main)
   :users $ {}
     |SygU7c6BlG $ {} (:avatar nil) (:id |SygU7c6BlG) (:name |chen) (:nickname |chen) (:password |d41d8cd98f00b204e9800998ecf8427e) (:theme :star-trail)
