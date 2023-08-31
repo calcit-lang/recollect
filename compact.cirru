@@ -1,14 +1,14 @@
 
 {} (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.13)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.14)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!)
       :modules $ [] |calcit-test/
   :files $ {}
-    |recollect.app.comp.container $ {}
+    |recollect.app.comp.container $ %{} :FileEntry
       :defs $ {}
-        |comp-container $ %{} :CodeEntry
+        |comp-container $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-container (data-twig client-store)
               let
@@ -36,14 +36,12 @@
                       pre $ {}
                         :style $ {} (:line-height "\"1.4") (:margin "\"0 8px")
                         :inner-text $ format-cirru-edn changes
-          :doc |
-        |css-code-block $ %{} :CodeEntry
+        |css-code-block $ %{} :CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-block $ {}
               "\"$0" $ {} (:line-height "\"20px") (:margin 0) (:padding "\"8px") (:border-radius "\"4px")
                 :background-color $ hsl 0 0 90
-          :doc |
-        |deep-a $ %{} :CodeEntry
+        |deep-a $ %{} :CodeEntry (:doc |)
           :code $ quote
             def deep-a $ {}
               :a $ {}
@@ -52,8 +50,7 @@
                     {} (:kind :leaf) (:text "\"demo") (:time :a) (:by "\"me")
                       :children $ {} (:a 1) (:b 2)
               :aa1 2
-          :doc |
-        |deep-b $ %{} :CodeEntry
+        |deep-b $ %{} :CodeEntry (:doc |)
           :code $ quote
             def deep-b $ {}
               :a $ {}
@@ -62,8 +59,7 @@
                     {} (:kind :leaf) (:text "\"demo2") (:time 112) (:by "\"me2")
                       :children $ {} (:a 1) (:b 3)
               :aa1 4
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns recollect.app.comp.container $ :require
             respo-ui.core :refer $ hsl
@@ -75,10 +71,9 @@
             respo-value.comp.value :refer $ comp-value
             memof.alias :refer $ memof-call
             recollect.diff :refer $ diff-twig
-        :doc |
-    |recollect.app.comp.panel $ {}
+    |recollect.app.comp.panel $ %{} :FileEntry
       :defs $ {}
-        |comp-panel $ %{} :CodeEntry
+        |comp-panel $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-panel () $ div ({})
               div
@@ -112,53 +107,43 @@
               div
                 {} $ :style style-line
                 render-button "|Change types" :types
-          :doc |
-        |on-click $ %{} :CodeEntry
+        |on-click $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn on-click (op)
               fn (e dispatch!)
                 dispatch! op $ js/Math.round
                   * 100 $ js/Math.random
-          :doc |
-        |render-button $ %{} :CodeEntry
+        |render-button $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn render-button (title op)
               div $ {} (:style ui/button) (:inner-text title)
                 :on-click $ on-click op
-          :doc |
-        |style-line $ %{} :CodeEntry
+        |style-line $ %{} :CodeEntry (:doc |)
           :code $ quote
             def style-line $ {} (:height |40px)
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns recollect.app.comp.panel $ :require
             [] hsl.core :refer $ [] hsl
             [] respo-ui.core :as ui
             [] respo.core :refer $ [] defcomp <> span div
             [] respo.comp.space :refer $ [] =<
-        :doc |
-    |recollect.app.config $ {}
+    |recollect.app.config $ %{} :FileEntry
       :defs $ {}
-        |dev? $ %{} :CodeEntry
+        |dev? $ %{} :CodeEntry (:doc |)
           :code $ quote (def dev? true)
-          :doc |
-        |site $ %{} :CodeEntry
+        |site $ %{} :CodeEntry (:doc |)
           :code $ quote
             def site $ {} (:dev-ui "\"http://localhost:8100/main-fonts.css") (:release-ui "\"http://cdn.tiye.me/favored-fonts/main-fonts.css") (:cdn-url "\"http://cdn.tiye.me/recollect/") (:cdn-folder "\"tiye.me:cdn/recollect") (:title "\"Recollect") (:icon "\"http://cdn.tiye.me/logo/cirru.png") (:storage-key "\"recollect") (:upload-folder "\"tiye.me:repo/Cumulo/recollect/")
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ quote (ns recollect.app.config)
-        :doc |
-    |recollect.app.main $ {}
+    |recollect.app.main $ %{} :FileEntry
       :defs $ {}
-        |*client-store $ %{} :CodeEntry
+        |*client-store $ %{} :CodeEntry (:doc |)
           :code $ quote (defatom *client-store schema/store)
-          :doc |
-        |*data-twig $ %{} :CodeEntry
+        |*data-twig $ %{} :CodeEntry (:doc |)
           :code $ quote (defatom *data-twig nil)
-          :doc |
-        |*store $ %{} :CodeEntry
+        |*store $ %{} :CodeEntry (:doc |)
           :code $ quote
             defatom *store $ merge schema/store
               {} (:lit-0 1)
@@ -174,14 +159,12 @@
                 :date $ {} (:year 2016) (:month 10)
                 :user $ {} (:name |Chen)
                 :types $ {} (:name 1) (|name 2)
-          :doc |
-        |dispatch! $ %{} :CodeEntry
+        |dispatch! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn dispatch! (op)
               when (and config/dev?) (js/console.log "\"Dispatch:" op)
               reset! *store $ updater @*store op
-          :doc |
-        |main! $ %{} :CodeEntry
+        |main! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn main! () (load-console-formatter!)
               println "\"Running mode:" $ if config/dev? "\"dev" "\"release"
@@ -191,12 +174,10 @@
               add-watch *client-store :changes $ fn (client-store prev) (render-app! render!)
               ; render-data-twig!
               println "|app started!"
-          :doc |
-        |mount-target $ %{} :CodeEntry
+        |mount-target $ %{} :CodeEntry (:doc |)
           :code $ quote
             def mount-target $ .querySelector js/document |.app
-          :doc |
-        |reload! $ %{} :CodeEntry
+        |reload! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn reload! () $ if (nil? build-errors)
               do (remove-watch *store :changes) (remove-watch *client-store :changes) (clear-cache!)
@@ -207,13 +188,11 @@
                 render-app! render!
                 hud! "\"ok~" "\"Ok"
               hud! "\"error" build-errors
-          :doc |
-        |render-app! $ %{} :CodeEntry
+        |render-app! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn render-app! (renderer)
               renderer mount-target (comp-container @*data-twig @*client-store) dispatch!
-          :doc |
-        |render-data-twig! $ %{} :CodeEntry
+        |render-data-twig! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn render-data-twig! () $ let
                 data-twig $ twig-container @*store
@@ -225,16 +204,13 @@
               let
                   new-client $ patch-twig @*client-store changes
                 reset! *client-store new-client
-          :doc |
-        |ssr? $ %{} :CodeEntry
+        |ssr? $ %{} :CodeEntry (:doc |)
           :code $ quote
             def ssr? $ some? (.querySelector js/document |meta.respo-ssr)
-          :doc |
-        |test! $ %{} :CodeEntry
+        |test! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test! () $ run-tests
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns recollect.app.main $ :require
             respo.core :refer $ render! clear-cache! realize-ssr!
@@ -250,28 +226,24 @@
             recollect.test :refer $ run-tests
             "\"./calcit.build-errors" :default build-errors
             "\"bottom-tip" :default hud!
-        :doc |
-    |recollect.app.twig.container $ {}
+    |recollect.app.twig.container $ %{} :FileEntry
       :defs $ {}
-        |twig-card $ %{} :CodeEntry
+        |twig-card $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn twig-card (user date)
               {} (:user user) (:date date)
-          :doc |
-        |twig-container $ %{} :CodeEntry
+        |twig-container $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn twig-container (store)
               merge store $ {}
                 :card $ memof-call twig-card (:user store) (:date store)
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns recollect.app.twig.container $ :require
             [] memof.alias :refer $ [] memof-call
-        :doc |
-    |recollect.app.updater $ {}
+    |recollect.app.updater $ %{} :FileEntry
       :defs $ {}
-        |updater $ %{} :CodeEntry
+        |updater $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn updater (store op)
               tag-match op
@@ -306,20 +278,17 @@
                 (:types d)
                   update store :types $ fn (types-map) (assoc types-map d true)
                 _ $ do (eprintln "|Unhandled op:" op) store
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns recollect.app.updater $ :require
             [] respo.cursor :refer $ [] update-states
-        :doc |
-    |recollect.diff $ {}
+    |recollect.diff $ %{} :FileEntry
       :defs $ {}
-        |by-key $ %{} :CodeEntry
+        |by-key $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn by-key (x y)
               &compare (first x) (first y)
-          :doc |
-        |diff-map $ %{} :CodeEntry
+        |diff-map $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn diff-map (collect! a b options)
               let
@@ -344,8 +313,7 @@
                           vb $ &map:get b common-k
                         wrap-pick collect! common-k $ fn (collect-children!)
                           if (not= va vb) (diff-twig-iterate collect-children! va vb options)
-          :doc |
-        |diff-record $ %{} :CodeEntry
+        |diff-record $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn diff-record (collect! a b options)
               if-not (identical? a b)
@@ -357,8 +325,7 @@
                         fn (collect-children!)
                           diff-twig-iterate collect-children! va (&record:get b k) options
                   collect! $ :: :replace b
-          :doc |
-        |diff-set $ %{} :CodeEntry
+        |diff-set $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn diff-set (collect! a b)
               ; assert "|[Recollect] sets to diff should hold literals" $ or (coll? a) (coll? b)
@@ -366,8 +333,7 @@
                   added $ difference b a
                   removed $ difference a b
                 collect! $ :: :set-splice removed added
-          :doc |
-        |diff-tuple $ %{} :CodeEntry
+        |diff-tuple $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn diff-tuple (collect! a b options)
               if
@@ -383,8 +349,7 @@
                         i $ inc idx
                       wrap-pick collect! i $ fn (collect-children!)
                         diff-twig-iterate collect-children! (nth a i) (nth b i) options
-          :doc |
-        |diff-twig $ %{} :CodeEntry
+        |diff-twig $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn diff-twig (a b options)
               if (identical? a b) ([])
@@ -393,8 +358,7 @@
                     collect! $ fn (x) (swap! *changes conj x)
                   diff-twig-iterate collect! a b options
                   , @*changes
-          :doc |
-        |diff-twig-iterate $ %{} :CodeEntry
+        |diff-twig-iterate $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn diff-twig-iterate (collect! a b options)
               if-not (identical? a b)
@@ -413,8 +377,7 @@
                     (record? b) (diff-record collect! a b options)
                     (ref? b) (eprintln "\"[Error] unexpected ref to compare")
                     true $ do (eprintln "|[Warning] unexpected data:" a b)
-          :doc |
-        |find-vector-changes $ %{} :CodeEntry
+        |find-vector-changes $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn find-vector-changes (collect! idx a-items b-items options) (; println idx a-items b-items)
               cond
@@ -428,8 +391,7 @@
                   wrap-pick collect! idx $ fn (collect-children!)
                     diff-twig-iterate collect-children! (first a-items) (first b-items) options
                   recur collect! (inc idx) (rest a-items) (rest b-items) options
-          :doc |
-        |fold-update $ %{} :CodeEntry
+        |fold-update $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn fold-update (k c0)
               tag-match c0
@@ -442,8 +404,7 @@
                 (:pick-in ks cs)
                   :: :pick-in (prepend ks k) cs
                 _ $ :: :update k c0
-          :doc |
-        |wrap-pick $ %{} :CodeEntry
+        |wrap-pick $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn wrap-pick (collect! k callback)
               let
@@ -464,25 +425,21 @@
                             collect! $ :: :update k c0
                           _ $ collect! (fold-update k c0)
                       collect! $ :: :pick k chunk
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns recollect.diff $ :require
             recollect.util :refer $ literal? =seq compare-more
             recollect.schema :as schema
-        :doc |
-    |recollect.patch $ {}
+    |recollect.patch $ %{} :FileEntry
       :defs $ {}
-        |patch-map $ %{} :CodeEntry
+        |patch-map $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn patch-map (base removed added)
               -> base (unselect-keys removed) (merge added)
-          :doc |
-        |patch-map-set $ %{} :CodeEntry
+        |patch-map-set $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn patch-map-set (base k data) (assoc base k data)
-          :doc |
-        |patch-one $ %{} :CodeEntry
+        |patch-one $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn patch-one (base change)
               tag-match change
@@ -502,46 +459,38 @@
                 (:pick-in ks changes)
                   update-in base ks $ fn (o) (patch-twig o changes)
                 _ $ do (eprintln "|Unkown op:" change) base
-          :doc |
-        |patch-set $ %{} :CodeEntry
+        |patch-set $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn patch-set (base removed added)
               -> base (difference removed) (union added)
-          :doc |
-        |patch-twig $ %{} :CodeEntry
+        |patch-twig $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn patch-twig (base changes)
               list-match changes
                 () base
                 (c0 cs)
                   recur (patch-one base c0) cs
-          :doc |
-        |patch-vector-append $ %{} :CodeEntry
+        |patch-vector-append $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn patch-vector-append (base data) (vec-add base data)
-          :doc |
-        |patch-vector-drop $ %{} :CodeEntry
+        |patch-vector-drop $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn patch-vector-drop (base data) (slice base 0 data)
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns recollect.patch $ :require (recollect.schema :as schema)
             recollect.util :refer $ vec-add seq-add
-        :doc |
-    |recollect.schema $ {}
+    |recollect.schema $ %{} :FileEntry
       :defs $ {}
-        |store $ %{} :CodeEntry
+        |store $ %{} :CodeEntry (:doc |)
           :code $ quote
             def store $ {}
               :states $ {}
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ quote (ns recollect.schema)
-        :doc |
-    |recollect.test $ {}
+    |recollect.test $ %{} :FileEntry
       :defs $ {}
-        |run-tests $ %{} :CodeEntry
+        |run-tests $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn run-tests ()
               when
@@ -558,8 +507,7 @@
               test-diff-map-same-id
               test-diff-funcs
               test-diff-tuple
-          :doc |
-        |test-diff-funcs $ %{} :CodeEntry
+        |test-diff-funcs $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-funcs $ testing "\"diff functions"
               let
@@ -571,8 +519,7 @@
                   options $ {} (:key :id)
                   changes $ []
                 is $ = changes (diff-twig a0 b options)
-          :doc |
-        |test-diff-map-by-ids $ %{} :CodeEntry
+        |test-diff-map-by-ids $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-map-by-ids $ testing "\"diff map by diffs"
               let
@@ -583,8 +530,7 @@
                     :: :replace $ {} (:id 2) (:data 1)
                 is $ = changes (diff-twig a b options)
                 is $ = b (patch-twig a changes)
-          :doc |
-        |test-diff-map-same-id $ %{} :CodeEntry
+        |test-diff-map-same-id $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-map-same-id $ testing "\"diff map same id"
               let
@@ -594,8 +540,7 @@
                   changes $ [] (:: :assoc :data 2)
                 is $ = changes (diff-twig a b options)
                 is $ = b (patch-twig a changes)
-          :doc |
-        |test-diff-maps $ %{} :CodeEntry
+        |test-diff-maps $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-maps $ testing "\"diff maps"
               let
@@ -609,8 +554,7 @@
                       {} $ :c 2
                 is $ = changes (diff-twig a b options)
                 is $ = b (patch-twig a changes)
-          :doc |
-        |test-diff-records $ %{} :CodeEntry
+        |test-diff-records $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-records $ testing "\"diff records"
               let
@@ -621,8 +565,7 @@
                   changes $ [] (:: :assoc :age 11) (:: :assoc :name "\"Lucy")
                 is $ = changes (diff-twig a b options)
                 is $ = b (patch-twig a changes)
-          :doc |
-        |test-diff-same-sets $ %{} :CodeEntry
+        |test-diff-same-sets $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-same-sets $ testing "\"diff same sets"
               let
@@ -634,8 +577,7 @@
                   changes $ []
                 ; print changes
                 is $ = changes (diff-twig a b options)
-          :doc |
-        |test-diff-same-tag $ %{} :CodeEntry
+        |test-diff-same-tag $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-same-tag $ testing "\"diff same tag"
               let
@@ -645,8 +587,7 @@
                   changes $ []
                 is $ = changes (diff-twig a b options)
                 is $ = b (patch-twig a changes)
-          :doc |
-        |test-diff-sets $ %{} :CodeEntry
+        |test-diff-sets $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-sets $ testing "\"diff sets"
               let
@@ -659,8 +600,7 @@
                     :: :update :a $ :: :set-splice (#{} 1) (#{} 4)
                 is $ = changes (diff-twig a b options)
                 is $ = b (patch-twig a changes)
-          :doc |
-        |test-diff-tuple $ %{} :CodeEntry
+        |test-diff-tuple $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-tuple
               testing "\"diff different tuples" $ let
@@ -703,8 +643,7 @@
                 is $ = changes
                   diff-twig a b $ {}
                 is $ = b (patch-twig a changes)
-          :doc |
-        |test-diff-vectors $ %{} :CodeEntry
+        |test-diff-vectors $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-vectors $ testing "\"diff vectors"
               let
@@ -717,16 +656,14 @@
                     :: :pick :a $ [] (:: :assoc 1 6) (:: :assoc 2 7) (:: :assoc 3 8)
                 is $ = changes (diff-twig a b options)
                 is $ = b (patch-twig a changes)
-          :doc |
-        |test-vec-add $ %{} :CodeEntry
+        |test-vec-add $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-vec-add $ testing "\"vec-add"
               let
                   a $ [] 1 2 3 4
                   b $ [] 5 6 7 8
                 is $ = (vec-add a b) ([] 1 2 3 4 5 6 7 8)
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns recollect.test $ :require
             calcit-test.core :refer $ deftest testing is *quit-on-failure?
@@ -734,29 +671,24 @@
             recollect.patch :refer $ patch-twig
             recollect.schema :as schema
             recollect.util :refer $ vec-add
-        :doc |
-    |recollect.twig $ {}
+    |recollect.twig $ %{} :FileEntry
       :defs $ {}
-        |clear-twig-caches! $ %{} :CodeEntry
+        |clear-twig-caches! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn clear-twig-caches! () $ reset-calling-caches!
-          :doc |
-        |new-twig-loop! $ %{} :CodeEntry
+        |new-twig-loop! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn new-twig-loop! () $ tick-calling-loop!
-          :doc |
-        |show-tag-summay $ %{} :CodeEntry
+        |show-tag-summay $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn show-twig-summay () $ memof/show-summary @*memof-call-states
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns recollect.twig $ :require ([] memof.core :as memof)
             [] memof.alias :refer $ [] reset-calling-caches! *memof-call-states tick-calling-loop! memof-call
-        :doc |
-    |recollect.util $ {}
+    |recollect.util $ %{} :FileEntry
       :defs $ {}
-        |=seq $ %{} :CodeEntry
+        |=seq $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn =seq (xs ys)
               list-match xs
@@ -771,8 +703,7 @@
                           do (; "\"functions changes designed to be ignored.") true
                           recur xss yss
                         , false
-          :doc |
-        |compare $ %{} :CodeEntry
+        |compare $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn compare (x y)
               cond
@@ -780,20 +711,16 @@
                   , -1
                 (&> x y) 1
                 true 0
-          :doc |
-        |literal? $ %{} :CodeEntry
+        |literal? $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn literal? (x)
               or (string? x) (number? x) (bool? x) (nil? x) (tag? x) (symbol? x)
-          :doc |
-        |vec-add $ %{} :CodeEntry
+        |vec-add $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn vec-add (xs ys)
               list-match ys
                 () xs
                 (y0 yss)
                   recur (conj xs y0) yss
-          :doc |
-      :ns $ %{} :CodeEntry
+      :ns $ %{} :CodeEntry (:doc |)
         :code $ quote (ns recollect.util)
-        :doc |
