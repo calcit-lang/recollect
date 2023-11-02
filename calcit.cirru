@@ -1,6 +1,6 @@
 
 {} (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:port 6001) (:reload-fn |recollect.app.main/reload!) (:version |0.0.15)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:port 6001) (:reload-fn |recollect.app.main/reload!) (:version |0.0.16)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!)
@@ -4480,16 +4480,6 @@
               |v $ %{} :Expr (:at 1593252596729) (:by |SygU7c6BlG)
                 :data $ {}
                   |T $ %{} :Leaf (:at 1698946459681) (:by |SygU7c6BlG) (:text |reset-memof1-caches!)
-        |new-twig-loop! $ %{} :CodeEntry (:doc |)
-          :code $ %{} :Expr (:at 1593253142551) (:by |SygU7c6BlG)
-            :data $ {}
-              |T $ %{} :Leaf (:at 1593253142551) (:by |SygU7c6BlG) (:text |defn)
-              |j $ %{} :Leaf (:at 1593253142551) (:by |SygU7c6BlG) (:text |new-twig-loop!)
-              |r $ %{} :Expr (:at 1593253142551) (:by |SygU7c6BlG)
-                :data $ {}
-              |v $ %{} :Expr (:at 1593253153364) (:by |SygU7c6BlG)
-                :data $ {}
-                  |T $ %{} :Leaf (:at 1611978896169) (:by |SygU7c6BlG) (:text |tick-calling-loop!)
         |show-tag-summay $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1593965917428) (:by |SygU7c6BlG)
             :data $ {}

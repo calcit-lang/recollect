@@ -1,6 +1,6 @@
 
 {} (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.15)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.16)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!)
@@ -676,9 +676,6 @@
         |clear-twig-caches! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn clear-twig-caches! () $ reset-memof1-caches!
-        |new-twig-loop! $ %{} :CodeEntry (:doc |)
-          :code $ quote
-            defn new-twig-loop! () $ tick-calling-loop!
         |show-tag-summay $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn show-twig-summay () $ memof/show-summary @*memof-call-states
