@@ -1,6 +1,6 @@
 
 {} (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.14)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.16)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!)
@@ -17,7 +17,7 @@
                   {} $ :style (merge ui/global ui/fullscreen)
                   div
                     {} $ :style ui/row
-                    memof-call comp-panel
+                    memof1-call comp-panel
                     div
                       {} $ :style ui/expand
                       div
@@ -69,7 +69,7 @@
             respo.comp.space :refer $ =<
             recollect.app.comp.panel :refer $ comp-panel
             respo-value.comp.value :refer $ comp-value
-            memof.alias :refer $ memof-call
+            memof.once :refer $ memof1-call
             recollect.diff :refer $ diff-twig
     |recollect.app.comp.panel $ %{} :FileEntry
       :defs $ {}
@@ -176,7 +176,7 @@
               println "|app started!"
         |mount-target $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def mount-target $ .querySelector js/document |.app
+            def mount-target $ js/document.querySelector |.app
         |reload! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn reload! () $ if (nil? build-errors)
@@ -206,7 +206,7 @@
                 reset! *client-store new-client
         |ssr? $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def ssr? $ some? (.querySelector js/document |meta.respo-ssr)
+            def ssr? $ some? (js/document.querySelector |meta.respo-ssr)
         |test! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test! () $ run-tests
@@ -236,11 +236,11 @@
           :code $ quote
             defn twig-container (store)
               merge store $ {}
-                :card $ memof-call twig-card (:user store) (:date store)
+                :card $ memof1-call twig-card (:user store) (:date store)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns recollect.app.twig.container $ :require
-            [] memof.alias :refer $ [] memof-call
+            memof.once :refer $ memof1-call
     |recollect.app.updater $ %{} :FileEntry
       :defs $ {}
         |updater $ %{} :CodeEntry (:doc |)
@@ -675,17 +675,14 @@
       :defs $ {}
         |clear-twig-caches! $ %{} :CodeEntry (:doc |)
           :code $ quote
-            defn clear-twig-caches! () $ reset-calling-caches!
-        |new-twig-loop! $ %{} :CodeEntry (:doc |)
-          :code $ quote
-            defn new-twig-loop! () $ tick-calling-loop!
+            defn clear-twig-caches! () $ reset-memof1-caches!
         |show-tag-summay $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn show-twig-summay () $ memof/show-summary @*memof-call-states
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
-          ns recollect.twig $ :require ([] memof.core :as memof)
-            [] memof.alias :refer $ [] reset-calling-caches! *memof-call-states tick-calling-loop! memof-call
+          ns recollect.twig $ :require
+            memof.once :refer $ reset-memof1-caches! memof1-call
     |recollect.util $ %{} :FileEntry
       :defs $ {}
         |=seq $ %{} :CodeEntry (:doc |)

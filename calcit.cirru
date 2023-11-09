@@ -1,6 +1,6 @@
 
 {} (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:port 6001) (:reload-fn |recollect.app.main/reload!) (:version |0.0.14)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:port 6001) (:reload-fn |recollect.app.main/reload!) (:version |0.0.16)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!)
@@ -55,7 +55,7 @@
                                   |j $ %{} :Leaf (:at 1611985708012) (:by |SygU7c6BlG) (:text |ui/row)
                           |r $ %{} :Expr (:at 1509464095098) (:by |root)
                             :data $ {}
-                              |D $ %{} :Leaf (:at 1611983680369) (:by |SygU7c6BlG) (:text |memof-call)
+                              |D $ %{} :Leaf (:at 1698946388230) (:by |SygU7c6BlG) (:text |memof1-call)
                               |T $ %{} :Leaf (:at 1509464861363) (:by |root) (:text |comp-panel)
                           |v $ %{} :Expr (:at 1611985712764) (:by |SygU7c6BlG)
                             :data $ {}
@@ -433,11 +433,11 @@
                         |T $ %{} :Leaf (:at 1509464136290) (:by |root) (:text |comp-value)
                 |yj $ %{} :Expr (:at 1611983682281) (:by |SygU7c6BlG)
                   :data $ {}
-                    |j $ %{} :Leaf (:at 1611983702070) (:by |SygU7c6BlG) (:text |memof.alias)
+                    |j $ %{} :Leaf (:at 1698946366864) (:by |SygU7c6BlG) (:text |memof.once)
                     |r $ %{} :Leaf (:at 1611983691660) (:by |SygU7c6BlG) (:text |:refer)
                     |v $ %{} :Expr (:at 1611983692154) (:by |SygU7c6BlG)
                       :data $ {}
-                        |j $ %{} :Leaf (:at 1611983700170) (:by |SygU7c6BlG) (:text |memof-call)
+                        |j $ %{} :Leaf (:at 1698946384121) (:by |SygU7c6BlG) (:text |memof1-call)
                 |z $ %{} :Expr (:at 1690104001492) (:by |SygU7c6BlG)
                   :data $ {}
                     |T $ %{} :Leaf (:at 1690104010712) (:by |SygU7c6BlG) (:text |recollect.diff)
@@ -1025,8 +1025,7 @@
               |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |mount-target)
               |r $ %{} :Expr (:at 1500476982536) (:by nil)
                 :data $ {}
-                  |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |.querySelector)
-                  |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |js/document)
+                  |j $ %{} :Leaf (:at 1698946497268) (:by |SygU7c6BlG) (:text |js/document.querySelector)
                   |r $ %{} :Leaf (:at 1500476982536) (:by |root) (:text ||.app)
         |reload! $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1500476982536) (:by nil)
@@ -1210,8 +1209,7 @@
                   |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |some?)
                   |j $ %{} :Expr (:at 1500476982536) (:by nil)
                     :data $ {}
-                      |T $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |.querySelector)
-                      |j $ %{} :Leaf (:at 1500476982536) (:by |root) (:text |js/document)
+                      |j $ %{} :Leaf (:at 1698946513195) (:by |SygU7c6BlG) (:text |js/document.querySelector)
                       |r $ %{} :Leaf (:at 1500476982536) (:by |root) (:text ||meta.respo-ssr)
         |test! $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1614082439559) (:by |SygU7c6BlG)
@@ -1358,7 +1356,7 @@
                           |T $ %{} :Leaf (:at 1511001917899) (:by |root) (:text |:card)
                           |j $ %{} :Expr (:at 1511001917899) (:by |root)
                             :data $ {}
-                              |D $ %{} :Leaf (:at 1611979052416) (:by |SygU7c6BlG) (:text |memof-call)
+                              |D $ %{} :Leaf (:at 1698946398704) (:by |SygU7c6BlG) (:text |memof1-call)
                               |T $ %{} :Leaf (:at 1511001917899) (:by |root) (:text |twig-card)
                               |j $ %{} :Expr (:at 1511001917899) (:by |root)
                                 :data $ {}
@@ -1378,13 +1376,11 @@
                 |T $ %{} :Leaf (:at 1511002058945) (:by |root) (:text |:require)
                 |v $ %{} :Expr (:at 1611979055915) (:by |SygU7c6BlG)
                   :data $ {}
-                    |T $ %{} :Leaf (:at 1611979056402) (:by |SygU7c6BlG) (:text |[])
-                    |j $ %{} :Leaf (:at 1611979060983) (:by |SygU7c6BlG) (:text |memof.alias)
+                    |j $ %{} :Leaf (:at 1698946408368) (:by |SygU7c6BlG) (:text |memof.once)
                     |r $ %{} :Leaf (:at 1611979061729) (:by |SygU7c6BlG) (:text |:refer)
                     |v $ %{} :Expr (:at 1611979061906) (:by |SygU7c6BlG)
                       :data $ {}
-                        |T $ %{} :Leaf (:at 1611979062085) (:by |SygU7c6BlG) (:text |[])
-                        |j $ %{} :Leaf (:at 1611979065320) (:by |SygU7c6BlG) (:text |memof-call)
+                        |j $ %{} :Leaf (:at 1698946412066) (:by |SygU7c6BlG) (:text |memof1-call)
     |recollect.app.updater $ %{} :FileEntry
       :defs $ {}
         |updater $ %{} :CodeEntry (:doc |)
@@ -4483,17 +4479,7 @@
                 :data $ {}
               |v $ %{} :Expr (:at 1593252596729) (:by |SygU7c6BlG)
                 :data $ {}
-                  |T $ %{} :Leaf (:at 1611978865429) (:by |SygU7c6BlG) (:text |reset-calling-caches!)
-        |new-twig-loop! $ %{} :CodeEntry (:doc |)
-          :code $ %{} :Expr (:at 1593253142551) (:by |SygU7c6BlG)
-            :data $ {}
-              |T $ %{} :Leaf (:at 1593253142551) (:by |SygU7c6BlG) (:text |defn)
-              |j $ %{} :Leaf (:at 1593253142551) (:by |SygU7c6BlG) (:text |new-twig-loop!)
-              |r $ %{} :Expr (:at 1593253142551) (:by |SygU7c6BlG)
-                :data $ {}
-              |v $ %{} :Expr (:at 1593253153364) (:by |SygU7c6BlG)
-                :data $ {}
-                  |T $ %{} :Leaf (:at 1611978896169) (:by |SygU7c6BlG) (:text |tick-calling-loop!)
+                  |T $ %{} :Leaf (:at 1698946459681) (:by |SygU7c6BlG) (:text |reset-memof1-caches!)
         |show-tag-summay $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1593965917428) (:by |SygU7c6BlG)
             :data $ {}
@@ -4513,24 +4499,14 @@
             |r $ %{} :Expr (:at 1511003739385) (:by |root)
               :data $ {}
                 |T $ %{} :Leaf (:at 1511003739385) (:by |root) (:text |:require)
-                |v $ %{} :Expr (:at 1593251136801) (:by |SygU7c6BlG)
-                  :data $ {}
-                    |T $ %{} :Leaf (:at 1593251137708) (:by |SygU7c6BlG) (:text |[])
-                    |j $ %{} :Leaf (:at 1594531306617) (:by |SygU7c6BlG) (:text |memof.core)
-                    |r $ %{} :Leaf (:at 1593251141298) (:by |SygU7c6BlG) (:text |:as)
-                    |v $ %{} :Leaf (:at 1594531308972) (:by |SygU7c6BlG) (:text |memof)
                 |x $ %{} :Expr (:at 1611978870944) (:by |SygU7c6BlG)
                   :data $ {}
-                    |T $ %{} :Leaf (:at 1611978871902) (:by |SygU7c6BlG) (:text |[])
-                    |j $ %{} :Leaf (:at 1611978877387) (:by |SygU7c6BlG) (:text |memof.alias)
+                    |j $ %{} :Leaf (:at 1698946428390) (:by |SygU7c6BlG) (:text |memof.once)
                     |r $ %{} :Leaf (:at 1611978878972) (:by |SygU7c6BlG) (:text |:refer)
                     |v $ %{} :Expr (:at 1611978879165) (:by |SygU7c6BlG)
                       :data $ {}
-                        |T $ %{} :Leaf (:at 1611978879372) (:by |SygU7c6BlG) (:text |[])
-                        |j $ %{} :Leaf (:at 1611978879819) (:by |SygU7c6BlG) (:text |reset-calling-caches!)
-                        |r $ %{} :Leaf (:at 1611978931210) (:by |SygU7c6BlG) (:text |*memof-call-states)
-                        |v $ %{} :Leaf (:at 1611978940330) (:by |SygU7c6BlG) (:text |tick-calling-loop!)
-                        |x $ %{} :Leaf (:at 1611978978848) (:by |SygU7c6BlG) (:text |memof-call)
+                        |j $ %{} :Leaf (:at 1698946451734) (:by |SygU7c6BlG) (:text |reset-memof1-caches!)
+                        |x $ %{} :Leaf (:at 1698946432928) (:by |SygU7c6BlG) (:text |memof1-call)
     |recollect.util $ %{} :FileEntry
       :defs $ {}
         |=seq $ %{} :CodeEntry (:doc |)

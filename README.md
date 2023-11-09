@@ -10,7 +10,6 @@ Diff/patch library designed for Cumulo project.
 
 ```cirru
 recollect.twig/clear-twig-caches!
-recollect.twig/new-twig-loop!
 
 recollect.diff/diff-twig old-data new-data {:key :id}
 recollect.diff/patch-twig old-data new-data changes
