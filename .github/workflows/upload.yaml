@@ -29,7 +29,7 @@ jobs:
 
     - name: "js tests"
       run: >
-        cr --entry test js -1 && env=ci node test.mjs
+        cr --entry test -1 js && env=ci node test.mjs
 
     - name: "compiles to js"
       run: >
