@@ -17,9 +17,9 @@ jobs:
         node-version: 20
         cache: 'yarn'
 
-    - uses: calcit-lang/setup-cr@0.0.3
+    - uses: calcit-lang/setup-cr@0.0.7
       with:
-        version: "0.8.50"
+        bundler: false
 
     - name: "deps"
       run: yarn && caps --ci
@@ -29,11 +29,11 @@ jobs:
 
     - name: "js tests"
       run: >
-        cr --entry test --emit-js -1 && env=ci node test.mjs
+        cr --entry test js -1 && env=ci node test.mjs
 
     - name: "compiles to js"
       run: >
-        cr --emit-js -1
+        cr -1 js
         && yarn vite build --base=./
 
     - name: Deploy to server
