@@ -6,4 +6,11 @@ js-out/
 node_modules/
 dist/
 
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
 .DS_Store
