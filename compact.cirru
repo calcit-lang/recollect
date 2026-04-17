@@ -310,78 +310,98 @@
             quote $ by-key (:: :a 1) (:: :b 2)
         |diff-map $ %{} :CodeEntry (:doc "|Internal function to compute diff between two maps. Collects :map-splice operations for removed and added entries.") (:schema :dynamic)
           :code $ quote
-            defn diff-map (collect! a b options)
+            defn diff-map (a b options)
               let
                   id-k $ if (nil? options) :id (&map:get options :key)
                   ka $ &map:get a id-k
                   kb $ &map:get b id-k
                 if
                   and (some? ka) (not= ka kb)
-                  collect! $ :: :replace b
+                  [] $ :: :replace b
                   let
                       new-diff $ &map:diff-new b a
                       drop-keys $ &map:diff-keys a b
                       common-keys $ &map:common-keys a b
-                      a-pairs $ sort (&map:to-list a) by-key
-                      b-pairs $ sort (&map:to-list b) by-key
-                    if
-                      not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
-                      collect! $ :: :map-splice drop-keys new-diff
-                    &doseq (common-k common-keys)
+                      splice-changes $ if
+                        not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
+                        [] $ :: :map-splice drop-keys new-diff
+                        []
+                      common-pairs $ &map:to-list a
+                    diff-map-step splice-changes common-pairs common-keys b options
+          :examples $ []
+        |diff-map-step $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn diff-map-step (acc pairs common-keys b options)
+              list-match pairs
+                () acc
+                (pair rest-pairs)
+                  let
+                      common-k $ first pair
+                    if (&set:includes? common-keys common-k)
                       let
-                          va $ &map:get a common-k
+                          va $ nth pair 1
                           vb $ &map:get b common-k
-                        wrap-pick collect! common-k $ fn (collect-children!)
-                          if (not= va vb) (diff-twig-iterate collect-children! va vb options)
+                        if (not= va vb)
+                          let
+                              child-changes $ diff-twig-iterate va vb options
+                              wrapped $ wrap-pick common-k child-changes
+                            diff-map-step (concat acc wrapped) rest-pairs common-keys b options
+                          diff-map-step acc rest-pairs common-keys b options
+                      diff-map-step acc rest-pairs common-keys b options
           :examples $ []
         |diff-record $ %{} :CodeEntry (:doc "|Internal function to compute diff between two records. Only diffs records of the same type.") (:schema :dynamic)
           :code $ quote
-            defn diff-record (collect! a b options)
-              if-not (identical? a b)
+            defn diff-record (a b options)
+              if (identical? a b) ([])
                 if (&record:matches? a b)
+                  diff-record-step ([]) 0 (&record:count a) a b options
+                  [] $ :: :replace b
+          :examples $ []
+        |diff-record-step $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn diff-record-step (acc idx n a b options)
+              if (&>= idx n) acc $ let
+                  va $ &record:nth a idx
+                  vb $ &record:nth b idx
+                if (identical? va vb)
+                  diff-record-step acc (&+ idx 1) n a b options
                   let
-                      a-pairs $ to-pairs a
-                    &doseq (pair a-pairs)
-                      let[] (k va) pair $ wrap-pick collect! k
-                        fn (collect-children!)
-                          diff-twig-iterate collect-children! va (&record:get b k) options
-                  collect! $ :: :replace b
+                      child-changes $ diff-twig-iterate va vb options
+                      wrapped $ wrap-pick idx child-changes
+                    diff-record-step (concat acc wrapped) (&+ idx 1) n a b options
           :examples $ []
         |diff-set $ %{} :CodeEntry (:doc "|Internal function to compute diff between two sets. Collects :set-splice operations for removed and added elements.") (:schema :dynamic)
           :code $ quote
-            defn diff-set (collect! a b)
-              ; assert "|[Recollect] sets to diff should hold literals" $ or (coll? a) (coll? b)
+            defn diff-set (a b)
               let
                   added $ difference b a
                   removed $ difference a b
-                collect! $ :: :set-splice removed added
+                [] $ :: :set-splice removed added
           :examples $ []
         |diff-tuple $ %{} :CodeEntry (:doc "|Internal function to compute diff between two tuples. Replaces if tag or size differs, otherwise diffs elements.") (:schema :dynamic)
           :code $ quote
-            defn diff-tuple (collect! a b options)
+            defn diff-tuple (a b options)
               if
                 or
                   not= (nth a 0) (nth b 0)
                   not= (&tuple:count a) (&tuple:count b)
-                collect! $ :: :replace b
+                [] $ :: :replace b
                 let
-                    rr $ range
-                      dec $ &tuple:count a
-                  &doseq (idx rr)
-                    let
-                        i $ inc idx
-                      wrap-pick collect! i $ fn (collect-children!)
-                        diff-twig-iterate collect-children! (nth a i) (nth b i) options
+                    max-idx $ dec (&tuple:count a)
+                  diff-tuple-step ([]) 1 max-idx a b options
+          :examples $ []
+        |diff-tuple-step $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn diff-tuple-step (acc idx max-idx a b options)
+              if (&> idx max-idx) acc $ let
+                  child-changes $ diff-twig-iterate (nth a idx) (nth b idx) options
+                  wrapped $ wrap-pick idx child-changes
+                diff-tuple-step (concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
         |diff-twig $ %{} :CodeEntry (:doc "|Calculate differences between two data trees, returning a list of change operations.\n\nArguments:\n  a - old data\n  b - new data\n  options - configuration options, e.g. {:key :id} specifies the key for map matching\n\nReturns: list of change operations that can be applied with patch-twig") (:schema :dynamic)
           :code $ quote
             defn diff-twig (a b options)
-              if (identical? a b) ([])
-                let
-                    *changes $ atom ([])
-                    collect! $ fn (x) (swap! *changes conj x)
-                  diff-twig-iterate collect! a b options
-                  , @*changes
+              if (identical? a b) ([]) (diff-twig-iterate a b options)
           :examples $ []
             quote $ diff-twig
               {} $ :a 1
@@ -393,38 +413,38 @@
               {} $ :key :id
         |diff-twig-iterate $ %{} :CodeEntry (:doc "|Internal recursive iterator for diff computation. Dispatches to appropriate diff function based on data type.") (:schema :dynamic)
           :code $ quote
-            defn diff-twig-iterate (collect! a b options)
-              if-not (identical? a b)
+            defn diff-twig-iterate (a b options)
+              if (identical? a b) ([])
                 if
                   not= (type-of a) (type-of b)
-                  collect! $ :: :replace b
+                  [] $ :: :replace b
                   cond
                       literal? b
-                      collect! $ :: :replace b
+                      [] $ :: :replace b
                     (symbol? b)
-                      collect! $ :: :replace b
-                    (set? b) (diff-set collect! a b)
-                    (tuple? b) (diff-tuple collect! a b options)
-                    (map? b) (diff-map collect! a b options)
-                    (list? b) (find-vector-changes collect! 0 a b options)
-                    (record? b) (diff-record collect! a b options)
-                    (ref? b) (eprintln "|[Error] unexpected ref to compare")
-                    true $ do (eprintln "|[Warning] unexpected data:" a b)
+                      [] $ :: :replace b
+                    (set? b) (diff-set a b)
+                    (tuple? b) (diff-tuple a b options)
+                    (map? b) (diff-map a b options)
+                    (list? b)
+                      find-vector-changes ([]) 0 a b options
+                    (record? b) (diff-record a b options)
+                    true $ []
           :examples $ []
         |find-vector-changes $ %{} :CodeEntry (:doc "|Internal function to find changes between two vectors. Recursively compares elements from the tail.") (:schema :dynamic)
           :code $ quote
-            defn find-vector-changes (collect! idx a-items b-items options) (; println idx a-items b-items)
+            defn find-vector-changes (acc idx a-items b-items options)
               cond
                   and (empty? a-items) (empty? b-items)
-                  , nil
+                  , acc
                 (empty? b-items)
-                  collect! $ :: :vec-drop idx
+                  concat acc $ [] (:: :vec-drop idx)
                 (empty? a-items)
-                  collect! $ :: :vec-append b-items
-                true $ do
-                  wrap-pick collect! idx $ fn (collect-children!)
-                    diff-twig-iterate collect-children! (first a-items) (first b-items) options
-                  recur collect! (inc idx) (rest a-items) (rest b-items) options
+                  concat acc $ [] (:: :vec-append b-items)
+                true $ let
+                    child-changes $ diff-twig-iterate (first a-items) (first b-items) options
+                    wrapped $ wrap-pick idx child-changes
+                  find-vector-changes (concat acc wrapped) (&+ idx 1) (rest a-items) (rest b-items) options
           :examples $ []
         |fold-update $ %{} :CodeEntry (:doc "|Internal helper to fold :update operations into :update-in for nested paths.") (:schema :dynamic)
           :code $ quote
@@ -442,25 +462,21 @@
           :examples $ []
         |wrap-pick $ %{} :CodeEntry (:doc "|Internal helper to wrap multiple changes into a :pick operation for a specific key.") (:schema :dynamic)
           :code $ quote
-            defn wrap-pick (collect! k callback)
+            defn wrap-pick (k chunk)
               let
-                  *chunk $ atom ([])
-                  collect-children! $ fn (x) (swap! *chunk conj x)
-                callback collect-children!
-                let
-                    chunk $ deref *chunk
-                    size $ count chunk
-                  if (> size 0)
-                    if (= size 1)
-                      let
-                          c0 $ nth chunk 0
-                        tag-match c0
-                            :replace v
-                            collect! $ :: :assoc k v
-                          (:assoc k1 v)
-                            collect! $ :: :update k c0
-                          _ $ collect! (fold-update k c0)
-                      collect! $ :: :pick k chunk
+                  size $ count chunk
+                if (&> size 0)
+                  if (&= size 1)
+                    let
+                        c0 $ nth chunk 0
+                      tag-match c0
+                          :replace v
+                          [] $ :: :assoc k v
+                        (:assoc k1 v)
+                          [] $ :: :update k c0
+                        _ $ [] (fold-update k c0)
+                    [] $ :: :pick k chunk
+                  []
           :examples $ []
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
@@ -497,14 +513,28 @@
                 (:set-splice removed added) (patch-set base removed added)
                 (:map-splice removed added) (patch-map base removed added)
                 (:update k c0)
-                  update base k $ fn (o) (patch-one o c0)
+                  let
+                      old-val $ if (map? base) (&map:get base k) (nth base k)
+                    assoc base k $ patch-one old-val c0
                 (:update-in ks c0)
-                  update-in base ks $ fn (o) (patch-one o c0)
+                  list-match ks
+                    () $ patch-one base c0
+                    (k0 rest-ks)
+                      let
+                          old-val $ if (map? base) (&map:get base k0) (nth base k0)
+                        assoc base k0 $ patch-one old-val (:: :update-in rest-ks c0)
                 (:pick k changes)
-                  update base k $ fn (o) (patch-twig o changes)
+                  let
+                      old-val $ if (map? base) (&map:get base k) (nth base k)
+                    assoc base k $ patch-twig old-val changes
                 (:pick-in ks changes)
-                  update-in base ks $ fn (o) (patch-twig o changes)
-                _ $ do (eprintln "|Unkown op:" change) base
+                  list-match ks
+                    () $ patch-twig base changes
+                    (k0 rest-ks)
+                      let
+                          old-val $ if (map? base) (&map:get base k0) (nth base k0)
+                        assoc base k0 $ patch-one old-val (:: :pick-in rest-ks changes)
+                _ $ do (eprintln "|Unknown op:" change) base
           :examples $ []
         |patch-set $ %{} :CodeEntry (:doc "|Apply set-splice patch by removing and adding elements to a set.") (:schema :dynamic)
           :code $ quote
@@ -776,12 +806,7 @@
                   list-match ys
                     () false
                     (y0 yss)
-                      if (identical? x0 y0)
-                        if
-                          and (fn? x9) (fn? y0)
-                          do (; "|functions changes designed to be ignored.") true
-                          recur xss yss
-                        , false
+                      if (identical? x0 y0) (recur xss yss) false
           :examples $ []
             quote $ =seq ([] 1 2 3) ([] 1 2 3)
         |compare $ %{} :CodeEntry (:doc "|Compare two values. Returns -1 if x < y, 1 if x > y, 0 if x = y.") (:schema :dynamic)
