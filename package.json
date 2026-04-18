@@ -5,6 +5,7 @@
     "test:cr": "cr --entry test",
     "test:js": "cr --entry test js && env=ci node test.mjs",
     "test:wasm": "bash scripts/test-wasm.sh",
+    "run:wasm:api": "bash scripts/run-wasm-api.sh",
     "build:js": "cr js && yarn vite build --base=./"
   },
   "dependencies": {

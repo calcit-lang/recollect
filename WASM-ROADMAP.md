@@ -10,6 +10,7 @@ This file tracks the remaining work for running the recollect API end-to-end on 
   - `scripts/test-wasm.sh`
   - `scripts/test-wasm.mjs`
   - `recollect.wasm-test` namespace in `compact.cirru`
+- Detailed long-lived blockers now live under `plan/` so runtime gaps, API parity, and app integration issues can be tracked separately.
 
 ## Remaining API gaps
 
@@ -86,3 +87,18 @@ The release dependency is no longer blocking. The remaining work is to widen wha
 5. record diff/patch with field-name-aware assertions
 6. set splice and mixed nested structures
 7. realistic app-shaped trees with repeated keyed maps
+
+### 2026-04-18 Status Update
+
+A significant batch of runtime blockers preventing end-to-end `diff-twig` / `patch-twig` usage has been cleared or diagnosed:
+- **Cleared**: Bump allocator out-of-memory crashes on test loops (increased WASM heap from 1 to 100 pages).
+- **Cleared**: `or` macro and `literal?` functions compiling (bypassed `foldl-compare` dependency in `calcit-core.cirru`).
+- **Cleared**: `tag-match` macro structural matching (aligned WASM `&tuple:count` with the interpreter to include the tag).
+- **Cleared**: `assoc` and `.assoc` compiling and working for lists, maps, and tuples.
+- **Diagnosed**: `&map:diff-new` is logically incorrect in WASM. It currently searches the wrong map direction, skips value comparison, and passes misaligned memory objects to `__rt_map_from_flat`.
+- **Diagnosed**: `patch-map` calls `unselect-keys` and `merge`, which rely on the missing `foldl` higher-order function, causing `patch-map` to fail entirely for `:map-splice` additions/removals.
+
+**Next Steps**:
+1. Completely rewrite the `emit_map_diff_new` runtime implementation to correctly compare `a` vs `b` keys AND values, and properly align the flat array format.
+2. Implement efficient WASM-native loops for `merge` and `unselect-keys` in `calcit.core` or rewrite `patch-map` to use a `loop-fn2` over `&map:assoc` and `&map:dissoc` to bypass `foldl` dependencies.
+3. Validate `test-api-roundtrip-summary` successfully returns `44`.

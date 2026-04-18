@@ -11,4 +11,4 @@ else
 fi
 
 "$BIN" --entry test
-node scripts/test-wasm.mjs
+node scripts/run-wasm-api.mjs

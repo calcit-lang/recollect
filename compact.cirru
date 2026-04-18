@@ -494,7 +494,10 @@
         |patch-map $ %{} :CodeEntry (:doc "|Apply map-splice patch by removing specified keys and merging in new entries.") (:schema :dynamic)
           :code $ quote
             defn patch-map (base removed added)
-              -> base (unselect-keys removed) (merge added)
+              foldl (&map:to-list added)
+                foldl (&set:to-list removed) base $ fn (acc k) (&map:dissoc acc k)
+                fn (acc pair)
+                  &map:assoc acc (&list:nth pair 0) (&list:nth pair 1)
           :examples $ []
             quote $ patch-map
               {} (:a 1) (:b 2)
@@ -849,6 +852,533 @@
           :code $ quote
             defn main! () 0
           :examples $ []
+        |probe-api-base-let-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-api-base-let-count () $ let
+                m $ sample-api-base
+              &map:count m
+          :examples $ []
+        |probe-api-base-map-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-api-base-map-count () $ &map:count (sample-api-base)
+          :examples $ []
+        |probe-api-base-to-list-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-api-base-to-list-count () $ &list:count
+              &map:to-list $ sample-api-base
+          :examples $ []
+        |probe-api-change-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-api-change-count () $ let
+                changes $ diff-twig (sample-api-base) (sample-api-target) ({})
+              &list:count changes
+          :examples $ []
+        |probe-api-changes $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-api-changes () $ let
+                changes $ diff-twig (sample-api-base) (sample-api-target) ({})
+              type-of changes
+          :examples $ []
+        |probe-api-common-keys-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-api-common-keys-count () $ let
+                a $ sample-api-base
+                b $ sample-api-target
+                ks $ &map:common-keys a b
+              &set:count ks
+          :examples $ []
+        |probe-api-diff-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-api-diff-count () $ &list:count
+              diff-twig (sample-api-base) (sample-api-target) ({})
+          :examples $ []
+        |probe-api-patched-score $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-api-patched-score () $ let
+                changes $ diff-twig (sample-api-base) (sample-api-target) ({})
+                patched $ patch-twig (sample-api-base) changes
+                user $ &map:get patched :user
+              &map:get user :score
+          :examples $ []
+        |probe-app-twig-change-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-app-twig-change-count () $ let
+              old-twig $ twig-container (sample-store-a)
+              new-twig $ twig-container (sample-store-b)
+              changes $ diff-twig old-twig new-twig ({})
+              &list:count changes
+          :examples $ []
+        |probe-cond-number $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-cond-number () $ cond
+                literal? 5
+                [] $ :: :replace 5
+              true []
+          :examples $ []
+        |probe-diff-iterate-path $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-diff-iterate-path () $ let
+                ua $ {} (:score 1) (:level 2)
+                ub $ {} (:score 5) (:level 2)
+                same-type $ not= (type-of ua) (type-of ub)
+                is-literal $ literal? ub
+                is-map $ map? ub
+                is-identical $ identical? ua ub
+              &+ is-identical $ &+ same-type
+                &+ is-literal $ &+ is-map 0
+          :examples $ []
+        |probe-diff-map-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-diff-map-count () $ let
+                ua $ {} (:score 1) (:level 2)
+                ub $ {} (:score 5) (:level 2)
+              &list:count $ diff-map ua ub ({})
+          :examples $ []
+        |probe-diff-map-step-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-diff-map-step-count () $ let
+                ua $ {} (:score 1) (:level 2)
+                ub $ {} (:score 5) (:level 2)
+                pairs $ &map:to-list ua
+                common-keys $ &map:common-keys ua ub
+                acc $ &buf-list:new
+              &list:count $ diff-map-step acc pairs common-keys ub ({})
+          :examples $ []
+        |probe-diff-map-step-k2 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-diff-map-step-k2 () $ let
+                ua $ {} (:score 1) (:level 2)
+                ub $ {} (:score 5) (:level 2)
+                pairs $ &map:to-list ua
+                rest-pairs $ &list:slice pairs 1
+                pair1 $ &list:nth pairs 1
+                k1 $ &list:first pair1
+                va1 $ &list:nth pair1 1
+                vb1 $ &map:get ub k1
+              if (not= va1 vb1) 1 0
+          :examples $ []
+        |probe-diff-step-key0 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-diff-step-key0 () $ let
+                ua $ {} (:score 1) (:level 2)
+                ub $ {} (:score 5) (:level 2)
+                pairs $ &map:to-list ua
+                pair0 $ &list:first pairs
+                common-k $ &list:first pair0
+                common-keys $ &map:common-keys ua ub
+              if (&set:includes? common-keys common-k) 1 0
+          :examples $ []
+        |probe-diff-step-slice $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-diff-step-slice () $ let
+                ua $ {} (:score 1) (:level 2)
+                ub $ {} (:score 5) (:level 2)
+                all-pairs $ &map:to-list ua
+                rest-pairs $ &list:slice all-pairs 1
+                common-keys $ &map:common-keys ua ub
+                acc $ &buf-list:new
+              &list:count $ diff-map-step acc rest-pairs common-keys ub ({})
+          :examples $ []
+        |probe-diff-twig-iterate-numbers $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-diff-twig-iterate-numbers () $ &list:count
+              diff-twig-iterate 1 5 $ {}
+          :examples $ []
+        |probe-eq-false $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-eq-false () $ if (= false false) 1 0
+          :examples $ []
+        |probe-flags-diff-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-flags-diff-count () $ let
+                fa $ &map:get (sample-api-base) :flags
+                fb $ &map:get (sample-api-target) :flags
+              &list:count $ diff-twig fa fb ({})
+          :examples $ []
+        |probe-inline-map-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-inline-map-count () $ &map:count
+              {} (:score 1) (:level 2)
+          :examples $ []
+        |probe-inline-map-to-list $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-inline-map-to-list () $ &list:count
+              &map:to-list $ {} (:score 1) (:level 2)
+          :examples $ []
+        |probe-inline-pair-first $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-inline-pair-first () $ &list:first
+              &map:to-list $ {} (:score 1) (:level 2)
+          :examples $ []
+        |probe-inline-user-diff $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-inline-user-diff () $ let
+                ua $ {} (:score 1) (:level 2)
+                ub $ {} (:score 5) (:level 2)
+              &list:count $ diff-twig ua ub ({})
+          :examples $ []
+        |probe-items-diff-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-items-diff-count () $ let
+                ia $ &map:get (sample-api-base) :items
+                ib $ &map:get (sample-api-target) :items
+              &list:count $ diff-twig ia ib ({})
+          :examples $ []
+        |probe-list-match-map-pairs $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-list-match-map-pairs () $ list-match
+              &map:to-list $ {} (:score 1) (:level 2)
+              () 0
+              (pair rest-pairs) 1
+          :examples $ []
+        |probe-list-match-simple $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-list-match-simple () $ list-match ([] 1 2 3)
+              () 0
+              (first-item rest) 1
+          :examples $ []
+        |probe-literal-5 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-literal-5 () $ if (literal? 5) 1 0
+          :examples $ []
+        |probe-literal-number $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-literal-number () $ if (literal? 5) 1 0
+          :examples $ []
+        |probe-literal-v2 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-literal-v2 () $ let
+                v $ number? 5
+              if v 1 0
+          :examples $ []
+        |probe-manual-or $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-manual-or () $ let
+                v1 $ string? 5
+              if v1 v1 $ let
+                  v2 $ number? 5
+                if v2 v2 0
+          :examples $ []
+        |probe-map-assoc $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-assoc () $ let
+                a $ {} (:a 1)
+                b $ .assoc a :b 2
+              &map:count b
+          :examples $ []
+        |probe-map-diff-new $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-diff-new () $ let
+                a $ {} (:a 1) (:b 2)
+                b $ {} (:a 1) (:b 3) (:c 4)
+                new-diff $ &map:diff-new b a
+              &map:count new-diff
+          :examples $ []
+        |probe-map-diff-new-a-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-diff-new-a-count () $ let
+                a $ {} (:a 1) (:b 2)
+                b $ {} (:a 1) (:b 3) (:c 4)
+              &map:count a
+          :examples $ []
+        |probe-map-diff-new-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-diff-new-count () $ let
+                a $ {} (:a 1) (:b 2)
+                b $ {} (:a 1) (:b 3) (:c 4)
+                new-diff $ &map:diff-new b a
+              &map:count new-diff
+          :examples $ []
+        |probe-map-diff-new2 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-diff-new2 () $ let
+                a $ {} (:a 1) (:b 2)
+                b $ {} (:a 1) (:b 3) (:c 4)
+                new-diff $ &map:diff-new b a
+              if (&map:includes? new-diff :c) 1 0
+          :examples $ []
+        |probe-map-keys $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-keys () $ let
+                ua $ {} (:score 1) (:level 2)
+                pairs $ &map:to-list ua
+                pair0 $ &list:first pairs
+                k $ &list:first pair0
+                va $ &list:nth pair0 1
+              if (= k :score) 1 $ if (= k :level) 2 3
+          :examples $ []
+        |probe-map-keys-type $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-keys-type () $ let
+                ua $ {} (:score 1) (:level 2)
+                pairs $ &map:to-list ua
+                pair0 $ &list:first pairs
+                k $ &list:first pair0
+              type-of k
+          :examples $ []
+        |probe-map-keys2 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-keys2 () $ let
+                ua $ {} (:score 1) (:level 2)
+                pairs $ &map:to-list ua
+                pair0 $ &list:first pairs
+                k $ &list:first pair0
+              , k
+          :examples $ []
+        |probe-map-keys3 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-keys3 () $ let
+                ua $ {} (:score 1) (:level 2)
+                pairs $ &map:to-list ua
+                pair0 $ &list:first pairs
+                k $ &list:first pair0
+                va $ &list:nth pair0 1
+                pair1 $ &list:nth pairs 1
+                k1 $ &list:first pair1
+                va1 $ &list:nth pair1 1
+              , k1
+          :examples $ []
+        |probe-map-step-not-eq $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-step-not-eq () $ let
+                ua $ {} (:score 1) (:level 2)
+                ub $ {} (:score 5) (:level 2)
+                pairs $ &map:to-list ua
+                pair0 $ &list:first pairs
+                common-k $ &list:first pair0
+                va $ &list:nth pair0 1
+                vb $ &map:get ub common-k
+              if (not= va vb) 1 0
+          :examples $ []
+        |probe-map-step-pair0 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-step-pair0 () $ let
+                ua $ {} (:score 1) (:level 2)
+                pairs $ &map:to-list ua
+                pair0 $ &list:first pairs
+              &list:count pair0
+          :examples $ []
+        |probe-map-step-rest $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-step-rest () $ let
+                ua $ {} (:score 1) (:level 2)
+                pairs $ &map:to-list ua
+                rest-pairs $ &list:rest pairs
+              &list:count rest-pairs
+          :examples $ []
+        |probe-map-step-slice $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-step-slice () $ let
+                ua $ {} (:score 1) (:level 2)
+                pairs $ &map:to-list ua
+                rest-pairs $ &list:slice pairs 1
+              &list:count rest-pairs
+          :examples $ []
+        |probe-map-step-va $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-step-va () $ let
+                ua $ {} (:score 1) (:level 2)
+                pairs $ &map:to-list ua
+                pair0 $ &list:first pairs
+              &list:nth pair0 1
+          :examples $ []
+        |probe-map-step-vb $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-step-vb () $ let
+                ua $ {} (:score 1) (:level 2)
+                ub $ {} (:score 5) (:level 2)
+                pairs $ &map:to-list ua
+                pair0 $ &list:first pairs
+                common-k $ &list:first pair0
+              &map:get ub common-k
+          :examples $ []
+        |probe-number-question $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-number-question () $ if (number? 5) 1 0
+          :examples $ []
+        |probe-or-bool $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-or-bool () $ or false true
+          :examples $ []
+        |probe-or-number $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-or-number () $ or (string? 5) (number? 5)
+          :examples $ []
+        |probe-or-rev $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-or-rev () $ or (number? 5) (string? 5)
+          :examples $ []
+        |probe-or-v2 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-or-v2 () $ let
+                a $ string? 5
+                b $ number? 5
+              if a a $ if b b 0
+          :examples $ []
+        |probe-pairs-empty $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-pairs-empty () $ let
+                pairs $ &map:to-list
+                  {} (:score 1) (:level 2)
+              if (&list:empty? pairs) 0 1
+          :examples $ []
+        |probe-pairs-first-type $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-pairs-first-type () $ let
+                pairs $ &map:to-list
+                  {} (:score 1) (:level 2)
+                first-pair $ &list:first pairs
+              if (list? first-pair) 1 0
+          :examples $ []
+        |probe-string-question $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-string-question () $ if (string? 5) 1 0
+          :examples $ []
+        |probe-tag-match $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-tag-match () $ tag-match (:: :map-splice 1 2)
+                :map-splice a b
+                &+ a b
+              _ 0
+          :examples $ []
+        |probe-tags $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-tags () $ if (= 27 :score) 1
+              if (= 27 :level) 2 $ if (= 47 :score) 3
+                if (= 47 :level) 4 5
+          :examples $ []
+        |probe-to-list-match-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-to-list-match-count () $ let
+                pairs $ &map:to-list
+                  {} (:score 1) (:level 2)
+              list-match pairs
+                () 0
+                pair rest-pairs 1
+          :examples $ []
+        |probe-tuple-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-tuple-count () $ &tuple:count (:: :map-splice 1 2)
+          :examples $ []
+        |probe-user-common-keys-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-user-common-keys-count () $ let
+                ua $ &map:get (sample-api-base) :user
+                ub $ &map:get (sample-api-target) :user
+              &set:count $ &map:common-keys ua ub
+          :examples $ []
+        |probe-user-common-keys-includes $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-user-common-keys-includes () $ let
+                ua $ &map:get (sample-api-base) :user
+                ub $ &map:get (sample-api-target) :user
+                ks $ &map:common-keys ua ub
+              if (&set:includes? ks :score) 1 0
+          :examples $ []
+        |probe-user-common-keys-level $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-user-common-keys-level () $ let
+                ua $ {} (:score 1) (:level 2)
+                ub $ {} (:score 5) (:level 2)
+                common-keys $ &map:common-keys ua ub
+              if (&set:includes? common-keys :level) 1 0
+          :examples $ []
+        |probe-user-diff-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-user-diff-count () $ let
+                ua $ &map:get (sample-api-base) :user
+                ub $ &map:get (sample-api-target) :user
+              &list:count $ diff-twig ua ub ({})
+          :examples $ []
+        |probe-user-identical $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-user-identical () $ let
+                ua $ &map:get (sample-api-base) :user
+                ub $ &map:get (sample-api-target) :user
+              if (identical? ua ub) 1 0
+          :examples $ []
+        |probe-user-is-map $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-user-is-map () $ let
+                ua $ &map:get (sample-api-base) :user
+              if (map? ua) 1 0
+          :examples $ []
+        |probe-user-score-a $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-user-score-a () $ let
+                ua $ &map:get (sample-api-base) :user
+              &map:get ua :score
+          :examples $ []
+        |probe-wrap-pick-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-wrap-pick-count () $ &list:count
+              wrap-pick :score $ [] (:: :replace 5)
+          :examples $ []
+        |sample-api-base $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn sample-api-base () $ {}
+              :user $ {} (:score 1) (:level 2)
+              :items $ [] 1 2 3
+              :flags $ #{} :a :b
+              :nested $ {} (:count 4)
+          :examples $ []
+        |sample-api-target $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn sample-api-target () $ {}
+              :user $ {} (:score 5) (:level 2)
+              :items $ [] 1 7 8 9
+              :flags $ #{} :b :c
+              :nested $ {} (:count 10) (:bonus 3)
+          :examples $ []
+        |sample-store-a $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn sample-store-a () $ {}
+              :user $ {} (:id 1) (:score 3)
+              :date $ {} (:year 2016) (:month 10)
+              :lit-0 1
+          :examples $ []
+        |sample-store-b $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn sample-store-b () $ {}
+              :user $ {} (:id 1) (:score 9)
+              :date $ {} (:year 2017) (:month 11)
+              :lit-0 2
+          :examples $ []
+        |test-api-roundtrip-summary $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-api-roundtrip-summary () $ let
+                base $ sample-api-base
+                target $ sample-api-target
+                changes $ diff-twig base target ({})
+                patched $ patch-twig base changes
+                user $ &map:get patched :user
+                items $ &map:get patched :items
+                flags $ &map:get patched :flags
+                nested $ &map:get patched :nested
+              &+ (&map:count patched)
+                &+ (&map:get user :score)
+                  &+ (&list:count items)
+                    &+ (&list:nth items 2)
+                      &+
+                        if (&set:includes? flags :c) 10 0
+                        &+ (&map:get nested :count) (&map:get nested :bonus)
+          :examples $ []
+        |test-app-twig-roundtrip-summary $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-app-twig-roundtrip-summary () $ let
+                old-twig $ twig-container (sample-store-a)
+                new-twig $ twig-container (sample-store-b)
+                changes $ diff-twig old-twig new-twig ({})
+                patched $ patch-twig old-twig changes
+                card $ &map:get patched :card
+                user $ &map:get card :user
+                date $ &map:get card :date
+              &+ (&map:count patched)
+                &+ (&map:count card)
+                  &+ (&map:get patched :lit-0)
+                    &+ (&map:get user :score)
+                      &+ (&map:get date :year) (&map:get date :month)
+          :examples $ []
         |test-arg-order $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
             defn test-arg-order (a b)
@@ -961,6 +1491,15 @@
               &+ (&map:count patched)
                 &+ (&map:get patched :b) (&map:get patched :c)
           :examples $ []
+        |test-map-patch2 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-map-patch2 () $ let
+                a $ {} (:a 1) (:b 2)
+                b $ {} (:a 1) (:b 3) (:c 4)
+                changes $ diff-twig a b ({})
+                patched $ patch-twig a changes
+              &map:count patched
+          :examples $ []
         |test-num-order $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
             defn test-num-order (a b) (if true b 0)
@@ -1044,5 +1583,7 @@
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns recollect.wasm-test $ :require
-            recollect.diff :refer $ diff-twig
+            recollect.diff :refer $ diff-twig diff-map wrap-pick diff-map-step diff-twig-iterate
             recollect.patch :refer $ patch-twig patch-one patch-map-set patch-vector-append patch-vector-drop
+            recollect.app.twig.container :refer $ twig-container
+            recollect.util :refer $ literal?

@@ -96,10 +96,15 @@ can install a matching calcit release.
 
 ```bash
 yarn test:wasm
+yarn run:wasm:api
 ```
 
-The `main` and `wasm-support` branches both run the prepared WASM step directly with `cr`.
+The `main` and `wasm-support` branches both run the prepared WASM step directly with `cr-wasm`.
 
+`yarn run:wasm:api` is a standalone Node.js runner for the current supported recollect API probes.
+It compiles the `test` entry to WASM, executes exported API-oriented probe functions, and prints
+fixture data together with compact numeric summaries so runtime progress can be tracked before
+broader Respo integration is ready.
 
 ### License
 
