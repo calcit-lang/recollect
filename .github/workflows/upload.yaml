@@ -23,12 +23,11 @@ jobs:
         corepack prepare yarn@4.12.0 --activate
         yarn --version
 
-    - uses: calcit-lang/setup-cr@0.0.8
+    - uses: calcit-lang/setup-cr@0.0.9
+      with:
+        cr-wasm: true
 
     - uses: dtolnay/rust-toolchain@stable
-
-    - name: "install cr-wasm"
-      run: cargo install calcit --bin cr-wasm --locked
 
     - name: "deps"
       run: caps --ci && yarn install --immutable
