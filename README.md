@@ -87,8 +87,19 @@ Workflow https://github.com/calcit-lang/respo-calcit-workflow .
 To run tests:
 
 ```bash
-yarn test
+yarn test:cr
+yarn test:js
 ```
+
+WASM regression checks are enabled both locally and in GitHub Actions now that `setup-cr`
+can install a matching calcit release.
+
+```bash
+yarn test:wasm
+```
+
+The `main` and `wasm-support` branches both run the prepared WASM step directly with `cr`.
+
 
 ### License
 

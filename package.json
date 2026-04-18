@@ -1,8 +1,14 @@
 {
   "version": "0.0.18",
   "packageManager": "yarn@4.12.0",
+  "scripts": {
+    "test:cr": "cr --entry test",
+    "test:js": "cr --entry test js && env=ci node test.mjs",
+    "test:wasm": "bash scripts/test-wasm.sh",
+    "build:js": "cr js && yarn vite build --base=./"
+  },
   "dependencies": {
-    "@calcit/procs": "^0.12.20"
+    "@calcit/procs": "^0.12.21"
   },
   "devDependencies": {
     "bottom-tip": "^0.1.5",

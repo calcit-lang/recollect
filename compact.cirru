@@ -327,13 +327,14 @@
                         [] $ :: :map-splice drop-keys new-diff
                         []
                       common-pairs $ &map:to-list a
-                    diff-map-step splice-changes common-pairs common-keys b options
+                      init-acc $ &buf-list:concat (&buf-list:new) splice-changes
+                    diff-map-step init-acc common-pairs common-keys b options
           :examples $ []
         |diff-map-step $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
             defn diff-map-step (acc pairs common-keys b options)
               list-match pairs
-                () acc
+                () $ &buf-list:to-list acc
                 (pair rest-pairs)
                   let
                       common-k $ first pair
@@ -345,7 +346,7 @@
                           let
                               child-changes $ diff-twig-iterate va vb options
                               wrapped $ wrap-pick common-k child-changes
-                            diff-map-step (concat acc wrapped) rest-pairs common-keys b options
+                            diff-map-step (&buf-list:concat acc wrapped) rest-pairs common-keys b options
                           diff-map-step acc rest-pairs common-keys b options
                       diff-map-step acc rest-pairs common-keys b options
           :examples $ []
@@ -354,21 +355,23 @@
             defn diff-record (a b options)
               if (identical? a b) ([])
                 if (&record:matches? a b)
-                  diff-record-step ([]) 0 (&record:count a) a b options
+                  diff-record-step (&buf-list:new) 0 (&record:count a) a b options
                   [] $ :: :replace b
           :examples $ []
         |diff-record-step $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
             defn diff-record-step (acc idx n a b options)
-              if (&>= idx n) acc $ let
-                  va $ &record:nth a idx
-                  vb $ &record:nth b idx
-                if (identical? va vb)
-                  diff-record-step acc (&+ idx 1) n a b options
-                  let
-                      child-changes $ diff-twig-iterate va vb options
-                      wrapped $ wrap-pick idx child-changes
-                    diff-record-step (concat acc wrapped) (&+ idx 1) n a b options
+              if (&>= idx n) (&buf-list:to-list acc)
+                let
+                    k $ &record:field-tag a idx
+                    va $ &record:nth a idx
+                    vb $ &record:nth b idx
+                  if (identical? va vb)
+                    diff-record-step acc (&+ idx 1) n a b options
+                    let
+                        child-changes $ diff-twig-iterate va vb options
+                        wrapped $ wrap-pick k child-changes
+                      diff-record-step (&buf-list:concat acc wrapped) (&+ idx 1) n a b options
           :examples $ []
         |diff-set $ %{} :CodeEntry (:doc "|Internal function to compute diff between two sets. Collects :set-splice operations for removed and added elements.") (:schema :dynamic)
           :code $ quote
@@ -388,15 +391,16 @@
                 [] $ :: :replace b
                 let
                     max-idx $ dec (&tuple:count a)
-                  diff-tuple-step ([]) 1 max-idx a b options
+                  diff-tuple-step (&buf-list:new) 1 max-idx a b options
           :examples $ []
         |diff-tuple-step $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
             defn diff-tuple-step (acc idx max-idx a b options)
-              if (&> idx max-idx) acc $ let
-                  child-changes $ diff-twig-iterate (nth a idx) (nth b idx) options
-                  wrapped $ wrap-pick idx child-changes
-                diff-tuple-step (concat acc wrapped) (&+ idx 1) max-idx a b options
+              if (&> idx max-idx) (&buf-list:to-list acc)
+                let
+                    child-changes $ diff-twig-iterate (nth a idx) (nth b idx) options
+                    wrapped $ wrap-pick idx child-changes
+                  diff-tuple-step (&buf-list:concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
         |diff-twig $ %{} :CodeEntry (:doc "|Calculate differences between two data trees, returning a list of change operations.\n\nArguments:\n  a - old data\n  b - new data\n  options - configuration options, e.g. {:key :id} specifies the key for map matching\n\nReturns: list of change operations that can be applied with patch-twig") (:schema :dynamic)
           :code $ quote
@@ -427,7 +431,7 @@
                     (tuple? b) (diff-tuple a b options)
                     (map? b) (diff-map a b options)
                     (list? b)
-                      find-vector-changes ([]) 0 a b options
+                      find-vector-changes (&buf-list:new) 0 a b options
                     (record? b) (diff-record a b options)
                     true $ []
           :examples $ []
@@ -436,15 +440,17 @@
             defn find-vector-changes (acc idx a-items b-items options)
               cond
                   and (empty? a-items) (empty? b-items)
-                  , acc
+                  &buf-list:to-list acc
                 (empty? b-items)
-                  concat acc $ [] (:: :vec-drop idx)
+                  &buf-list:to-list $ &buf-list:concat acc
+                    [] $ :: :vec-drop idx
                 (empty? a-items)
-                  concat acc $ [] (:: :vec-append b-items)
+                  &buf-list:to-list $ &buf-list:concat acc
+                    [] $ :: :vec-append b-items
                 true $ let
                     child-changes $ diff-twig-iterate (first a-items) (first b-items) options
                     wrapped $ wrap-pick idx child-changes
-                  find-vector-changes (concat acc wrapped) (&+ idx 1) (rest a-items) (rest b-items) options
+                  find-vector-changes (&buf-list:concat acc wrapped) (&+ idx 1) (rest a-items) (rest b-items) options
           :examples $ []
         |fold-update $ %{} :CodeEntry (:doc "|Internal helper to fold :update operations into :update-in for nested paths.") (:schema :dynamic)
           :code $ quote
@@ -534,7 +540,7 @@
                       let
                           old-val $ if (map? base) (&map:get base k0) (nth base k0)
                         assoc base k0 $ patch-one old-val (:: :pick-in rest-ks changes)
-                _ $ do (eprintln "|Unknown op:" change) base
+                _ base
           :examples $ []
         |patch-set $ %{} :CodeEntry (:doc "|Apply set-splice patch by removing and adding elements to a set.") (:schema :dynamic)
           :code $ quote
@@ -560,12 +566,12 @@
               [] $ :: :assoc :a 2
         |patch-vector-append $ %{} :CodeEntry (:doc "|Append elements to a vector. Used for :vec-append operations.") (:schema :dynamic)
           :code $ quote
-            defn patch-vector-append (base data) (vec-add base data)
+            defn patch-vector-append (base data) (&list:concat base data)
           :examples $ []
             quote $ patch-vector-append ([] 1 2) ([] 3 4)
         |patch-vector-drop $ %{} :CodeEntry (:doc "|Drop trailing elements from a vector. Takes first n elements.") (:schema :dynamic)
           :code $ quote
-            defn patch-vector-drop (base data) (slice base 0 data)
+            defn patch-vector-drop (base data) (&list:slice base 0 data)
           :examples $ []
             quote $ patch-vector-drop ([] 1 2 3 4) 2
       :ns $ %{} :NsEntry (:doc |)
@@ -837,3 +843,206 @@
             quote $ vec-add ([] 1 2) ([] 3 4)
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote (ns recollect.util)
+    |recollect.wasm-test $ %{} :FileEntry
+      :defs $ {}
+        |main! $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn main! () 0
+          :examples $ []
+        |test-arg-order $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-arg-order (a b)
+              if (empty? b) 1 0
+          :examples $ []
+        |test-arg-order-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-arg-order-call () $ test-arg-order 1 ([])
+          :examples $ []
+        |test-diff-identical $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-diff-identical () $ diff-twig 1 1 ({})
+          :examples $ []
+        |test-diff-identical-empty $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-diff-identical-empty () $ if
+              empty? $ diff-twig 1 1 ({})
+              , 1 0
+          :examples $ []
+        |test-empty-list $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-empty-list () $ if
+              empty? $ []
+              , 1 0
+          :examples $ []
+        |test-empty-map $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-empty-map () $ if
+              empty? $ {}
+              , 1 0
+          :examples $ []
+        |test-empty-recur-guard $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-empty-recur-guard (xs)
+              if (empty? xs) (1) (recur xs)
+          :examples $ []
+        |test-empty-recur-guard-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-empty-recur-guard-call () $ test-empty-recur-guard ([])
+          :examples $ []
+        |test-empty-recur-list $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-empty-recur-list (xs)
+              if (empty? xs) (1)
+                recur $ &list:rest xs
+          :examples $ []
+        |test-empty-recur-list-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-empty-recur-list-call () $ test-empty-recur-list ([])
+          :examples $ []
+        |test-identical $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-identical () $ if (identical? 1 1) 1 0
+          :examples $ []
+        |test-list-arg-kind $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-list-arg-kind (a b)
+              if (list? b) 1 0
+          :examples $ []
+        |test-list-arg-kind-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-list-arg-kind-call () $ test-list-arg-kind 1 ([])
+          :examples $ []
+        |test-list-empty-proc $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-list-empty-proc (a b)
+              if (&list:empty? b) 1 0
+          :examples $ []
+        |test-list-empty-proc-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-list-empty-proc-call () $ test-list-empty-proc 1 ([])
+          :examples $ []
+        |test-list-match-empty $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-list-match-empty () $ list-match ([])
+              () 1
+              (c0 cs) 2
+          :examples $ []
+        |test-list-match-pair $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-list-match-pair () $ list-match ([] 3 4)
+              () 0
+              (c0 cs) c0
+          :examples $ []
+        |test-loop-empty $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-loop-empty (base changes)
+              list-match changes
+                () base
+                (c0 cs) (recur base cs)
+          :examples $ []
+        |test-loop-empty-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-loop-empty-call () $ test-loop-empty 1 ([])
+          :examples $ []
+        |test-map-assoc-op $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-map-assoc-op () $ let
+                base $ {} (:a 1)
+                patched $ patch-map-set base :b 4
+              &+ (&map:count patched) (&map:get patched :b)
+          :examples $ []
+        |test-map-patch $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-map-patch () $ let
+                a $ {} (:a 1) (:b 2)
+                b $ {} (:a 1) (:b 3) (:c 4)
+                changes $ diff-twig a b ({})
+                patched $ patch-twig a changes
+              &+ (&map:count patched)
+                &+ (&map:get patched :b) (&map:get patched :c)
+          :examples $ []
+        |test-num-order $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-num-order (a b) (if true b 0)
+          :examples $ []
+        |test-num-order-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-num-order-call () $ test-num-order 1 2
+          :examples $ []
+        |test-patch-empty $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-patch-empty () $ patch-twig 1 ([])
+          :examples $ []
+        |test-patch-one-assoc $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-patch-one-assoc () $ let
+                base $ {} (:a 1)
+                patched $ patch-one base (:: :assoc :b 4)
+              &+ (&map:count patched) (&map:get patched :b)
+          :examples $ []
+        |test-scalar-change $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-scalar-change () $ patch-twig 1
+              diff-twig 1 2 $ {}
+          :examples $ []
+        |test-scalar-stable $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-scalar-stable () $ patch-twig 1
+              diff-twig 1 1 $ {}
+          :examples $ []
+        |test-set-patch $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-set-patch () $ let
+                a $ {}
+                  :a $ #{} 1 2 3
+                b $ {}
+                  :a $ #{} 2 3 4
+                changes $ diff-twig a b ({})
+                patched $ patch-twig a changes
+                s $ &map:get patched :a
+              &+ (&set:count s)
+                if (&set:includes? s 4) 10 0
+          :examples $ []
+        |test-tuple-patch $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-tuple-patch () $ let
+                a $ :: :a 1 2
+                b $ :: :a 1 3
+                changes $ diff-twig a b ({})
+                patched $ patch-twig a changes
+              &tuple:nth patched 2
+          :examples $ []
+        |test-vector-append-op $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-vector-append-op () $ let
+                base $ [] 1 2
+                patched $ patch-vector-append base ([] 3 4)
+              &+ (&list:count patched)
+                &+ (&list:nth patched 2) (&list:nth patched 3)
+          :examples $ []
+        |test-vector-drop-op $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-vector-drop-op () $ let
+                base $ [] 1 2 3 4
+                patched $ patch-vector-drop base 2
+              &+ (&list:count patched) (&list:nth patched 1)
+          :examples $ []
+        |test-vector-patch $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn test-vector-patch () $ let
+                a $ {}
+                  :a $ [] 1 2 3 4
+                b $ {}
+                  :a $ [] 1 6 7 8
+                changes $ diff-twig a b ({})
+                patched $ patch-twig a changes
+                xs $ &map:get patched :a
+              &+ (&list:count xs)
+                &+ (&list:nth xs 1)
+                  &+ (&list:nth xs 2) (&list:nth xs 3)
+          :examples $ []
+      :ns $ %{} :NsEntry (:doc |)
+        :code $ quote
+          ns recollect.wasm-test $ :require
+            recollect.diff :refer $ diff-twig
+            recollect.patch :refer $ patch-twig patch-one patch-map-set patch-vector-append patch-vector-drop
