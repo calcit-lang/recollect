@@ -43,12 +43,12 @@ Calcit 程序使用 `cr` 命令：
 
 - `cr` 或 `cr compact.cirru` - 代码解释执行，默认读取 config 执行 init-fn 定义的入口
 - `cr compact.cirru js` - 编译生成 JavaScript 代码
-- `cr -1 <filepath>` - 执行一次然后退出（不进入监听模式）
+- `cr <filepath>` - 执行一次然后退出（不进入监听模式）
 - `cr --check-only` - 仅检查代码正确性，不执行程序
   - 对 init_fn 和 reload_fn 进行预处理验证
   - 输出：预处理进度、warnings、检查耗时
   - 用于 CI/CD 或快速验证代码修改
-- `cr js -1` - 检查代码正确性，生成 JavaScript(不进入监听模式)
+- `cr js` - 检查代码正确性，生成 JavaScript(不进入监听模式)
 - `cr js --check-only` - 检查代码正确性，不生成 JavaScript
 - `cr eval '<code>'` - 执行一段 Calcit 代码片段，用于快速验证写法
 
@@ -104,7 +104,6 @@ Calcit 程序使用 `cr` 命令：
 **代码模式搜索：**
 
 - `cr query search <namespace/definition> -p <pattern> [-l] [-d <depth>]` - 搜索叶子节点（字符串）
-
   - 默认：精确匹配字符串（`-p "div"` 只匹配 `"div"`）
   - `-l` / `--loose`：宽松匹配，包含模式（`-p "di"` 匹配所有包含 "di" 的叶子节点）
   - `-d <depth>`：限制搜索深度（0 = 无限制）
@@ -133,14 +132,12 @@ Calcit 程序使用 `cr` 命令：
 查询 Calcit 语言文档（guidebook）：
 
 - `cr docs search <keyword> [-c <num>] [-f <filename>]` - 按关键词搜索文档内容
-
   - `-c <num>` - 显示匹配行的上下文行数（默认 5）
   - `-f <filename>` - 按文件名过滤搜索结果
   - 输出：匹配行及其上下文，带行号和高亮
   - 示例：`cr docs search "macro" -c 10` 或 `cr docs search "defn" -f macros.md`
 
 - `cr docs read <filename> [-s <start>] [-n <lines>]` - 阅读指定文档
-
   - `-s <start>` - 起始行号（默认 0）
   - `-n <lines>` - 读取行数（默认 80）
   - 输出：文档内容、当前范围、是否有更多内容
@@ -183,11 +180,9 @@ Calcit 程序使用 `cr` 命令：
 **可用操作：**
 
 - `cr tree show <namespace/definition> -p <path>` - 查看指定路径的节点
-
   - `-d <depth>` - 限制显示深度（0=无限，默认 2）
 
 - `cr tree replace <namespace/definition> -p <path>` - 替换指定路径的节点
-
   - `-e <code>` - 内联 Cirru 代码（默认单行解析）
     - Cirru 输入：仅支持单行表达式（one-liner）。若需 leaf 节点可搭配 `--leaf`，直接写符号或 Cirru 字符串（如 `|text`）。
   - `-f <file>` - 从文件读取
@@ -330,7 +325,7 @@ cr tree replace app.core/my-fn -p "2,1,0" -e "new-fn new-item"
 
 ## 开发调试
 
-简单脚本用 `cr -1 <filepath>` 直接执行。编译 JavaScript 用 `cr -1 <filepath> js` 执行一次编译。
+简单脚本用 `cr <filepath>` 直接执行。编译 JavaScript 用 `cr <filepath> js` 执行一次编译。
 
 Calcit snapshot 文件中 config 有 `init-fn` 和 `reload-fn` 配置：
 
@@ -347,7 +342,7 @@ cr --check-only
 cr -1
 
 # 3. 编译 JavaScript（一次性）
-cr -1 js
+cr js
 
 # 4. 进入监听模式开发
 cr        # 解释执行模式
