@@ -41,7 +41,7 @@ const fixtures = [
     // Full sum would be 44 (4+5+4+8+10+10+3), but &set:includes? is not yet fully
     // supported in WASM and returns 0 so the current WASM baseline is 34.
     // Actual WASM output is 15 — still diverging, tracking as capability baseline.
-    summaryExpected: 15,
+    summaryExpected: 44,
     changeCountExport: "probe-api-change-count",
     pending: false,
   },

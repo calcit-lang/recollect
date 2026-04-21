@@ -1241,6 +1241,227 @@
                 &+ a b
               _ 0
           :examples $ []
+        |probe-map-to-list-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-to-list-count () $ &list:count (&map:to-list ({} (:a 1)))
+          :examples $ []
+        |probe-foldl-map-assoc $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-foldl-map-assoc () $ &map:count
+              foldl (&map:to-list ({} (:a 1))) ({})
+                fn (acc pair)
+                  &map:assoc acc (&list:nth pair 0) (&list:nth pair 1)
+          :examples $ []
+        |probe-patch-map-simple $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-patch-map-simple () $ &map:count
+              patch-map ({}) (#{}) ({} (:a 1))
+          :examples $ []
+        |probe-vector-patch-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-vector-patch-count () $ let
+                a $ [] 1 2 3
+                b $ [] 1 7 8 9
+                changes $ diff-twig a b ({})
+                patched $ patch-twig a changes
+              &list:count patched
+          :examples $ []
+        |probe-vector-patch-nth1 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-vector-patch-nth1 () $ let
+                a $ [] 1 2 3
+                b $ [] 1 7 8 9
+                changes $ diff-twig a b ({})
+                patched $ patch-twig a changes
+              &list:nth patched 1
+          :examples $ []
+        |probe-api-patched-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-api-patched-count () $ let
+                base $ sample-api-base
+                target $ sample-api-target
+                changes $ diff-twig base target ({})
+                patched $ patch-twig base changes
+              &map:count patched
+          :examples $ []
+        |probe-api-nested-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-api-nested-count () $ let
+                base $ sample-api-base
+                target $ sample-api-target
+                changes $ diff-twig base target ({})
+                patched $ patch-twig base changes
+                nested $ &map:get patched :nested
+              &map:count nested
+          :examples $ []
+        |probe-api-items-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-api-items-count () $ let
+                base $ sample-api-base
+                target $ sample-api-target
+                changes $ diff-twig base target ({})
+                patched $ patch-twig base changes
+              &list:count (&map:get patched :items)
+          :examples $ []
+        |probe-items-direct-patch $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-items-direct-patch () $ let
+                a $ [] 1 2 3
+                b $ [] 1 7 8 9
+                changes $ diff-twig a b ({})
+                patched $ patch-twig a changes
+              &list:count patched
+          :examples $ []
+        |probe-items-via-map $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-items-via-map () $ let
+                a $ {} (:items ([] 1 2 3))
+                b $ {} (:items ([] 1 7 8 9))
+                changes $ diff-twig a b ({})
+                patched $ patch-twig a changes
+              &list:count (&map:get patched :items)
+          :examples $ []
+        |probe-assoc-map-list $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-assoc-map-list () $ let
+                m $ {} (:items ([] 1 2 3))
+                new-list $ [] 1 7 8 9
+                m2 $ assoc m :items new-list
+              &list:count (&map:get m2 :items)
+          :examples $ []
+        |probe-pick-patch $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-pick-patch () $ let
+                m $ {} (:items ([] 1 2 3))
+                change $ :: :pick :items
+                  [] (:: :assoc 1 7) (:: :assoc 2 8) (:: :vec-append ([] 9))
+                patched $ patch-one m change
+              &list:count (&map:get patched :items)
+          :examples $ []
+        |probe-map-items-diff-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-items-diff-count () $ let
+                a $ {} (:items ([] 1 2 3))
+                b $ {} (:items ([] 1 7 8 9))
+                changes $ diff-twig a b ({})
+              count changes
+          :examples $ []
+        |probe-items-change-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-items-change-count () $ let
+                a $ {} (:items ([] 1 2 3))
+                b $ {} (:items ([] 1 7 8 9))
+                changes $ diff-twig a b ({})
+                pick-change $ nth changes 0
+              count (nth pick-change 2)
+          :examples $ []
+        |probe-patch-one-map-splice $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-patch-one-map-splice () $ &map:count
+              patch-one ({}) (:: :map-splice (#{}) ({} (:a 1)))
+          :examples $ []
+        |probe-patch-twig-hardcoded $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-patch-twig-hardcoded () $ &map:count
+              patch-twig ({} (:a 1) (:b 2))
+                [] (:: :map-splice (#{}) ({} (:b 3) (:c 4))) (:: :assoc :b 3)
+          :examples $ []
+        |probe-patch-twig-single $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-patch-twig-single () $ &map:count
+              patch-twig ({} (:a 1)) ([] (:: :assoc :b 2))
+          :examples $ []
+        |probe-patch-twig-two $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-patch-twig-two () $ &map:count
+              patch-twig ({} (:a 1)) ([] (:: :assoc :b 2) (:: :assoc :c 3))
+          :examples $ []
+        |probe-patch-twig-manual $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-patch-twig-manual () $ let
+                changes $ [] (:: :assoc :b 2) (:: :assoc :c 3)
+                base0 $ {} (:a 1)
+                c0 $ &list:nth changes 0
+                cs $ &list:slice changes 1
+                base1 $ patch-one base0 c0
+                c1 $ &list:nth cs 0
+                base2 $ patch-one base1 c1
+              &map:count base2
+          :examples $ []
+        |probe-patch-twig-iter2-base $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-patch-twig-iter2-base () $ let
+                base $ patch-one ({} (:a 1)) (:: :assoc :b 2)
+                change $ :: :assoc :c 3
+              &map:count (patch-one base change)
+          :examples $ []
+        |probe-patch-one-twice $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-patch-one-twice () $ let
+                r1 $ patch-one ({} (:a 1)) (:: :assoc :b 2)
+                r2 $ patch-one ({} (:a 1)) (:: :assoc :c 3)
+              &+ (&map:count r1) (&map:count r2)
+          :examples $ []
+        |probe-map-count-from-let $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-count-from-let () $ let
+                m $ {} (:a 1) (:b 2)
+              &map:count m
+          :examples $ []
+        |probe-assoc-chain $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-assoc-chain () $ let
+                m1 $ &map:assoc ({}) :a 1
+                m2 $ &map:assoc m1 :b 2
+              &map:count m2
+          :examples $ []
+        |probe-patch-one-dynamic $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-patch-one-dynamic () $ let
+                base $ {} (:a 1)
+                c $ :: :assoc :b 2
+              &map:count (patch-one base c)
+          :examples $ []
+        |probe-double-assoc-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-double-assoc-call () $ let
+                m1 $ &map:assoc ({}) :a 1
+                m2 $ &map:assoc m1 :b 2
+                m3 $ &map:assoc m2 :c 3
+              &map:count m3
+          :examples $ []
+        |probe-patch-one-result-type $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-patch-one-result-type () $ let
+                base $ patch-one ({} (:a 1)) (:: :assoc :b 2)
+              if (map? base) 1 0
+          :examples $ []
+        |probe-patch-one-result-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-patch-one-result-count () $ let
+                base $ patch-one ({} (:a 1)) (:: :assoc :b 2)
+              &map:count base
+          :examples $ []
+        |probe-slice-empty $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-slice-empty () $ &list:count
+              &list:slice ([] 1) 1
+          :examples $ []
+        |probe-diff-twig-map-c0 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-diff-twig-map-c0 () $ let
+                changes $ diff-twig ({} (:a 1) (:b 2)) ({} (:a 1) (:b 3) (:c 4)) ({})
+              tag-match (first changes)
+                  :map-splice removed added
+                  1
+                (:assoc k v) 2
+                _ 0
+          :examples $ []
+        |probe-diff-twig-map-len $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-diff-twig-map-len () $ &list:count
+              diff-twig ({} (:a 1) (:b 2)) ({} (:a 1) (:b 3) (:c 4)) ({})
+          :examples $ []
         |probe-tags $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
             defn probe-tags () $ if (= 27 :score) 1
