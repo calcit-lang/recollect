@@ -1227,7 +1227,23 @@
                 a $ {} (:a 1) (:b 2)
                 b $ {} (:a 1) (:b 3) (:c 4)
                 new-diff $ &map:diff-new b a
-              if (&map:includes? new-diff :c) 1 0
+              if (&map:contains? new-diff :c) 1 0
+          :examples $ []
+        |probe-map-includes-value-hit $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-includes-value-hit () $ if
+              &map:includes?
+                {} (:a 5) (:b 3)
+                , 5
+              , 1 0
+          :examples $ []
+        |probe-map-includes-value-miss $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn probe-map-includes-value-miss () $ if
+              &map:includes?
+                {} (:a 5) (:b 3)
+                , 99
+              , 1 0
           :examples $ []
         |probe-map-items-diff-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote

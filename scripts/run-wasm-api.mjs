@@ -92,8 +92,17 @@ const checks = [
   {
     name: "probe-map-diff-new2",
     expected: 1,
-    pending: true,
-    desc: "&map:includes? on diff-new result (known issue: returns 0)",
+    desc: "&map:contains? on diff-new result: key :c present = 1",
+  },
+  {
+    name: "probe-map-includes-value-hit",
+    expected: 1,
+    desc: "&map:includes? with value 5 present in {:a 5 :b 3} = 1",
+  },
+  {
+    name: "probe-map-includes-value-miss",
+    expected: 0,
+    desc: "&map:includes? with value 99 absent from {:a 5 :b 3} = 0",
   },
 ];
 
