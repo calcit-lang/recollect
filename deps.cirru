@@ -1,5 +1,5 @@
 
-{} (:calcit-version |0.12.24)
+{} (:calcit-version |0.12.29)
   :dependencies $ {} (|Respo/reel.calcit |main)
     |Respo/respo-markdown.calcit |0.4.11
     |Respo/respo-ui.calcit |0.6.4

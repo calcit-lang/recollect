@@ -4,7 +4,7 @@
 
 ---
 
-## 当前状态（2026-04-22）
+## 当前状态（2026-04-23）
 
 ### 跳过函数统计
 
@@ -17,8 +17,7 @@
 | 2026-04-22b | **40** | IIFE 调用头内联（-4）、`NativeRecordContains` + `&record:get` 动态实现（-1）、`.invoke` spread 兜底（-1） |
 | 2026-04-22c | **5** | `lambda_locals` 追踪（`normalize-trait-type`）、零参 thunk 传播（`test-diff-funcs`）、proc stubs（`&init-builtin-impls!`/`impl-traits`/`&list:sort-by`）、`emit_map_kv` + `TurnTag` stub（`tagging-edn`）、`&list:map` HOF 别名（`&list:map-pair`） |
 | 2026-04-22d | **0** ✅ | 嵌套 `fn`/`defn` 值位置改为 nil placeholder，消除全部 5 个闭包工厂 skip |
-| 2026-04-22c | **16** | `lambda_locals` 追踪（`normalize-trait-type`）、零参 thunk 传播（`test-diff-funcs`）、proc stubs（`&init-builtin-impls!`、`impl-traits`、`&list:sort-by`）、`emit_map_kv` + `TurnTag` stub（`tagging-edn`）、`&list:map` HOF 别名 |
-| 2026-04-22d | **0** | 嵌套 `fn`/`defn` 值位置改为发射 nil placeholder（消除全部 5 个闭包工厂 skip） |
+| 2026-04-23a | **0** ✅ | 升级 calcit 至 0.12.29，修复 `&map:diff-new` WASM 语义反转 bug，api-roundtrip **41 → 44** |
 
 ### 测试状态
 
