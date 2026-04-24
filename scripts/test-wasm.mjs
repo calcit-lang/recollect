@@ -121,7 +121,7 @@ probe("probe-literal-number()", 1, e["probe-literal-number"]);
 probe("probe-literal-v2()", 1, e["probe-literal-v2"]);
 probe("probe-number-question()", 1, e["probe-number-question"]);
 probe("probe-string-question()", 0, e["probe-string-question"]);
-probe("probe-eq-false()", 0, e["probe-eq-false"]);
+probe("probe-eq-false()", 1, e["probe-eq-false"]); // = false false is true, if returns 1
 probe("probe-manual-or()", 1, e["probe-manual-or"]);
 probe("probe-or-bool()", 1, e["probe-or-bool"]);
 probe("probe-or-number()", 1, e["probe-or-number"]);
@@ -152,12 +152,47 @@ probe("probe-diff-map-step-count()", 1, e["probe-diff-map-step-count"]);
 probe("probe-diff-map-step-k2()", 1, e["probe-diff-map-step-k2"]);
 probe("probe-diff-step-key0()", 1, e["probe-diff-step-key0"]);
 probe("probe-diff-step-slice()", 1, e["probe-diff-step-slice"]);
-probe("probe-diff-twig-iterate-numbers()", 1, e["probe-diff-twig-iterate-numbers"]);
+probe(
+  "probe-diff-twig-iterate-numbers()",
+  1,
+  e["probe-diff-twig-iterate-numbers"],
+);
 probe("probe-flags-diff-count()", 1, e["probe-flags-diff-count"]);
 probe("probe-items-diff-count()", 3, e["probe-items-diff-count"]);
+// --- basic collection / map probes ---
+probe("probe-assoc-simple()", 2, e["probe-assoc-simple"]);
+probe("probe-empty-map()", 0, e["probe-empty-map"]);
+probe("probe-map-count-1()", 1, e["probe-map-count-1"]);
+probe("probe-inline-user-diff()", 1, e["probe-inline-user-diff"]);
+probe("probe-map-diff-new2()", 1, e["probe-map-diff-new2"]);
+probe("probe-map-includes-value-hit()", 1, e["probe-map-includes-value-hit"]);
+probe("probe-map-includes-value-miss()", 0, e["probe-map-includes-value-miss"]);
+probe("probe-map-keys()", 2, e["probe-map-keys"]);
+// --- nested diff/patch roundtrip probes (sample-api-base → sample-api-target) ---
+probe("probe-nested-count()", 10, e["probe-nested-count"]);
+probe("probe-nested-map-count()", 2, e["probe-nested-map-count"]);
+probe("probe-nested-changes-count()", 2, e["probe-nested-changes-count"]);
+probe("probe-nested-bonus()", 3, e["probe-nested-bonus"]);
+// --- wasm keyword heap-pointer tests (probe-tags hardcodes 27/:level → 2) ---
+probe("probe-tags()", 2, e["probe-tags"]);
+// --- exports not yet present (will SKIP until implemented) ---
+probe("probe-to-list-match-count()", 1, e["probe-to-list-match-count"]);
+probe("probe-app-twig-change-count()", 1, e["probe-app-twig-change-count"]);
+probe(
+  "test-app-twig-roundtrip-summary()",
+  1,
+  e["test-app-twig-roundtrip-summary"],
+);
+probe("test-diff-identical()", 0, e["test-diff-identical"]); // returns heap ptr (complex value); tracked for future
+probe("test-empty-recur-guard-call()", 1, e["test-empty-recur-guard-call"]);
+probe("test-empty-recur-list-call()", 1, e["test-empty-recur-list-call"]);
 // --- user / api probes ---
 probe("probe-user-common-keys-count()", 2, e["probe-user-common-keys-count"]);
-probe("probe-user-common-keys-includes()", 1, e["probe-user-common-keys-includes"]);
+probe(
+  "probe-user-common-keys-includes()",
+  1,
+  e["probe-user-common-keys-includes"],
+);
 probe("probe-user-common-keys-level()", 1, e["probe-user-common-keys-level"]);
 probe("probe-user-diff-count()", 1, e["probe-user-diff-count"]);
 probe("probe-user-identical()", 0, e["probe-user-identical"]);
