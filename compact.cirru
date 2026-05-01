@@ -1,6 +1,6 @@
 
-{} (:about "|Machine-generated snapshot. AI AGENTS: never edit this file directly — changes will be overwritten on recompile. Inspect via `cr query`; modify via `cr edit` / `cr tree`. MANDATORY first step: run `cr docs agents --full`.") (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.18)
+{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |recollect)
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.19)
     :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!) (:version |0.0.0)
@@ -300,6 +300,100 @@
         :code $ quote
           ns recollect.app.updater $ :require
             [] respo.cursor :refer $ [] update-states
+    |recollect.bench $ %{} :FileEntry
+      :defs $ {}
+        |bench! $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn bench! () $ run-bench!
+          :examples $ []
+        |bench-fn $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn bench-fn (label n f)
+              let
+                  t0 $ cpu-time
+                  _ $ reduce (range n) nil
+                    fn (acc i) (f)
+                  t1 $ cpu-time
+                  elapsed $ - t1 t0
+                  per-iter $ / elapsed n
+                println $ str label "|: " n "|x => " elapsed "|ms total, " per-iter |ms/iter
+          :examples $ []
+        |print-sep $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn print-sep () $ println "|─────────────────────────────────────────"
+          :examples $ []
+        |run-bench! $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn run-bench! () $ let
+                fixture-dir |/Users/chenyong/repo/cumulo/recollect.mbt/bench/fixtures
+                _ $ println (str "|Loading fixtures from " fixture-dir |...)
+                base $ json-parse
+                  read-file $ str fixture-dir |/state_base.json
+                single-msg $ json-parse
+                  read-file $ str fixture-dir |/state_single_msg.json
+                bulk-status $ json-parse
+                  read-file $ str fixture-dir |/state_bulk_status.json
+                new-thread $ json-parse
+                  read-file $ str fixture-dir |/state_new_thread.json
+                reorder $ json-parse
+                  read-file $ str fixture-dir |/state_reorder.json
+                _ $ println "|All fixtures loaded"
+                _ $ print-sep
+                opts $ {} (:key :id)
+                diff-s $ diff-twig base single-msg opts
+                diff-b $ diff-twig base bulk-status opts
+                diff-t $ diff-twig base new-thread opts
+                diff-r $ diff-twig base reorder opts
+                _ $ println "|Pre-computed patch sizes:"
+                _ $ println
+                  str "|  single_msg  patch ops: " $ count diff-s
+                _ $ println
+                  str "|  bulk_status patch ops: " $ count diff-b
+                _ $ println
+                  str "|  new_thread  patch ops: " $ count diff-t
+                _ $ println
+                  str "|  reorder     patch ops: " $ count diff-r
+                _ $ print-sep
+                iters-diff 10
+                _ $ println (str "|=== diff-twig (" iters-diff "|x each) ===")
+                _ $ bench-fn "|single_msg  diff" iters-diff
+                  fn () $ diff-twig base single-msg opts
+                _ $ bench-fn "|bulk_status diff" iters-diff
+                  fn () $ diff-twig base bulk-status opts
+                _ $ bench-fn "|new_thread  diff" iters-diff
+                  fn () $ diff-twig base new-thread opts
+                _ $ bench-fn "|reorder     diff" iters-diff
+                  fn () $ diff-twig base reorder opts
+                _ $ print-sep
+                iters-patch 30
+                _ $ println (str "|=== patch-twig (" iters-patch "|x each) ===")
+                _ $ bench-fn "|single_msg  patch" iters-patch
+                  fn () $ patch-twig base diff-s
+                _ $ bench-fn "|bulk_status patch" iters-patch
+                  fn () $ patch-twig base diff-b
+                _ $ bench-fn "|new_thread  patch" iters-patch
+                  fn () $ patch-twig base diff-t
+                _ $ bench-fn "|reorder     patch" iters-patch
+                  fn () $ patch-twig base diff-r
+                _ $ print-sep
+                iters-rt 5
+                _ $ println (str "|=== diff+patch round-trip (" iters-rt "|x each) ===")
+                _ $ bench-fn "|single_msg  rt" iters-rt
+                  fn () $ patch-twig base (diff-twig base single-msg opts)
+                _ $ bench-fn "|bulk_status rt" iters-rt
+                  fn () $ patch-twig base (diff-twig base bulk-status opts)
+                _ $ bench-fn "|new_thread  rt" iters-rt
+                  fn () $ patch-twig base (diff-twig base new-thread opts)
+                _ $ bench-fn "|reorder     rt" iters-rt
+                  fn () $ patch-twig base (diff-twig base reorder opts)
+                _ $ print-sep
+              println |Done.
+          :examples $ []
+      :ns $ %{} :NsEntry (:doc |)
+        :code $ quote
+          ns recollect.bench $ :require
+            recollect.diff :refer $ diff-twig
+            recollect.patch :refer $ patch-twig
     |recollect.diff $ %{} :FileEntry
       :defs $ {}
         |by-key $ %{} :CodeEntry (:doc "|Compare two key-value pairs by their keys. Used for sorting map entries.") (:schema :dynamic)
@@ -319,36 +413,33 @@
                   and (some? ka) (not= ka kb)
                   [] $ :: :replace b
                   let
-                      new-diff $ &map:diff-new b a
-                      drop-keys $ &map:diff-keys a b
-                      common-keys $ &map:common-keys a b
+                      triple $ &map:diff-triple a b
+                      drop-keys $ nth triple 0
+                      new-diff $ nth triple 1
+                      common-triples $ nth triple 2
                       splice-changes $ if
                         not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
                         [] $ :: :map-splice drop-keys new-diff
                         []
-                      common-pairs $ &map:to-list a
                       init-acc $ &buf-list:concat (&buf-list:new) splice-changes
-                    diff-map-step init-acc common-pairs common-keys b options
+                    diff-map-step init-acc common-triples options
           :examples $ []
         |diff-map-step $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
-            defn diff-map-step (acc pairs common-keys b options)
-              list-match pairs
+            defn diff-map-step (acc triples options)
+              list-match triples
                 () $ &buf-list:to-list acc
-                (pair rest-pairs)
+                (triple rest-triples)
                   let
-                      common-k $ first pair
-                    if (&set:includes? common-keys common-k)
+                      k $ nth triple 0
+                      va $ nth triple 1
+                      vb $ nth triple 2
+                    if (not= va vb)
                       let
-                          va $ nth pair 1
-                          vb $ &map:get b common-k
-                        if (not= va vb)
-                          let
-                              child-changes $ diff-twig-iterate va vb options
-                              wrapped $ wrap-pick common-k child-changes
-                            diff-map-step (&buf-list:concat acc wrapped) rest-pairs common-keys b options
-                          diff-map-step acc rest-pairs common-keys b options
-                      diff-map-step acc rest-pairs common-keys b options
+                          child-changes $ diff-twig-iterate va vb options
+                          wrapped $ wrap-pick k child-changes
+                        diff-map-step (&buf-list:concat acc wrapped) rest-triples options
+                      diff-map-step acc rest-triples options
           :examples $ []
         |diff-record $ %{} :CodeEntry (:doc "|Internal function to compute diff between two records. Only diffs records of the same type.") (:schema :dynamic)
           :code $ quote

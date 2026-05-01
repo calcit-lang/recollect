@@ -1,5 +1,4 @@
 {
-  "version": "0.0.18",
   "packageManager": "yarn@4.12.0",
   "scripts": {
     "test:cr": "cr --entry test",
@@ -9,7 +8,7 @@
     "build:js": "cr js && yarn vite build --base=./"
   },
   "dependencies": {
-    "@calcit/procs": "^0.12.29"
+    "@calcit/procs": "0.12.31"
   },
   "devDependencies": {
     "bottom-tip": "^0.1.5",
