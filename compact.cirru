@@ -1079,10 +1079,10 @@
             defn probe-diff-map-step-count () $ let
                 ua $ {} (:score 1) (:level 2)
                 ub $ {} (:score 5) (:level 2)
-                pairs $ &map:to-list ua
-                common-keys $ &map:common-keys ua ub
+                triple-result $ &map:diff-triple ua ub
+                common-triples $ nth triple-result 2
                 acc $ &buf-list:new
-              &list:count $ diff-map-step acc pairs common-keys ub ({})
+              &list:count $ diff-map-step acc common-triples ({})
           :examples $ []
         |probe-diff-map-step-k2 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
@@ -1113,11 +1113,11 @@
             defn probe-diff-step-slice () $ let
                 ua $ {} (:score 1) (:level 2)
                 ub $ {} (:score 5) (:level 2)
-                all-pairs $ &map:to-list ua
-                rest-pairs $ &list:slice all-pairs 1
-                common-keys $ &map:common-keys ua ub
+                triple-result $ &map:diff-triple ua ub
+                common-triples $ nth triple-result 2
+                rest-triples $ &list:slice common-triples 1
                 acc $ &buf-list:new
-              &list:count $ diff-map-step acc rest-pairs common-keys ub ({})
+              &list:count $ diff-map-step acc rest-triples ({})
           :examples $ []
         |probe-diff-twig-iterate-numbers $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote

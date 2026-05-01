@@ -17,6 +17,15 @@ const inst = new WebAssembly.Instance(mod, {
       console.log("[wasm-println]", value);
       return 0;
     },
+    log_str: (ptr) => {
+      console.log("[wasm-log-str]", ptr);
+      return 0;
+    },
+    read_file_str: (ptr) => 0,
+    file_exists: (ptr) => 0,
+    parse_json: (ptr) => 0,
+    current_time: () => 0,
+    get_env: (ptr) => 0,
   },
 });
 
