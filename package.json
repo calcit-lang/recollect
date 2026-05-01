@@ -8,7 +8,7 @@
     "build:js": "cr js && yarn vite build --base=./"
   },
   "dependencies": {
-    "@calcit/procs": "0.12.31"
+    "@calcit/procs": "^0.12.32"
   },
   "devDependencies": {
     "bottom-tip": "^0.1.5",
