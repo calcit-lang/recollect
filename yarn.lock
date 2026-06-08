@@ -5,14 +5,14 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@calcit/procs@npm:^0.12.32":
-  version: 0.12.32
-  resolution: "@calcit/procs@npm:0.12.32"
+"@calcit/procs@npm:^0.12.42":
+  version: 0.12.42
+  resolution: "@calcit/procs@npm:0.12.42"
   dependencies:
     "@calcit/ternary-tree": "npm:0.0.26"
     "@cirru/parser.ts": "npm:^0.0.9"
-    "@cirru/writer.ts": "npm:^0.1.7"
-  checksum: 10c0/d87dbb0fdaac2824418567220c03934a36acb2090ed78726f5793044f36963f3c7eef6d224a205642217508207297402599e0140326f31512be2555513213065
+    "@cirru/writer.ts": "npm:^0.1.9"
+  checksum: 10c0/b851690aad26dd50d6b234ab65e5f5d627b6ec17cb4ff5d1c8fea40b91c5ae060161cac5c8a7c47e07c9c31e348d20189d5eaa89fc029755cf168744f278e304
   languageName: node
   linkType: hard
 
@@ -30,10 +30,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cirru/writer.ts@npm:^0.1.7":
-  version: 0.1.7
-  resolution: "@cirru/writer.ts@npm:0.1.7"
-  checksum: 10c0/3548f596abef52f8d4cfe95b25fc1ded0d059869eafb403e3e340c1bcdc50fe59af9fd75f1b6d9f828129c847965f378945ed370ff9aeec9ddcc89172afad92a
+"@cirru/writer.ts@npm:^0.1.9":
+  version: 0.1.9
+  resolution: "@cirru/writer.ts@npm:0.1.9"
+  checksum: 10c0/df2672837d1bf61ee1a83b8b77ea17b9c241cb8135323567992749ee26daf3abccf43ab75d8698d67c36c8b8469f9a66c235a809a60484d71133592a9161a054
   languageName: node
   linkType: hard
 
@@ -954,7 +954,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@calcit/procs": "npm:^0.12.32"
+    "@calcit/procs": "npm:^0.12.42"
     bottom-tip: "npm:^0.1.5"
     vite: "npm:^8.0.8"
   languageName: unknown

@@ -1,7 +1,7 @@
 
 {} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.20)
-    :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-value.calcit/
+  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.21)
+    :modules $ [] |respo.calcit/ |lilac/ |memof/ |respo-ui.calcit/ |respo-value.calcit/
   :entries $ {}
     :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!) (:version |0.0.0)
       :modules $ [] |calcit-test/
@@ -264,8 +264,7 @@
           :code $ quote
             defn updater (store op)
               match op
-                  :states cursor s
-                  update-states store cursor s
+                (:states cursor s) (update-states store cursor s)
                 (:lit-0 d) (assoc store :lit-0 d)
                 (:lit-1 d)
                   assoc-in store ([] :in-map :lit-1) d
@@ -580,7 +579,7 @@
           :code $ quote
             defn fold-update (k c0)
               match c0
-                  :update k1 c1
+                (:update k1 c1)
                   :: :update-in ([] k k1) c1
                 (:update-in ks c2)
                   :: :update-in (prepend ks k) c2
@@ -603,7 +602,7 @@
                     let
                         c0 $ nth chunk 0
                       match c0
-                          :replace v
+                        (:replace v)
                           [] $ :: :assoc k v
                         (:assoc k1 v)
                           [] $ :: :update k c0
@@ -650,8 +649,7 @@
           :code $ quote
             defn patch-one (base change)
               match change
-                  :replace data
-                  , data
+                (:replace data) data
                 (:vec-append data) (patch-vector-append base data)
                 (:vec-drop data) (patch-vector-drop base data)
                 (:assoc k data) (patch-map-set base k data)
@@ -1205,8 +1203,7 @@
                   {} (:a 1) (:b 3) (:c 4)
                   {}
               tag-match (first changes)
-                  :map-splice removed added
-                  1
+                (:map-splice removed added) (1)
                 (:assoc k v) 2
                 _ 0
           :examples $ []
@@ -1719,8 +1716,7 @@
         |probe-tag-match $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
             defn probe-tag-match () $ tag-match (:: :map-splice 1 2)
-                :map-splice a b
-                &+ a b
+              (:map-splice a b) (&+ a b)
               _ 0
           :examples $ []
         |probe-tags $ %{} :CodeEntry (:doc |) (:schema :dynamic)
@@ -2084,6 +2080,6 @@
         :code $ quote
           ns recollect.wasm-test $ :require
             recollect.diff :refer $ diff-twig diff-map wrap-pick diff-map-step diff-twig-iterate
-            recollect.patch :refer $ patch-twig patch-one patch-map-set patch-vector-append patch-vector-drop
+            recollect.patch :refer $ patch-twig patch-one patch-map patch-map-set patch-vector-append patch-vector-drop
             recollect.app.twig.container :refer $ twig-container
             recollect.util :refer $ literal?
