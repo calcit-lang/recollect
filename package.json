@@ -1,11 +1,18 @@
 {
-  "version": "0.0.18",
   "packageManager": "yarn@4.12.0",
+  "scripts": {
+    "test:cr": "cr --entry test",
+    "test:js": "cr --entry test js && env=ci node test.mjs",
+    "test:wasm": "bash scripts/test-wasm.sh",
+    "run:wasm:api": "bash scripts/run-wasm-api.sh",
+    "build:js": "cr js && yarn vite build --base=./",
+    "bench:cr": "cr --init-fn recollect.bench/bench!"
+  },
   "dependencies": {
-    "@calcit/procs": "^0.12.20"
+    "@calcit/procs": "^0.12.42"
   },
   "devDependencies": {
     "bottom-tip": "^0.1.5",
-    "vite": "^7.3.0"
+    "vite": "^8.0.8"
   }
 }
