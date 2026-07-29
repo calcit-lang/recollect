@@ -459,7 +459,7 @@
           :examples $ []
           :schema $ :: :fn
             {} (:return :list)
-              :args $ [] :tag :tag :map
+              :args $ [] :record :record :map
         |diff-record-step $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn diff-record-step (acc idx n a b options)
@@ -477,7 +477,7 @@
           :examples $ []
           :schema $ :: :fn
             {} (:return :list)
-              :args $ [] :dynamic :number :number :tag :tag :map
+              :args $ [] :dynamic :number :number :record :record :map
         |diff-set $ %{} :CodeEntry (:doc "|Internal function to compute diff between two sets. Collects :set-splice operations for removed and added elements.")
           :code $ quote
             defn diff-set (a b)
