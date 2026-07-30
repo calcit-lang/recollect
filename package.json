@@ -9,7 +9,7 @@
     "bench:cr": "cr --init-fn recollect.bench/bench!"
   },
   "dependencies": {
-    "@calcit/procs": "^0.12.42"
+    "@calcit/procs": "^0.12.54"
   },
   "devDependencies": {
     "bottom-tip": "^0.1.5",
