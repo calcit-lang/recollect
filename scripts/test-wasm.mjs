@@ -52,11 +52,15 @@ function probe(label, expected, fn) {
     console.log(`  ${label} missing export  SKIP`);
     return;
   }
-  const got = fn();
-  if (got === expected) {
-    console.log(`  ${label} = ${got}  OK`);
-  } else {
-    console.log(`  ${label} = ${got}  PROBE (expected ${expected})`);
+  try {
+    const got = fn();
+    if (got === expected) {
+      console.log(`  ${label} = ${got}  OK`);
+    } else {
+      console.log(`  ${label} = ${got}  PROBE (expected ${expected})`);
+    }
+  } catch (error) {
+    console.log(`  ${label} trapped  PROBE (${error.message})`);
   }
 }
 

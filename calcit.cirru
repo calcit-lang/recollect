@@ -1,10 +1,10 @@
 
-{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |recollect)
-  :configs $ {} (:init-fn |recollect.app.main/main!) (:reload-fn |recollect.app.main/reload!) (:version |0.0.23)
-    :modules $ [] |respo.calcit/ |lilac/ |memof/ |respo-ui.calcit/ |respo-value.calcit/
-    :type-slots $ {}
+{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |recollect) (:version |0.0.24)
   :entries $ {}
-    :test $ {} (:init-fn |recollect.app.main/test!) (:reload-fn |recollect.app.main/test!) (:version |0.0.0)
+    :default $ {} (:description |) (:init-fn 'recollect.app.main/main!) (:mode :native) (:reload-fn 'recollect.app.main/reload!)
+      :modules $ [] |respo.calcit/ |respo-ui.calcit/ |respo-value.calcit/
+      :type-slots $ {}
+    :test $ {} (:description |) (:init-fn 'recollect.app.main/test!) (:mode :native) (:reload-fn 'recollect.app.main/test!)
       :modules $ [] |calcit-test/
       :type-slots $ {}
   :files $ {}
@@ -19,7 +19,7 @@
                   {} $ :style (merge ui/global ui/fullscreen)
                   div
                     {} $ :style ui/row
-                    memof1-call comp-panel
+                    memo-comp-by :panel comp-panel
                     div
                       {} $ :style ui/expand
                       div
@@ -70,12 +70,11 @@
           ns recollect.app.comp.container $ :require
             respo-ui.core :refer $ hsl
             respo-ui.core :as ui
-            respo.core :refer $ defcomp >> <> span div pre
+            respo.core :refer $ defcomp >> <> span div pre memo-comp-by
             respo.css :refer $ defstyle
             respo.comp.space :refer $ =<
             recollect.app.comp.panel :refer $ comp-panel
             respo-value.comp.value :refer $ comp-value
-            memof.once :refer $ memof1-call
             recollect.diff :refer $ diff-twig
     |recollect.app.comp.panel $ %{} :FileEntry
       :defs $ {}
@@ -262,12 +261,12 @@
           :code $ quote
             defn twig-container (store)
               merge store $ {}
-                :card $ memof1-call twig-card (:user store) (:date store)
+                :card $ memo-twig-by :card twig-card (:user store) (:date store)
           :examples $ []
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns recollect.app.twig.container $ :require
-            memof.once :refer $ memof1-call
+            recollect.memo :refer $ memo-twig-by
     |recollect.app.updater $ %{} :FileEntry
       :defs $ {}
         |updater $ %{} :CodeEntry (:doc |) (:schema :dynamic)
@@ -641,6 +640,172 @@
           ns recollect.diff $ :require
             recollect.util :refer $ literal? =seq compare-more
             recollect.schema :as schema
+    |recollect.memo $ %{} :FileEntry
+      :defs $ {}
+        |*twig-call-cache $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defatom *twig-call-cache $ {}
+          :examples $ []
+          :schema $ :: :ref :map
+        |*twig-frame-active? $ %{} :CodeEntry (:doc |)
+          :code $ quote (defatom *twig-frame-active? false)
+          :examples $ []
+          :schema $ :: :ref :bool
+        |*twig-frame-cache $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defatom *twig-frame-cache $ {}
+          :examples $ []
+          :schema $ :: :ref :map
+        |begin-twig-frame! $ %{} :CodeEntry (:doc "|Start collecting the twig memo entries used by the current render or sync frame.")
+          :code $ quote
+            defn begin-twig-frame! ()
+              reset! *twig-frame-cache $ {}
+              reset! *twig-frame-active? true
+          :examples $ []
+          :schema $ :: :fn
+            {} (:return :unit)
+              :args $ []
+        |finish-twig-frame! $ %{} :CodeEntry (:doc "|Finish the current twig memo frame, retaining only entries touched during that frame.")
+          :code $ quote
+            defn finish-twig-frame! ()
+              if @*twig-frame-active? $ reset! *twig-call-cache @*twig-frame-cache
+              reset! *twig-frame-active? false
+              reset! *twig-frame-cache $ {}
+          :examples $ []
+          :schema $ :: :fn
+            {} (:return :unit)
+              :args $ []
+        |memo-twig-by $ %{} :CodeEntry (:doc "|Memoize a twig builder by function, stable key, and full argument list. A nil key bypasses caching. During an active twig frame, touched entries are retained and inactive entries are pruned when the frame finishes.")
+          :code $ quote
+            defn memo-twig-by (key f & args)
+              if (nil? key) (f & args)
+                &let
+                  cached-pair $ or
+                    get-in @*twig-frame-cache $ [] f key
+                    get-in @*twig-call-cache $ [] f key
+                  if (some? cached-pair)
+                    if
+                      &= args $ first cached-pair
+                      if @*twig-frame-active?
+                        &let
+                          ret $ last cached-pair
+                          swap! *twig-frame-cache assoc-in ([] f key) cached-pair
+                          , ret
+                        last cached-pair
+                      &let
+                        ret $ f & args
+                        if @*twig-frame-active?
+                          &let
+                            result $ identity ret
+                            swap! *twig-frame-cache assoc-in ([] f key) ([] args ret)
+                            , ret
+                          &let
+                            result $ identity ret
+                            swap! *twig-call-cache assoc-in ([] f key) ([] args ret)
+                            , ret
+                    &let
+                      ret $ f & args
+                      if @*twig-frame-active?
+                        &let
+                          result $ identity ret
+                          swap! *twig-frame-cache assoc-in ([] f key) ([] args ret)
+                          , ret
+                        &let
+                          result $ identity ret
+                          swap! *twig-call-cache assoc-in ([] f key) ([] args ret)
+                          , ret
+          :examples $ []
+          :schema $ :: :fn
+            {} (:rest :dynamic) (:return 'T)
+              :args $ [] 'K
+                :: :fn $ {} (:rest :dynamic) (:return 'T)
+                  :args $ []
+              :generics $ [] 'K 'T
+        |reset-twig-memo! $ %{} :CodeEntry (:doc "|Clear all twig memo entries and leave frame collection inactive.")
+          :code $ quote
+            defn reset-twig-memo! ()
+              reset! *twig-call-cache $ {}
+              reset! *twig-frame-cache $ {}
+              reset! *twig-frame-active? false
+          :examples $ []
+          :schema $ :: :fn
+            {} (:return :unit)
+              :args $ []
+        |twig-memo-size $ %{} :CodeEntry (:doc "|Return the number of retained keyed twig memo entries.")
+          :code $ quote
+            defn twig-memo-size () $ reduce (&map:to-list @*twig-call-cache) 0
+              fn (total pair)
+                + total $ count (last pair)
+          :examples $ []
+          :schema $ :: :fn
+            {} (:return :number)
+              :args $ []
+      :ns $ %{} :NsEntry (:doc |)
+        :code $ quote (ns recollect.memo)
+    |recollect.memo-test $ %{} :FileEntry
+      :defs $ {}
+        |*twig-build-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote (defatom *twig-build-count 0)
+          :examples $ []
+        |build-twig $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn build-twig (value) (swap! *twig-build-count inc)
+              {} $ :value value
+          :examples $ []
+        |memo-bypass-test $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            deftest memo-bypass-test $ testing |nil_key_bypasses_twig_memo (reset-twig-memo!) (reset! *twig-build-count 0) (memo-twig-by nil build-twig 1) (memo-twig-by nil build-twig 1)
+              is $ = 2 @*twig-build-count
+              is $ = 0 (twig-memo-size)
+              reset-twig-memo!
+          :examples $ []
+        |memo-hit-test $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            deftest memo-hit-test $ testing |twig_memo_reuses_identity (reset-twig-memo!) (reset! *twig-build-count 0) (begin-twig-frame!)
+              let
+                  first-twig $ memo-twig-by :same build-twig 1
+                  second-twig $ memo-twig-by :same build-twig 1
+                is $ identical? first-twig second-twig
+                is $ = 1 @*twig-build-count
+                finish-twig-frame!
+                is $ = 1 (twig-memo-size)
+                reset-twig-memo!
+          :examples $ []
+        |memo-invalidation-test $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            deftest memo-invalidation-test $ testing |changed_twig_args_recompute_same_key (reset-twig-memo!) (reset! *twig-build-count 0) (begin-twig-frame!)
+              let
+                  first-twig $ memo-twig-by :same build-twig 1
+                  second-twig $ memo-twig-by :same build-twig 2
+                is $ not (identical? first-twig second-twig)
+                is $ = 2 @*twig-build-count
+                finish-twig-frame!
+                is $ = 1 (twig-memo-size)
+                reset-twig-memo!
+          :examples $ []
+        |memo-prune-test $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            deftest memo-prune-test $ testing |twig_frame_prunes_inactive_keys (reset-twig-memo!) (reset! *twig-build-count 0) (begin-twig-frame!) (memo-twig-by :a build-twig 1) (memo-twig-by :b build-twig 2) (finish-twig-frame!)
+              is $ = 2 (twig-memo-size)
+              begin-twig-frame!
+              memo-twig-by :b build-twig 2
+              finish-twig-frame!
+              is $ = 1 (twig-memo-size)
+              begin-twig-frame!
+              memo-twig-by :a build-twig 1
+              finish-twig-frame!
+              is $ = 3 @*twig-build-count
+              reset-twig-memo!
+          :examples $ []
+        |run-tests $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defn run-tests () (memo-hit-test) (memo-invalidation-test) (memo-prune-test) (memo-bypass-test)
+          :examples $ []
+      :ns $ %{} :NsEntry (:doc |)
+        :code $ quote
+          ns recollect.memo-test $ :require
+            calcit-test.core :refer $ deftest testing is
+            recollect.memo :refer $ memo-twig-by begin-twig-frame! finish-twig-frame! reset-twig-memo! twig-memo-size
     |recollect.patch $ %{} :FileEntry
       :defs $ {}
         |patch-map $ %{} :CodeEntry (:doc "|Apply map-splice patch by removing specified keys and merging in new entries.")
@@ -808,6 +973,7 @@
               test-diff-funcs
               test-diff-tuple
               test-invalid-patch
+              memo-test/run-tests
           :examples $ []
         |test-diff-funcs $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
@@ -994,22 +1160,36 @@
             recollect.patch :refer $ patch-twig patch-one
             recollect.schema :as schema
             recollect.util :refer $ vec-add
+            recollect.memo-test :as memo-test
     |recollect.twig $ %{} :FileEntry
       :defs $ {}
-        |clear-twig-caches! $ %{} :CodeEntry (:doc "|Clear twig caches. Call this for performance tuning or memory management to clear all memof cached data.") (:schema :dynamic)
+        |clear-twig-caches! $ %{} :CodeEntry (:doc "|Clear all dedicated twig memo entries. Call this on hot reload or when application state is replaced.")
           :code $ quote
-            defn clear-twig-caches! () $ reset-memof1-caches!
+            defn clear-twig-caches! () $ reset-twig-memo!
           :examples $ []
             quote $ clear-twig-caches!
-        |show-tag-summay $ %{} :CodeEntry (:doc "|Show summary of twig/memof call states for debugging and performance analysis.") (:schema :dynamic)
+          :schema $ :: :fn
+            {} (:return :unit)
+              :args $ []
+        |show-tag-summay $ %{} :CodeEntry (:doc "|Legacy misspelled alias returning the retained twig memo entry count.")
           :code $ quote
-            defn show-twig-summay () $ memof/show-summary @*memof-call-states
+            defn show-tag-summay () $ twig-memo-size
           :examples $ []
             quote $ show-tag-summay
+          :schema $ :: :fn
+            {} (:return :number)
+              :args $ []
+        |show-twig-summary $ %{} :CodeEntry (:doc "|Return the number of retained dedicated twig memo entries.")
+          :code $ quote
+            defn show-twig-summary () $ twig-memo-size
+          :examples $ []
+          :schema $ :: :fn
+            {} (:return :number)
+              :args $ []
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns recollect.twig $ :require
-            memof.once :refer $ reset-memof1-caches! memof1-call
+            recollect.memo :refer $ reset-twig-memo! twig-memo-size
     |recollect.util $ %{} :FileEntry
       :defs $ {}
         |=seq $ %{} :CodeEntry (:doc "|Check if two sequences are equal by comparing elements one by one using identical?.")

@@ -12,8 +12,28 @@ Diff/patch library designed for Cumulo project.
 recollect.twig/clear-twig-caches!
 
 recollect.diff/diff-twig old-data new-data {:key :id}
-recollect.diff/patch-twig old-data new-data changes
+recollect.diff/patch-twig old-data changes
 ```
+
+Twig builders can use Recollect's dedicated keyed memoization. The cache identity
+contains the builder function, a stable application key, and the full argument
+list. A frame retains only keys touched during that render/sync pass, bounding
+cache growth when collections change:
+
+```cirru
+recollect.memo/begin-twig-frame!
+
+let
+    twig $ recollect.memo/memo-twig-by user-id build-user-twig user
+  ; use twig in the snapshot
+
+recollect.memo/finish-twig-frame!
+```
+
+Use a non-nil key that is stable for the logical twig. A nil key deliberately
+bypasses caching. Call `recollect.memo/reset-twig-memo!` after hot reload or a
+full application-state replacement. Component memoization remains owned by
+Respo; Recollect does not depend on the generic `memof` module.
 
 Terms:
 
@@ -28,7 +48,7 @@ It's a simlar to the problem of React DOM diffing.
 This library is using the algorithm developed in Respo DOM diffing.
 It's like data rendering, with keeps reusing last result of data tree.
 
-It's not tested yet, but is trying to trade memory and performance with caching.
+The diff/patch and memoization behavior is covered by native and JavaScript tests.
 
 ### Diff Operations
 
