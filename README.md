@@ -24,16 +24,19 @@ cache growth when collections change:
 recollect.memo/begin-twig-frame!
 
 let
-    twig $ recollect.memo/memo-twig-by user-id build-user-twig user
+    twig $ recollect.memo/memo-twig-by1 user-id build-user-twig user
   ; use twig in the snapshot
 
 recollect.memo/finish-twig-frame!
 ```
 
-Use a non-nil key that is stable for the logical twig. A nil key deliberately
-bypasses caching. Call `recollect.memo/reset-twig-memo!` after hot reload or a
-full application-state replacement. Component memoization remains owned by
-Respo; Recollect does not depend on the generic `memof` module.
+Use `memo-twig-by0`, `memo-twig-by1`, or `memo-twig-by2` for statically checked
+builder arguments and return values. The variadic `memo-twig-by` remains an
+explicit dynamic escape hatch. Use a non-nil key that is stable for the logical
+twig; a nil key deliberately bypasses caching. Call
+`recollect.memo/reset-twig-memo!` after hot reload or a full application-state
+replacement. Component memoization remains owned by Respo; Recollect does not
+depend on the generic `memof` module.
 
 Terms:
 
