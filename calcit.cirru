@@ -10,7 +10,7 @@
   :files $ {}
     |recollect.app.comp.container $ %{} :FileEntry
       :defs $ {}
-        |comp-container $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+        |comp-container $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-container (data-twig client-store)
               let
@@ -39,13 +39,15 @@
                         :style $ {} (:line-height |1.4) (:margin "|0 8px")
                         :inner-text $ format-cirru-edn changes
           :examples $ []
-        |css-code-block $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |css-code-block $ %{} :CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-block $ {}
               |$0 $ {} (:line-height |20px) (:margin 0) (:padding |8px) (:border-radius |4px)
                 :background-color $ hsl 0 0 90
           :examples $ []
-        |deep-a $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |deep-a $ %{} :CodeEntry (:doc |)
           :code $ quote
             def deep-a $ {}
               :a $ {}
@@ -55,7 +57,8 @@
                       :children $ {} (:a 1) (:b 2)
               :aa1 2
           :examples $ []
-        |deep-b $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |deep-b $ %{} :CodeEntry (:doc |)
           :code $ quote
             def deep-b $ {}
               :a $ {}
@@ -65,6 +68,7 @@
                       :children $ {} (:a 1) (:b 3)
               :aa1 4
           :examples $ []
+          :schema $ :: 'Dynamic
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns recollect.app.comp.container $ :require
@@ -78,7 +82,7 @@
             recollect.diff :refer $ diff-twig
     |recollect.app.comp.panel $ %{} :FileEntry
       :defs $ {}
-        |comp-panel $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+        |comp-panel $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-panel () $ div ({})
               div
@@ -113,23 +117,27 @@
                 {} $ :style style-line
                 render-button "|Change types" :types
           :examples $ []
-        |on-click $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |on-click $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn on-click (op)
               fn (e dispatch!)
                 dispatch! op $ js/Math.round
                   * 100 $ js/Math.random
           :examples $ []
-        |render-button $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |render-button $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn render-button (title op)
               div $ {} (:style ui/button) (:inner-text title)
                 :on-click $ on-click op
           :examples $ []
-        |style-line $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |style-line $ %{} :CodeEntry (:doc |)
           :code $ quote
             def style-line $ {} (:height |40px)
           :examples $ []
+          :schema $ :: 'Dynamic
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns recollect.app.comp.panel $ :require
@@ -139,24 +147,28 @@
             [] respo.comp.space :refer $ [] =<
     |recollect.app.config $ %{} :FileEntry
       :defs $ {}
-        |dev? $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+        |dev? $ %{} :CodeEntry (:doc |)
           :code $ quote (def dev? true)
           :examples $ []
-        |site $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |site $ %{} :CodeEntry (:doc |)
           :code $ quote
             def site $ {} (:dev-ui |http://localhost:8100/main-fonts.css) (:release-ui |http://cdn.tiye.me/favored-fonts/main-fonts.css) (:cdn-url |http://cdn.tiye.me/recollect/) (:cdn-folder |tiye.me:cdn/recollect) (:title |Recollect) (:icon |http://cdn.tiye.me/logo/cirru.png) (:storage-key |recollect) (:upload-folder |tiye.me:repo/Cumulo/recollect/)
           :examples $ []
+          :schema $ :: 'Dynamic
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote (ns recollect.app.config)
     |recollect.app.main $ %{} :FileEntry
       :defs $ {}
-        |*client-store $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+        |*client-store $ %{} :CodeEntry (:doc |)
           :code $ quote (defatom *client-store schema/store)
           :examples $ []
-        |*data-twig $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |*data-twig $ %{} :CodeEntry (:doc |)
           :code $ quote (defatom *data-twig nil)
           :examples $ []
-        |*store $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |*store $ %{} :CodeEntry (:doc |)
           :code $ quote
             defatom *store $ merge schema/store
               {} (:lit-0 1)
@@ -173,12 +185,14 @@
                 :user $ {} (:name |Chen)
                 :types $ {} (:name 1) (|name 2)
           :examples $ []
-        |dispatch! $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |dispatch! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn dispatch! (op)
               when (and config/dev?) (js/console.log |Dispatch: op)
               reset! *store $ updater @*store op
           :examples $ []
+          :schema $ :: 'Dynamic
         |main! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn main! () (load-console-formatter!)
@@ -192,8 +206,8 @@
               ; render-data-twig!
               println "|app started!"
           :examples $ []
-          :schema $ :: :fn
-            {} (:return :dynamic)
+          :schema $ :: 'Fn
+            {} (:return 'Dynamic)
               :args $ []
               :features $ #{} :js-ffi
         |reload! $ %{} :CodeEntry (:doc |)
@@ -208,16 +222,17 @@
                 hud! |ok~ |Ok
               hud! |error build-errors
           :examples $ []
-          :schema $ :: :fn
-            {} (:return :dynamic)
+          :schema $ :: 'Fn
+            {} (:return 'Dynamic)
               :args $ []
               :features $ #{} :js-ffi
-        |render-app! $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+        |render-app! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn render-app! (renderer)
               renderer (js/document.querySelector |.app) (comp-container @*data-twig @*client-store) dispatch!
           :examples $ []
-        |render-data-twig! $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |render-data-twig! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn render-data-twig! () $ let
                 data-twig $ twig-container @*store
@@ -230,10 +245,12 @@
                   new-client $ patch-twig @*client-store changes
                 reset! *client-store new-client
           :examples $ []
-        |test! $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test! () $ run-tests
           :examples $ []
+          :schema $ :: 'Dynamic
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns recollect.app.main $ :require
@@ -252,24 +269,26 @@
             |bottom-tip :default hud!
     |recollect.app.twig.container $ %{} :FileEntry
       :defs $ {}
-        |twig-card $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+        |twig-card $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn twig-card (user date)
               {} (:user user) (:date date)
           :examples $ []
-        |twig-container $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |twig-container $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn twig-container (store)
               merge store $ {}
                 :card $ memo-twig-by2 :card twig-card (:user store) (:date store)
           :examples $ []
+          :schema $ :: 'Dynamic
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns recollect.app.twig.container $ :require
             recollect.memo :refer $ memo-twig-by2
     |recollect.app.updater $ %{} :FileEntry
       :defs $ {}
-        |updater $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+        |updater $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn updater (store op)
               match op
@@ -304,17 +323,19 @@
                   update store :types $ fn (types-map) (assoc types-map d true)
                 _ $ do (eprintln "|Unhandled op:" op) store
           :examples $ []
+          :schema $ :: 'Dynamic
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns recollect.app.updater $ :require
             [] respo.cursor :refer $ [] update-states
     |recollect.bench $ %{} :FileEntry
       :defs $ {}
-        |bench! $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+        |bench! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn bench! () $ run-bench!
           :examples $ []
-        |bench-fn $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |bench-fn $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn bench-fn (label n f)
               let
@@ -326,11 +347,13 @@
                   per-iter $ / elapsed n
                 println $ str label "|: " n "|x => " elapsed "|ms total, " per-iter |ms/iter
           :examples $ []
-        |print-sep $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |print-sep $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn print-sep () $ println "|─────────────────────────────────────────"
           :examples $ []
-        |run-bench! $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |run-bench! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn run-bench! () $ let
                 fixture-dir |/Users/chenyong/repo/cumulo/recollect.mbt/bench/fixtures
@@ -397,6 +420,7 @@
                 _ $ print-sep
               println |Done.
           :examples $ []
+          :schema $ :: 'Dynamic
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns recollect.bench $ :require
@@ -410,9 +434,9 @@
               &compare (first x) (first y)
           :examples $ []
             quote $ by-key (:: :a 1) (:: :b 2)
-          :schema $ :: :fn
-            {} (:return :number)
-              :args $ [] :list :list
+          :schema $ :: 'Fn
+            {} (:return 'Number)
+              :args $ [] 'List 'List
         |diff-map $ %{} :CodeEntry (:doc "|Internal function to compute diff between two maps. Collects :map-splice operations for removed and added entries.")
           :code $ quote
             defn diff-map (a b options)
@@ -422,7 +446,7 @@
                   kb $ &map:get b id-k
                 if
                   and (some? ka) (not= ka kb)
-                  [] $ :: :replace b
+                  [] $ %:: schema/change-op :replace b
                   let
                       triple $ &map:diff-triple a b
                       drop-keys $ nth triple 0
@@ -430,15 +454,15 @@
                       common-triples $ nth triple 2
                       splice-changes $ if
                         not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
-                        [] $ :: :map-splice drop-keys new-diff
+                        [] $ %:: schema/change-op :map-splice drop-keys new-diff
                         []
                       init-acc $ &buf-list:concat (&buf-list:new) splice-changes
                     diff-map-step init-acc common-triples options
           :examples $ []
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] :map :map (:: :map :tag :tag)
-              :return $ :: :list 'recollect.schema/change-op
+              :args $ [] 'Map 'Map (:: 'Map 'Tag 'Tag)
+              :return $ :: 'List 'recollect.schema/change-op
         |diff-map-step $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn diff-map-step (acc triples options)
@@ -456,22 +480,22 @@
                         diff-map-step (&buf-list:concat acc wrapped) rest-triples options
                       diff-map-step acc rest-triples options
           :examples $ []
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] :dynamic :list (:: :map :tag :tag)
-              :return $ :: :list 'recollect.schema/change-op
+              :args $ [] 'Dynamic 'List (:: 'Map 'Tag 'Tag)
+              :return $ :: 'List 'recollect.schema/change-op
         |diff-record $ %{} :CodeEntry (:doc "|Internal function to compute diff between two records. Only diffs records of the same type.")
           :code $ quote
             defn diff-record (a b options)
               if (identical? a b) ([])
                 if (&record:matches? a b)
                   diff-record-step (&buf-list:new) 0 (&record:count a) a b options
-                  [] $ :: :replace b
+                  [] $ %:: schema/change-op :replace b
           :examples $ []
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] :record :record (:: :map :tag :tag)
-              :return $ :: :list 'recollect.schema/change-op
+              :args $ [] 'Record 'Record (:: 'Map 'Tag 'Tag)
+              :return $ :: 'List 'recollect.schema/change-op
         |diff-record-step $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn diff-record-step (acc idx n a b options)
@@ -487,23 +511,23 @@
                         wrapped $ wrap-pick k child-changes
                       diff-record-step (&buf-list:concat acc wrapped) (&+ idx 1) n a b options
           :examples $ []
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] :dynamic :number :number :record :record (:: :map :tag :tag)
-              :return $ :: :list 'recollect.schema/change-op
+              :args $ [] 'Dynamic 'Number 'Number 'Record 'Record (:: 'Map 'Tag 'Tag)
+              :return $ :: 'List 'recollect.schema/change-op
         |diff-set $ %{} :CodeEntry (:doc "|Internal function to compute diff between two sets. Collects :set-splice operations for removed and added elements.")
           :code $ quote
             defn diff-set (a b)
               let
                   added $ difference b a
                   removed $ difference a b
-                [] $ :: :set-splice removed added
+                [] $ %:: schema/change-op :set-splice removed added
           :examples $ []
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] (:: :set 'T) (:: :set 'T)
+              :args $ [] (:: 'Set 'T) (:: 'Set 'T)
               :generics $ [] 'T
-              :return $ :: :list 'recollect.schema/change-op
+              :return $ :: 'List 'recollect.schema/change-op
         |diff-tuple $ %{} :CodeEntry (:doc "|Internal function to compute diff between two tuples. Replaces if tag or size differs, otherwise diffs elements.")
           :code $ quote
             defn diff-tuple (a b options)
@@ -511,15 +535,15 @@
                 or
                   not= (nth a 0) (nth b 0)
                   not= (&tuple:count a) (&tuple:count b)
-                [] $ :: :replace b
+                [] $ %:: schema/change-op :replace b
                 let
                     max-idx $ dec (&tuple:count a)
                   diff-tuple-step (&buf-list:new) 1 max-idx a b options
           :examples $ []
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] :tuple :tuple (:: :map :tag :tag)
-              :return $ :: :list 'recollect.schema/change-op
+              :args $ [] 'Tuple 'Tuple (:: 'Map 'Tag 'Tag)
+              :return $ :: 'List 'recollect.schema/change-op
         |diff-tuple-step $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn diff-tuple-step (acc idx max-idx a b options)
@@ -529,10 +553,10 @@
                     wrapped $ wrap-pick idx child-changes
                   diff-tuple-step (&buf-list:concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] :dynamic :number :number :tuple :tuple (:: :map :tag :tag)
-              :return $ :: :list 'recollect.schema/change-op
+              :args $ [] 'Dynamic 'Number 'Number 'Tuple 'Tuple (:: 'Map 'Tag 'Tag)
+              :return $ :: 'List 'recollect.schema/change-op
         |diff-twig $ %{} :CodeEntry (:doc "|Calculate differences between two data trees, returning a list of change operations.\n\nArguments:\n  a - old data\n  b - new data\n  options - configuration options, e.g. {:key :id} specifies the key for map matching\n\nReturns: list of change operations that can be applied with patch-twig")
           :code $ quote
             defn diff-twig (a b options)
@@ -546,22 +570,22 @@
               {} $ :items ([] 1 2 3)
               {} $ :items ([] 1 2 4)
               {} $ :key :id
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] :dynamic :dynamic (:: :map :tag :tag)
-              :return $ :: :list 'recollect.schema/change-op
+              :args $ [] 'Dynamic 'Dynamic (:: 'Map 'Tag 'Tag)
+              :return $ :: 'List 'recollect.schema/change-op
         |diff-twig-iterate $ %{} :CodeEntry (:doc "|Internal recursive iterator for diff computation. Dispatches to appropriate diff function based on data type.")
           :code $ quote
             defn diff-twig-iterate (a b options)
               if (identical? a b) ([])
                 if
                   not= (type-of a) (type-of b)
-                  [] $ :: :replace b
+                  [] $ %:: schema/change-op :replace b
                   cond
                       literal? b
-                      [] $ :: :replace b
+                      [] $ %:: schema/change-op :replace b
                     (symbol? b)
-                      [] $ :: :replace b
+                      [] $ %:: schema/change-op :replace b
                     (set? b) (diff-set a b)
                     (tuple? b) (diff-tuple a b options)
                     (map? b) (diff-map a b options)
@@ -570,10 +594,10 @@
                     (record? b) (diff-record a b options)
                     true $ []
           :examples $ []
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] :dynamic :dynamic (:: :map :tag :tag)
-              :return $ :: :list 'recollect.schema/change-op
+              :args $ [] 'Dynamic 'Dynamic (:: 'Map 'Tag 'Tag)
+              :return $ :: 'List 'recollect.schema/change-op
         |find-vector-changes $ %{} :CodeEntry (:doc "|Internal function to find changes between two vectors. Recursively compares elements from the tail.")
           :code $ quote
             defn find-vector-changes (acc idx a-items b-items options)
@@ -582,37 +606,37 @@
                   &buf-list:to-list acc
                 (empty? b-items)
                   &buf-list:to-list $ &buf-list:concat acc
-                    [] $ :: :vec-drop idx
+                    [] $ %:: schema/change-op :vec-drop idx
                 (empty? a-items)
                   &buf-list:to-list $ &buf-list:concat acc
-                    [] $ :: :vec-append b-items
+                    [] $ %:: schema/change-op :vec-append b-items
                 true $ let
                     child-changes $ diff-twig-iterate (first a-items) (first b-items) options
                     wrapped $ wrap-pick idx child-changes
                   find-vector-changes (&buf-list:concat acc wrapped) (&+ idx 1) (rest a-items) (rest b-items) options
           :examples $ []
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] :dynamic :number (:: :list 'T) (:: :list 'T) (:: :map :tag :tag)
+              :args $ [] 'Dynamic 'Number (:: 'List 'T) (:: 'List 'T) (:: 'Map 'Tag 'Tag)
               :generics $ [] 'T
-              :return $ :: :list 'recollect.schema/change-op
+              :return $ :: 'List 'recollect.schema/change-op
         |fold-update $ %{} :CodeEntry (:doc "|Internal helper to fold :update operations into :update-in for nested paths.")
           :code $ quote
             defn fold-update (k c0)
               match c0
                 (:update k1 c1)
-                  :: :update-in ([] k k1) c1
+                  %:: schema/change-op :update-in ([] k k1) c1
                 (:update-in ks c2)
-                  :: :update-in (prepend ks k) c2
+                  %:: schema/change-op :update-in (prepend ks k) c2
                 (:pick k1 cs)
-                  :: :pick-in ([] k k1) cs
+                  %:: schema/change-op :pick-in ([] k k1) cs
                 (:pick-in ks cs)
-                  :: :pick-in (prepend ks k) cs
-                _ $ :: :update k c0
+                  %:: schema/change-op :pick-in (prepend ks k) cs
+                _ $ %:: schema/change-op :update k c0
           :examples $ []
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {} (:return 'recollect.schema/change-op)
-              :args $ [] :dynamic 'recollect.schema/change-op
+              :args $ [] 'Dynamic 'recollect.schema/change-op
         |wrap-pick $ %{} :CodeEntry (:doc "|Internal helper to wrap multiple changes into a :pick operation for a specific key.")
           :code $ quote
             defn wrap-pick (k chunk)
@@ -624,17 +648,17 @@
                         c0 $ nth chunk 0
                       match c0
                         (:replace v)
-                          [] $ :: :assoc k v
+                          [] $ %:: schema/change-op :assoc k v
                         (:assoc k1 v)
-                          [] $ :: :update k c0
+                          [] $ %:: schema/change-op :update k c0
                         _ $ [] (fold-update k c0)
-                    [] $ :: :pick k chunk
+                    [] $ %:: schema/change-op :pick k chunk
                   []
           :examples $ []
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] :dynamic (:: :list 'recollect.schema/change-op)
-              :return $ :: :list 'recollect.schema/change-op
+              :args $ [] 'Dynamic (:: 'List 'recollect.schema/change-op)
+              :return $ :: 'List 'recollect.schema/change-op
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns recollect.diff $ :require
@@ -646,24 +670,24 @@
           :code $ quote
             defatom *twig-call-cache $ {}
           :examples $ []
-          :schema $ :: :ref :map
+          :schema $ :: 'Ref 'Map
         |*twig-frame-active? $ %{} :CodeEntry (:doc |)
           :code $ quote (defatom *twig-frame-active? false)
           :examples $ []
-          :schema $ :: :ref :bool
+          :schema $ :: 'Ref 'Bool
         |*twig-frame-cache $ %{} :CodeEntry (:doc |)
           :code $ quote
             defatom *twig-frame-cache $ {}
           :examples $ []
-          :schema $ :: :ref :map
+          :schema $ :: 'Ref 'Map
         |begin-twig-frame! $ %{} :CodeEntry (:doc "|Start collecting the twig memo entries used by the current render or sync frame.")
           :code $ quote
             defn begin-twig-frame! ()
               reset! *twig-frame-cache $ {}
               reset! *twig-frame-active? true
           :examples $ []
-          :schema $ :: :fn
-            {} (:return :unit)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
               :args $ []
         |finish-twig-frame! $ %{} :CodeEntry (:doc "|Finish the current twig memo frame, retaining only entries touched during that frame.")
           :code $ quote
@@ -672,8 +696,8 @@
               reset! *twig-frame-active? false
               reset! *twig-frame-cache $ {}
           :examples $ []
-          :schema $ :: :fn
-            {} (:return :unit)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
               :args $ []
         |memo-twig-by $ %{} :CodeEntry (:doc "|Memoize a twig builder with arbitrary arguments. This variadic escape hatch is intentionally dynamic; prefer memo-twig-by0, memo-twig-by1, or memo-twig-by2 for static argument and return checking.")
           :code $ quote
@@ -715,27 +739,27 @@
                           swap! *twig-call-cache assoc-in ([] f key) ([] args ret)
                           , ret
           :examples $ []
-          :schema $ :: :fn
-            {} (:rest :dynamic) (:return :dynamic)
-              :args $ [] :dynamic :fn
+          :schema $ :: 'Fn
+            {} (:rest 'Dynamic) (:return 'Dynamic)
+              :args $ [] 'Dynamic 'Fn
         |memo-twig-by0 $ %{} :CodeEntry (:doc "|Typed zero-argument twig memoization keyed by function and stable application key.")
           :code $ quote
             defn memo-twig-by0 (key f) (memo-twig-by key f)
           :examples $ []
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {} (:return 'T)
               :args $ [] 'K
-                :: :fn $ {} (:return 'T)
+                :: 'Fn $ {} (:return 'T)
                   :args $ []
               :generics $ [] 'K 'T
         |memo-twig-by1 $ %{} :CodeEntry (:doc "|Typed unary twig memoization keyed by function, stable application key, and argument value.")
           :code $ quote
             defn memo-twig-by1 (key f a) (memo-twig-by key f a)
           :examples $ []
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {} (:return 'T)
               :args $ [] 'K
-                :: :fn $ {} (:return 'T)
+                :: 'Fn $ {} (:return 'T)
                   :args $ [] 'A
                 , 'A
               :generics $ [] 'K 'A 'T
@@ -743,10 +767,10 @@
           :code $ quote
             defn memo-twig-by2 (key f a b) (memo-twig-by key f a b)
           :examples $ []
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {} (:return 'T)
               :args $ [] 'K
-                :: :fn $ {} (:return 'T)
+                :: 'Fn $ {} (:return 'T)
                   :args $ [] 'A 'B
                 , 'A 'B
               :generics $ [] 'K 'A 'B 'T
@@ -757,8 +781,8 @@
               reset! *twig-frame-cache $ {}
               reset! *twig-frame-active? false
           :examples $ []
-          :schema $ :: :fn
-            {} (:return :unit)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
               :args $ []
         |twig-memo-size $ %{} :CodeEntry (:doc "|Return the number of retained keyed twig memo entries.")
           :code $ quote
@@ -766,29 +790,32 @@
               fn (total pair)
                 + total $ count (last pair)
           :examples $ []
-          :schema $ :: :fn
-            {} (:return :number)
+          :schema $ :: 'Fn
+            {} (:return 'Number)
               :args $ []
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote (ns recollect.memo)
     |recollect.memo-test $ %{} :FileEntry
       :defs $ {}
-        |*twig-build-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+        |*twig-build-count $ %{} :CodeEntry (:doc |)
           :code $ quote (defatom *twig-build-count 0)
           :examples $ []
-        |build-twig $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |build-twig $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn build-twig (value) (swap! *twig-build-count inc)
               {} $ :value value
           :examples $ []
-        |memo-bypass-test $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |memo-bypass-test $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest memo-bypass-test $ testing |nil_key_bypasses_twig_memo (reset-twig-memo!) (reset! *twig-build-count 0) (memo-twig-by1 nil build-twig 1) (memo-twig-by1 nil build-twig 1)
               is $ = 2 @*twig-build-count
               is $ = 0 (twig-memo-size)
               reset-twig-memo!
           :examples $ []
-        |memo-hit-test $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |memo-hit-test $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest memo-hit-test $ testing |twig_memo_reuses_identity (reset-twig-memo!) (reset! *twig-build-count 0) (begin-twig-frame!)
               let
@@ -800,7 +827,8 @@
                 is $ = 1 (twig-memo-size)
                 reset-twig-memo!
           :examples $ []
-        |memo-invalidation-test $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |memo-invalidation-test $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest memo-invalidation-test $ testing |changed_twig_args_recompute_same_key (reset-twig-memo!) (reset! *twig-build-count 0) (begin-twig-frame!)
               let
@@ -812,7 +840,8 @@
                 is $ = 1 (twig-memo-size)
                 reset-twig-memo!
           :examples $ []
-        |memo-prune-test $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |memo-prune-test $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest memo-prune-test $ testing |twig_frame_prunes_inactive_keys (reset-twig-memo!) (reset! *twig-build-count 0) (begin-twig-frame!) (memo-twig-by1 :a build-twig 1) (memo-twig-by1 :b build-twig 2) (finish-twig-frame!)
               is $ = 2 (twig-memo-size)
@@ -826,10 +855,12 @@
               is $ = 3 @*twig-build-count
               reset-twig-memo!
           :examples $ []
-        |run-tests $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |run-tests $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn run-tests () (memo-hit-test) (memo-invalidation-test) (memo-prune-test) (memo-bypass-test)
           :examples $ []
+          :schema $ :: 'Dynamic
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns recollect.memo-test $ :require
@@ -849,11 +880,11 @@
               {} (:a 1) (:b 2)
               #{} :a
               {} $ :c 3
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] (:: :map 'K 'V) (:: :set 'K) (:: :map 'K 'V)
+              :args $ [] (:: 'Map 'K 'V) (:: 'Set 'K) (:: 'Map 'K 'V)
               :generics $ [] 'K 'V
-              :return $ :: :map 'K 'V
+              :return $ :: 'Map 'K 'V
         |patch-map-set $ %{} :CodeEntry (:doc "|Set a key-value pair in a map. Equivalent to assoc.")
           :code $ quote
             defn patch-map-set (base k data) (assoc base k data)
@@ -861,7 +892,7 @@
             quote $ patch-map-set
               {} $ :a 1
               , :b 2
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {} (:return 'B)
               :args $ [] 'B 'K 'V
               :generics $ [] 'B 'K 'V
@@ -885,7 +916,7 @@
                     (k0 rest-ks)
                       let
                           old-val $ if (map? base) (&map:get base k0) (nth base k0)
-                        assoc base k0 $ patch-one old-val (:: :update-in rest-ks c0)
+                        assoc base k0 $ patch-one old-val (%:: schema/change-op :update-in rest-ks c0)
                 (:pick k changes)
                   let
                       old-val $ if (map? base) (&map:get base k) (nth base k)
@@ -896,23 +927,23 @@
                     (k0 rest-ks)
                       let
                           old-val $ if (map? base) (&map:get base k0) (nth base k0)
-                        assoc base k0 $ patch-one old-val (:: :pick-in rest-ks changes)
+                        assoc base k0 $ patch-one old-val (%:: schema/change-op :pick-in rest-ks changes)
                 _ $ raise (str |Unknown-patch-operation: change)
           :examples $ []
-          :schema $ :: :fn
-            {} (:return :dynamic)
-              :args $ [] :dynamic 'recollect.schema/change-op
+          :schema $ :: 'Fn
+            {} (:return 'Dynamic)
+              :args $ [] 'Dynamic 'recollect.schema/change-op
         |patch-set $ %{} :CodeEntry (:doc "|Apply set-splice patch by removing and adding elements to a set.")
           :code $ quote
             defn patch-set (base removed added)
               -> base (difference removed) (union added)
           :examples $ []
             quote $ patch-set (#{} 1 2 3) (#{} 1) (#{} 4)
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] (:: :set 'T) (:: :set 'T) (:: :set 'T)
+              :args $ [] (:: 'Set 'T) (:: 'Set 'T) (:: 'Set 'T)
               :generics $ [] 'T
-              :return $ :: :set 'T
+              :return $ :: 'Set 'T
         |patch-twig $ %{} :CodeEntry (:doc "|Apply diff changes to base data, returning the updated data.\n\nArguments:\n  base - base data (usually the old data)\n  changes - list of change operations generated by diff-twig\n\nReturns: new data after applying changes")
           :code $ quote
             defn patch-twig (base changes)
@@ -929,62 +960,65 @@
             quote $ patch-twig
               {} $ :a 1
               [] $ :: :assoc :a 2
-          :schema $ :: :fn
-            {} (:return :dynamic)
-              :args $ [] :dynamic (:: :list 'recollect.schema/change-op)
+          :schema $ :: 'Fn
+            {} (:return 'Dynamic)
+              :args $ [] 'Dynamic (:: 'List 'recollect.schema/change-op)
         |patch-vector-append $ %{} :CodeEntry (:doc "|Append elements to a vector. Used for :vec-append operations.")
           :code $ quote
             defn patch-vector-append (base data) (&list:concat base data)
           :examples $ []
             quote $ patch-vector-append ([] 1 2) ([] 3 4)
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] (:: :list 'T) (:: :list 'T)
+              :args $ [] (:: 'List 'T) (:: 'List 'T)
               :generics $ [] 'T
-              :return $ :: :list 'T
+              :return $ :: 'List 'T
         |patch-vector-drop $ %{} :CodeEntry (:doc "|Drop trailing elements from a vector. Takes first n elements.")
           :code $ quote
             defn patch-vector-drop (base data) (&list:slice base 0 data)
           :examples $ []
             quote $ patch-vector-drop ([] 1 2 3 4) 2
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] (:: :list 'T) :number
+              :args $ [] (:: 'List 'T) 'Number
               :generics $ [] 'T
-              :return $ :: :list 'T
+              :return $ :: 'List 'T
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns recollect.patch $ :require (recollect.schema :as schema)
             recollect.util :refer $ vec-add seq-add
     |recollect.schema $ %{} :FileEntry
       :defs $ {}
-        |change-op $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+        |change-op $ %{} :CodeEntry (:doc |)
           :code $ quote
             defenum change-op (:replace :dynamic)
               :vec-append $ :: :list :dynamic
               :vec-drop :number
               :assoc :dynamic :dynamic
               :set-splice (:: :set :dynamic) (:: :set :dynamic)
-              :map-splice (:: :map :dynamic :dynamic) (:: :map :dynamic :dynamic)
+              :map-splice (:: :set :dynamic) (:: :map :dynamic :dynamic)
               :update :dynamic 'recollect.schema/change-op
               :update-in (:: :list :dynamic) 'recollect.schema/change-op
               :pick :dynamic $ :: :list 'recollect.schema/change-op
               :pick-in (:: :list :dynamic) (:: :list 'recollect.schema/change-op)
           :examples $ []
-        |store $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |store $ %{} :CodeEntry (:doc |)
           :code $ quote
             def store $ {}
               :states $ {}
           :examples $ []
+          :schema $ :: 'Dynamic
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote (ns recollect.schema)
     |recollect.test $ %{} :FileEntry
       :defs $ {}
-        |Person $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+        |Person $ %{} :CodeEntry (:doc |)
           :code $ quote
             defstruct Person (:name :string) (:age :number)
           :examples $ []
-        |run-tests $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |run-tests $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn run-tests ()
               when
@@ -1004,7 +1038,8 @@
               test-invalid-patch
               memo-test/run-tests
           :examples $ []
-        |test-diff-funcs $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-diff-funcs $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-funcs $ testing "|diff functions"
               let
@@ -1017,7 +1052,8 @@
                   changes $ []
                 is $ = changes (diff-twig a0 b options)
           :examples $ []
-        |test-diff-map-by-ids $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-diff-map-by-ids $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-map-by-ids $ testing "|diff map by diffs"
               let
@@ -1025,22 +1061,24 @@
                   b $ {} (:id 2) (:data 1)
                   options $ {} (:key :id)
                   changes $ []
-                    :: :replace $ {} (:id 2) (:data 1)
+                    %:: schema/change-op :replace $ {} (:id 2) (:data 1)
                 is $ = changes (diff-twig a b options)
                 is $ = b (patch-twig a changes)
           :examples $ []
-        |test-diff-map-same-id $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-diff-map-same-id $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-map-same-id $ testing "|diff map same id"
               let
                   a $ {} (:id 1) (:data 1)
                   b $ {} (:id 1) (:data 2)
                   options $ {} (:key :id)
-                  changes $ [] (:: :assoc :data 2)
+                  changes $ [] (%:: schema/change-op :assoc :data 2)
                 is $ = changes (diff-twig a b options)
                 is $ = b (patch-twig a changes)
           :examples $ []
-        |test-diff-maps $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-diff-maps $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-maps $ testing "|diff maps"
               let
@@ -1050,23 +1088,25 @@
                     :a $ {} (:c 2)
                   options $ {} (:key :id)
                   changes $ []
-                    :: :update :a $ :: :map-splice (#{} :b)
+                    %:: schema/change-op :update :a $ %:: schema/change-op :map-splice (#{} :b)
                       {} $ :c 2
                 is $ = changes (diff-twig a b options)
                 is $ = b (patch-twig a changes)
           :examples $ []
-        |test-diff-records $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-diff-records $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-records $ testing "|diff records"
               let
                   a $ %{} Person (:name |Lily) (:age 10)
                   b $ %{} Person (:name |Lucy) (:age 11)
                   options $ {}
-                  changes $ [] (:: :assoc :age 11) (:: :assoc :name |Lucy)
+                  changes $ [] (%:: schema/change-op :assoc :age 11) (%:: schema/change-op :assoc :name |Lucy)
                 is $ = changes (diff-twig a b options)
                 is $ = b (patch-twig a changes)
           :examples $ []
-        |test-diff-same-sets $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-diff-same-sets $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-same-sets $ testing "|diff same sets"
               let
@@ -1079,7 +1119,8 @@
                 ; print changes
                 is $ = changes (diff-twig a b options)
           :examples $ []
-        |test-diff-same-tag $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-diff-same-tag $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-same-tag $ testing "|diff same tag"
               let
@@ -1090,7 +1131,8 @@
                 is $ = changes (diff-twig a b options)
                 is $ = b (patch-twig a changes)
           :examples $ []
-        |test-diff-sets $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-diff-sets $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-sets $ testing "|diff sets"
               let
@@ -1100,18 +1142,19 @@
                     :a $ #{} 2 3 4
                   options $ {} (:key :id)
                   changes $ []
-                    :: :update :a $ :: :set-splice (#{} 1) (#{} 4)
+                    %:: schema/change-op :update :a $ %:: schema/change-op :set-splice (#{} 1) (#{} 4)
                 is $ = changes (diff-twig a b options)
                 is $ = b (patch-twig a changes)
           :examples $ []
-        |test-diff-tuple $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-diff-tuple $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-tuple
               testing "|diff different tuples" $ let
                   a $ :: :a 1 2
                   b $ :: :a 2 3 4
                   changes $ []
-                    :: :replace $ :: :a 2 3 4
+                    %:: schema/change-op :replace $ :: :a 2 3 4
                 is $ = changes
                   diff-twig a b $ {}
                 is $ = b (patch-twig a changes)
@@ -1119,7 +1162,7 @@
                   a $ :: :a 1 2
                   b $ :: :b 2 3 4
                   changes $ []
-                    :: :replace $ :: :b 2 3 4
+                    %:: schema/change-op :replace $ :: :b 2 3 4
                 is $ = changes
                   diff-twig a b $ {}
                 is $ = b (patch-twig a changes)
@@ -1133,7 +1176,7 @@
               testing "|diff tuples index" $ let
                   a $ :: :a 1 2
                   b $ :: :a 1 3
-                  changes $ [] (:: :assoc 2 3)
+                  changes $ [] (%:: schema/change-op :assoc 2 3)
                 is $ = changes
                   diff-twig a b $ {}
                 is $ = b (patch-twig a changes)
@@ -1143,12 +1186,13 @@
                   b $ :: :a 1
                     {} $ :a 2
                   changes $ []
-                    :: :update 2 $ :: :assoc :a 2
+                    %:: schema/change-op :update 2 $ %:: schema/change-op :assoc :a 2
                 is $ = changes
                   diff-twig a b $ {}
                 is $ = b (patch-twig a changes)
           :examples $ []
-        |test-diff-vectors $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-diff-vectors $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-diff-vectors $ testing "|diff vectors"
               let
@@ -1158,11 +1202,12 @@
                     :a $ [] 1 6 7 8
                   options $ {} (:key :id)
                   changes $ []
-                    :: :pick :a $ [] (:: :assoc 1 6) (:: :assoc 2 7) (:: :assoc 3 8)
+                    %:: schema/change-op :pick :a $ [] (%:: schema/change-op :assoc 1 6) (%:: schema/change-op :assoc 2 7) (%:: schema/change-op :assoc 3 8)
                 is $ = changes (diff-twig a b options)
                 is $ = b (patch-twig a changes)
           :examples $ []
-        |test-invalid-patch $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-invalid-patch $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-invalid-patch $ testing "|invalid patch is rejected"
               let
@@ -1173,7 +1218,8 @@
                     fn (e) :caught
                 is $ = :caught result
           :examples $ []
-        |test-vec-add $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-vec-add $ %{} :CodeEntry (:doc |)
           :code $ quote
             deftest test-vec-add $ testing |vec-add
               let
@@ -1181,6 +1227,7 @@
                   b $ [] 5 6 7 8
                 is $ = (vec-add a b) ([] 1 2 3 4 5 6 7 8)
           :examples $ []
+          :schema $ :: 'Dynamic
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns recollect.test $ :require
@@ -1197,23 +1244,23 @@
             defn clear-twig-caches! () $ reset-twig-memo!
           :examples $ []
             quote $ clear-twig-caches!
-          :schema $ :: :fn
-            {} (:return :unit)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
               :args $ []
         |show-tag-summay $ %{} :CodeEntry (:doc "|Legacy misspelled alias returning the retained twig memo entry count.")
           :code $ quote
             defn show-tag-summay () $ twig-memo-size
           :examples $ []
             quote $ show-tag-summay
-          :schema $ :: :fn
-            {} (:return :number)
+          :schema $ :: 'Fn
+            {} (:return 'Number)
               :args $ []
         |show-twig-summary $ %{} :CodeEntry (:doc "|Return the number of retained dedicated twig memo entries.")
           :code $ quote
             defn show-twig-summary () $ twig-memo-size
           :examples $ []
-          :schema $ :: :fn
-            {} (:return :number)
+          :schema $ :: 'Fn
+            {} (:return 'Number)
               :args $ []
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
@@ -1233,9 +1280,9 @@
                       if (identical? x0 y0) (recur xss yss) false
           :examples $ []
             quote $ =seq ([] 1 2 3) ([] 1 2 3)
-          :schema $ :: :fn
-            {} (:return :bool)
-              :args $ [] (:: :list 'T) (:: :list 'T)
+          :schema $ :: 'Fn
+            {} (:return 'Bool)
+              :args $ [] (:: 'List 'T) (:: 'List 'T)
               :generics $ [] 'T
         |compare $ %{} :CodeEntry (:doc "|Compare two values. Returns -1 if x < y, 1 if x > y, 0 if x = y.")
           :code $ quote
@@ -1247,9 +1294,9 @@
                 true 0
           :examples $ []
             quote $ compare 1 2
-          :schema $ :: :fn
-            {} (:return :number)
-              :args $ [] :dynamic :dynamic
+          :schema $ :: 'Fn
+            {} (:return 'Number)
+              :args $ [] 'Dynamic 'Dynamic
         |literal? $ %{} :CodeEntry (:doc "|Check if value is a literal type (string, number, boolean, nil, tag, or symbol).")
           :code $ quote
             defn literal? (x)
@@ -1257,9 +1304,9 @@
           :examples $ []
             quote $ literal? 123
             quote $ literal? ([] 1 2)
-          :schema $ :: :fn
-            {} (:return :bool)
-              :args $ [] :dynamic
+          :schema $ :: 'Fn
+            {} (:return 'Bool)
+              :args $ [] 'Dynamic
         |vec-add $ %{} :CodeEntry (:doc "|Append vector ys to vector xs. Returns a new vector with all elements from xs followed by all elements from ys.")
           :code $ quote
             defn vec-add (xs ys)
@@ -1269,47 +1316,53 @@
                   recur (conj xs y0) yss
           :examples $ []
             quote $ vec-add ([] 1 2) ([] 3 4)
-          :schema $ :: :fn
+          :schema $ :: 'Fn
             {}
-              :args $ [] (:: :list 'T) (:: :list 'T)
+              :args $ [] (:: 'List 'T) (:: 'List 'T)
               :generics $ [] 'T
-              :return $ :: :list 'T
+              :return $ :: 'List 'T
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote (ns recollect.util)
     |recollect.wasm-test $ %{} :FileEntry
       :defs $ {}
-        |main! $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+        |main! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn main! () 0
           :examples $ []
-        |probe-api-base-let-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-api-base-let-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-api-base-let-count () $ let
                 m $ sample-api-base
               &map:count m
           :examples $ []
-        |probe-api-base-map-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-api-base-map-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-api-base-map-count () $ &map:count (sample-api-base)
           :examples $ []
-        |probe-api-base-to-list-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-api-base-to-list-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-api-base-to-list-count () $ &list:count
               &map:to-list $ sample-api-base
           :examples $ []
-        |probe-api-change-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-api-change-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-api-change-count () $ let
                 changes $ diff-twig (sample-api-base) (sample-api-target) ({})
               &list:count changes
           :examples $ []
-        |probe-api-changes $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-api-changes $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-api-changes () $ let
                 changes $ diff-twig (sample-api-base) (sample-api-target) ({})
               type-of changes
           :examples $ []
-        |probe-api-common-keys-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-api-common-keys-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-api-common-keys-count () $ let
                 a $ sample-api-base
@@ -1317,12 +1370,14 @@
                 ks $ &map:common-keys a b
               &set:count ks
           :examples $ []
-        |probe-api-diff-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-api-diff-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-api-diff-count () $ &list:count
               diff-twig (sample-api-base) (sample-api-target) ({})
           :examples $ []
-        |probe-api-items-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-api-items-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-api-items-count () $ let
                 base $ sample-api-base
@@ -1331,7 +1386,8 @@
                 patched $ patch-twig base changes
               &list:count $ &map:get patched :items
           :examples $ []
-        |probe-api-nested-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-api-nested-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-api-nested-count () $ let
                 base $ sample-api-base
@@ -1341,7 +1397,8 @@
                 nested $ &map:get patched :nested
               &map:count nested
           :examples $ []
-        |probe-api-patched-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-api-patched-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-api-patched-count () $ let
                 base $ sample-api-base
@@ -1350,7 +1407,8 @@
                 patched $ patch-twig base changes
               &map:count patched
           :examples $ []
-        |probe-api-patched-score $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-api-patched-score $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-api-patched-score () $ let
                 changes $ diff-twig (sample-api-base) (sample-api-target) ({})
@@ -1358,7 +1416,8 @@
                 user $ &map:get patched :user
               &map:get user :score
           :examples $ []
-        |probe-app-twig-change-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-app-twig-change-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-app-twig-change-count () $ let
               old-twig $ twig-container (sample-store-a)
@@ -1366,14 +1425,16 @@
               changes $ diff-twig old-twig new-twig ({})
               &list:count changes
           :examples $ []
-        |probe-assoc-chain $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-assoc-chain $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-assoc-chain () $ let
                 m1 $ &map:assoc ({}) :a 1
                 m2 $ &map:assoc m1 :b 2
               &map:count m2
           :examples $ []
-        |probe-assoc-map-list $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-assoc-map-list $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-assoc-map-list () $ let
                 m $ {}
@@ -1382,19 +1443,22 @@
                 m2 $ assoc m :items new-list
               &list:count $ &map:get m2 :items
           :examples $ []
-        |probe-assoc-simple $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-assoc-simple $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-assoc-simple () $ &map:count
               &map:assoc (&map:assoc {} :count 10) :bonus 3
           :examples $ []
-        |probe-cond-number $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-cond-number $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-cond-number () $ cond
                 literal? 5
-                [] $ :: :replace 5
+                [] $ %:: schema/change-op :replace 5
               true []
           :examples $ []
-        |probe-diff-iterate-path $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-diff-iterate-path $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-diff-iterate-path () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1406,14 +1470,16 @@
               &+ is-identical $ &+ same-type
                 &+ is-literal $ &+ is-map 0
           :examples $ []
-        |probe-diff-map-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-diff-map-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-diff-map-count () $ let
                 ua $ {} (:score 1) (:level 2)
                 ub $ {} (:score 5) (:level 2)
               &list:count $ diff-map ua ub ({})
           :examples $ []
-        |probe-diff-map-step-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-diff-map-step-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-diff-map-step-count () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1423,7 +1489,8 @@
                 acc $ &buf-list:new
               &list:count $ diff-map-step acc common-triples ({})
           :examples $ []
-        |probe-diff-map-step-k2 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-diff-map-step-k2 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-diff-map-step-k2 () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1436,7 +1503,8 @@
                 vb1 $ &map:get ub k1
               if (not= va1 vb1) 1 0
           :examples $ []
-        |probe-diff-step-key0 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-diff-step-key0 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-diff-step-key0 () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1447,7 +1515,8 @@
                 common-keys $ &map:common-keys ua ub
               if (&set:includes? common-keys common-k) 1 0
           :examples $ []
-        |probe-diff-step-slice $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-diff-step-slice $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-diff-step-slice () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1458,12 +1527,14 @@
                 acc $ &buf-list:new
               &list:count $ diff-map-step acc rest-triples ({})
           :examples $ []
-        |probe-diff-twig-iterate-numbers $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-diff-twig-iterate-numbers $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-diff-twig-iterate-numbers () $ &list:count
               diff-twig-iterate 1 5 $ {}
           :examples $ []
-        |probe-diff-twig-map-c0 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-diff-twig-map-c0 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-diff-twig-map-c0 () $ let
                 changes $ diff-twig
@@ -1475,7 +1546,8 @@
                 (:assoc k v) 2
                 _ 0
           :examples $ []
-        |probe-diff-twig-map-len $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-diff-twig-map-len $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-diff-twig-map-len () $ &list:count
               diff-twig
@@ -1483,7 +1555,8 @@
                 {} (:a 1) (:b 3) (:c 4)
                 {}
           :examples $ []
-        |probe-double-assoc-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-double-assoc-call $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-double-assoc-call () $ let
                 m1 $ &map:assoc ({}) :a 1
@@ -1491,22 +1564,26 @@
                 m3 $ &map:assoc m2 :c 3
               &map:count m3
           :examples $ []
-        |probe-empty-map $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-empty-map $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-empty-map () $ &map:count {}
           :examples $ []
-        |probe-eq-false $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-eq-false $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-eq-false () $ if (= false false) 1 0
           :examples $ []
-        |probe-flags-diff-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-flags-diff-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-flags-diff-count () $ let
                 fa $ &map:get (sample-api-base) :flags
                 fb $ &map:get (sample-api-target) :flags
               &list:count $ diff-twig fa fb ({})
           :examples $ []
-        |probe-foldl-map-assoc $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-foldl-map-assoc $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-foldl-map-assoc () $ &map:count
               foldl
@@ -1515,29 +1592,34 @@
                 fn (acc pair)
                   &map:assoc acc (&list:nth pair 0) (&list:nth pair 1)
           :examples $ []
-        |probe-inline-map-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-inline-map-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-inline-map-count () $ &map:count
               {} (:score 1) (:level 2)
           :examples $ []
-        |probe-inline-map-to-list $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-inline-map-to-list $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-inline-map-to-list () $ &list:count
               &map:to-list $ {} (:score 1) (:level 2)
           :examples $ []
-        |probe-inline-pair-first $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-inline-pair-first $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-inline-pair-first () $ &list:first
               &map:to-list $ {} (:score 1) (:level 2)
           :examples $ []
-        |probe-inline-user-diff $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-inline-user-diff $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-inline-user-diff () $ let
                 ua $ {} (:score 1) (:level 2)
                 ub $ {} (:score 5) (:level 2)
               &list:count $ diff-twig ua ub ({})
           :examples $ []
-        |probe-items-change-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-items-change-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-items-change-count () $ let
                 a $ {}
@@ -1548,14 +1630,16 @@
                 pick-change $ nth changes 0
               count $ nth pick-change 2
           :examples $ []
-        |probe-items-diff-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-items-diff-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-items-diff-count () $ let
                 ia $ &map:get (sample-api-base) :items
                 ib $ &map:get (sample-api-target) :items
               &list:count $ diff-twig ia ib ({})
           :examples $ []
-        |probe-items-direct-patch $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-items-direct-patch $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-items-direct-patch () $ let
                 a $ [] 1 2 3
@@ -1564,7 +1648,8 @@
                 patched $ patch-twig a changes
               &list:count patched
           :examples $ []
-        |probe-items-via-map $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-items-via-map $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-items-via-map () $ let
                 a $ {}
@@ -1575,34 +1660,40 @@
                 patched $ patch-twig a changes
               &list:count $ &map:get patched :items
           :examples $ []
-        |probe-list-match-map-pairs $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-list-match-map-pairs $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-list-match-map-pairs () $ list-match
               &map:to-list $ {} (:score 1) (:level 2)
               () 0
               (pair rest-pairs) 1
           :examples $ []
-        |probe-list-match-simple $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-list-match-simple $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-list-match-simple () $ list-match ([] 1 2 3)
               () 0
               (first-item rest) 1
           :examples $ []
-        |probe-literal-5 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-literal-5 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-literal-5 () $ if (literal? 5) 1 0
           :examples $ []
-        |probe-literal-number $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-literal-number $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-literal-number () $ if (literal? 5) 1 0
           :examples $ []
-        |probe-literal-v2 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-literal-v2 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-literal-v2 () $ let
                 v $ number? 5
               if v 1 0
           :examples $ []
-        |probe-manual-or $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-manual-or $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-manual-or () $ let
                 v1 $ string? 5
@@ -1610,24 +1701,28 @@
                   v2 $ number? 5
                 if v2 v2 0
           :examples $ []
-        |probe-map-assoc $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-assoc $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-assoc () $ let
                 a $ {} (:a 1)
                 b $ .assoc a :b 2
               &map:count b
           :examples $ []
-        |probe-map-count-1 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-count-1 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-count-1 () $ &map:count (&map:assoc {} :count 10)
           :examples $ []
-        |probe-map-count-from-let $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-count-from-let $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-count-from-let () $ let
                 m $ {} (:a 1) (:b 2)
               &map:count m
           :examples $ []
-        |probe-map-diff-new $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-diff-new $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-diff-new () $ let
                 a $ {} (:a 1) (:b 2)
@@ -1635,14 +1730,16 @@
                 new-diff $ &map:diff-new b a
               &map:count new-diff
           :examples $ []
-        |probe-map-diff-new-a-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-diff-new-a-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-diff-new-a-count () $ let
                 a $ {} (:a 1) (:b 2)
                 b $ {} (:a 1) (:b 3) (:c 4)
               &map:count a
           :examples $ []
-        |probe-map-diff-new-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-diff-new-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-diff-new-count () $ let
                 a $ {} (:a 1) (:b 2)
@@ -1650,7 +1747,8 @@
                 new-diff $ &map:diff-new b a
               &map:count new-diff
           :examples $ []
-        |probe-map-diff-new2 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-diff-new2 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-diff-new2 () $ let
                 a $ {} (:a 1) (:b 2)
@@ -1658,7 +1756,8 @@
                 new-diff $ &map:diff-new b a
               if (&map:contains? new-diff :c) 1 0
           :examples $ []
-        |probe-map-includes-value-hit $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-includes-value-hit $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-includes-value-hit () $ if
               &map:includes?
@@ -1666,7 +1765,8 @@
                 , 5
               , 1 0
           :examples $ []
-        |probe-map-includes-value-miss $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-includes-value-miss $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-includes-value-miss () $ if
               &map:includes?
@@ -1674,7 +1774,8 @@
                 , 99
               , 1 0
           :examples $ []
-        |probe-map-items-diff-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-items-diff-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-items-diff-count () $ let
                 a $ {}
@@ -1684,7 +1785,8 @@
                 changes $ diff-twig a b ({})
               count changes
           :examples $ []
-        |probe-map-keys $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-keys $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-keys () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1694,7 +1796,8 @@
                 va $ &list:nth pair0 1
               if (= k :score) 1 $ if (= k :level) 2 3
           :examples $ []
-        |probe-map-keys-type $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-keys-type $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-keys-type () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1703,7 +1806,8 @@
                 k $ &list:first pair0
               type-of k
           :examples $ []
-        |probe-map-keys2 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-keys2 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-keys2 () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1712,7 +1816,8 @@
                 k $ &list:first pair0
               , k
           :examples $ []
-        |probe-map-keys3 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-keys3 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-keys3 () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1725,7 +1830,8 @@
                 va1 $ &list:nth pair1 1
               , k1
           :examples $ []
-        |probe-map-step-not-eq $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-step-not-eq $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-step-not-eq () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1737,7 +1843,8 @@
                 vb $ &map:get ub common-k
               if (not= va vb) 1 0
           :examples $ []
-        |probe-map-step-pair0 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-step-pair0 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-step-pair0 () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1745,7 +1852,8 @@
                 pair0 $ &list:first pairs
               &list:count pair0
           :examples $ []
-        |probe-map-step-rest $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-step-rest $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-step-rest () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1753,7 +1861,8 @@
                 rest-pairs $ &list:rest pairs
               &list:count rest-pairs
           :examples $ []
-        |probe-map-step-slice $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-step-slice $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-step-slice () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1761,7 +1870,8 @@
                 rest-pairs $ &list:slice pairs 1
               &list:count rest-pairs
           :examples $ []
-        |probe-map-step-va $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-step-va $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-step-va () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1769,7 +1879,8 @@
                 pair0 $ &list:first pairs
               &list:nth pair0 1
           :examples $ []
-        |probe-map-step-vb $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-step-vb $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-step-vb () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -1779,12 +1890,14 @@
                 common-k $ &list:first pair0
               &map:get ub common-k
           :examples $ []
-        |probe-map-to-list-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-map-to-list-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-map-to-list-count () $ &list:count
               &map:to-list $ {} (:a 1)
           :examples $ []
-        |probe-nested-bonus $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-nested-bonus $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-nested-bonus () $ let
                 base $ sample-api-base
@@ -1794,7 +1907,8 @@
                 nested $ &map:get patched :nested
               &map:get nested :bonus
           :examples $ []
-        |probe-nested-changes-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-nested-changes-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-nested-changes-count () $ let
                 base $ sample-api-base
@@ -1811,7 +1925,8 @@
                       :: false acc
               &list:count nested-change
           :examples $ []
-        |probe-nested-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-nested-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-nested-count () $ let
                 base $ sample-api-base
@@ -1821,7 +1936,8 @@
                 nested $ &map:get patched :nested
               &map:get nested :count
           :examples $ []
-        |probe-nested-map-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-nested-map-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-nested-map-count () $ let
                 base $ sample-api-base
@@ -1831,37 +1947,44 @@
                 nested $ &map:get patched :nested
               &map:count nested
           :examples $ []
-        |probe-number-question $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-number-question $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-number-question () $ if (number? 5) 1 0
           :examples $ []
-        |probe-or-bool $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-or-bool $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-or-bool () $ or false true
           :examples $ []
-        |probe-or-number $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-or-number $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-or-number () $ or (string? 5) (number? 5)
           :examples $ []
-        |probe-or-rev $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-or-rev $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-or-rev () $ or (number? 5) (string? 5)
           :examples $ []
-        |probe-or-v2 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-or-v2 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-or-v2 () $ let
                 a $ string? 5
                 b $ number? 5
               if a a $ if b b 0
           :examples $ []
-        |probe-pairs-empty $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-pairs-empty $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-pairs-empty () $ let
                 pairs $ &map:to-list
                   {} (:score 1) (:level 2)
               if (&list:empty? pairs) 0 1
           :examples $ []
-        |probe-pairs-first-type $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-pairs-first-type $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-pairs-first-type () $ let
                 pairs $ &map:to-list
@@ -1869,76 +1992,85 @@
                 first-pair $ &list:first pairs
               if (list? first-pair) 1 0
           :examples $ []
-        |probe-patch-map-simple $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-patch-map-simple $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-patch-map-simple () $ &map:count
               patch-map ({}) (#{})
                 {} $ :a 1
           :examples $ []
-        |probe-patch-one-dynamic $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-patch-one-dynamic $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-patch-one-dynamic () $ let
                 base $ {} (:a 1)
-                c $ :: :assoc :b 2
+                c $ %:: schema/change-op :assoc :b 2
               &map:count $ patch-one base c
           :examples $ []
-        |probe-patch-one-map-splice $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-patch-one-map-splice $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-patch-one-map-splice () $ &map:count
               patch-one ({})
-                :: :map-splice (#{})
+                %:: schema/change-op :map-splice (#{})
                   {} $ :a 1
           :examples $ []
-        |probe-patch-one-result-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-patch-one-result-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-patch-one-result-count () $ let
                 base $ patch-one
                   {} $ :a 1
-                  :: :assoc :b 2
+                  %:: schema/change-op :assoc :b 2
               &map:count base
           :examples $ []
-        |probe-patch-one-result-type $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-patch-one-result-type $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-patch-one-result-type () $ let
                 base $ patch-one
                   {} $ :a 1
-                  :: :assoc :b 2
+                  %:: schema/change-op :assoc :b 2
               if (map? base) 1 0
           :examples $ []
-        |probe-patch-one-twice $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-patch-one-twice $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-patch-one-twice () $ let
                 r1 $ patch-one
                   {} $ :a 1
-                  :: :assoc :b 2
+                  %:: schema/change-op :assoc :b 2
                 r2 $ patch-one
                   {} $ :a 1
-                  :: :assoc :c 3
+                  %:: schema/change-op :assoc :c 3
               &+ (&map:count r1) (&map:count r2)
           :examples $ []
-        |probe-patch-twig-hardcoded $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-patch-twig-hardcoded $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-patch-twig-hardcoded () $ &map:count
               patch-twig
                 {} (:a 1) (:b 2)
                 []
-                  :: :map-splice (#{})
+                  %:: schema/change-op :map-splice (#{})
                     {} (:b 3) (:c 4)
-                  :: :assoc :b 3
+                  %:: schema/change-op :assoc :b 3
           :examples $ []
-        |probe-patch-twig-iter2-base $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-patch-twig-iter2-base $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-patch-twig-iter2-base () $ let
                 base $ patch-one
                   {} $ :a 1
-                  :: :assoc :b 2
-                change $ :: :assoc :c 3
+                  %:: schema/change-op :assoc :b 2
+                change $ %:: schema/change-op :assoc :c 3
               &map:count $ patch-one base change
           :examples $ []
-        |probe-patch-twig-manual $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-patch-twig-manual $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-patch-twig-manual () $ let
-                changes $ [] (:: :assoc :b 2) (:: :assoc :c 3)
+                changes $ [] (%:: schema/change-op :assoc :b 2) (%:: schema/change-op :assoc :c 3)
                 base0 $ {} (:a 1)
                 c0 $ &list:nth changes 0
                 cs $ &list:slice changes 1
@@ -1947,53 +2079,61 @@
                 base2 $ patch-one base1 c1
               &map:count base2
           :examples $ []
-        |probe-patch-twig-single $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-patch-twig-single $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-patch-twig-single () $ &map:count
               patch-twig
                 {} $ :a 1
-                [] $ :: :assoc :b 2
+                [] $ %:: schema/change-op :assoc :b 2
           :examples $ []
-        |probe-patch-twig-two $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-patch-twig-two $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-patch-twig-two () $ &map:count
               patch-twig
                 {} $ :a 1
-                [] (:: :assoc :b 2) (:: :assoc :c 3)
+                [] (%:: schema/change-op :assoc :b 2) (%:: schema/change-op :assoc :c 3)
           :examples $ []
-        |probe-pick-patch $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-pick-patch $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-pick-patch () $ let
                 m $ {}
                   :items $ [] 1 2 3
-                change $ :: :pick :items
-                  [] (:: :assoc 1 7) (:: :assoc 2 8)
-                    :: :vec-append $ [] 9
+                change $ %:: schema/change-op :pick :items
+                  [] (%:: schema/change-op :assoc 1 7) (%:: schema/change-op :assoc 2 8)
+                    %:: schema/change-op :vec-append $ [] 9
                 patched $ patch-one m change
               &list:count $ &map:get patched :items
           :examples $ []
-        |probe-slice-empty $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-slice-empty $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-slice-empty () $ &list:count
               &list:slice ([] 1) 1
           :examples $ []
-        |probe-string-question $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-string-question $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-string-question () $ if (string? 5) 1 0
           :examples $ []
-        |probe-tag-match $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-tag-match $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-tag-match () $ tag-match (:: :map-splice 1 2)
               (:map-splice a b) (&+ a b)
               _ 0
           :examples $ []
-        |probe-tags $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-tags $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-tags () $ if (= 27 :score) 1
               if (= 27 :level) 2 $ if (= 47 :score) 3
                 if (= 47 :level) 4 5
           :examples $ []
-        |probe-to-list-match-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-to-list-match-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-to-list-match-count () $ let
                 pairs $ &map:to-list
@@ -2002,18 +2142,21 @@
                 () 0
                 pair rest-pairs 1
           :examples $ []
-        |probe-tuple-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-tuple-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-tuple-count () $ &tuple:count (:: :map-splice 1 2)
           :examples $ []
-        |probe-user-common-keys-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-user-common-keys-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-user-common-keys-count () $ let
                 ua $ &map:get (sample-api-base) :user
                 ub $ &map:get (sample-api-target) :user
               &set:count $ &map:common-keys ua ub
           :examples $ []
-        |probe-user-common-keys-includes $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-user-common-keys-includes $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-user-common-keys-includes () $ let
                 ua $ &map:get (sample-api-base) :user
@@ -2021,7 +2164,8 @@
                 ks $ &map:common-keys ua ub
               if (&set:includes? ks :score) 1 0
           :examples $ []
-        |probe-user-common-keys-level $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-user-common-keys-level $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-user-common-keys-level () $ let
                 ua $ {} (:score 1) (:level 2)
@@ -2029,33 +2173,38 @@
                 common-keys $ &map:common-keys ua ub
               if (&set:includes? common-keys :level) 1 0
           :examples $ []
-        |probe-user-diff-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-user-diff-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-user-diff-count () $ let
                 ua $ &map:get (sample-api-base) :user
                 ub $ &map:get (sample-api-target) :user
               &list:count $ diff-twig ua ub ({})
           :examples $ []
-        |probe-user-identical $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-user-identical $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-user-identical () $ let
                 ua $ &map:get (sample-api-base) :user
                 ub $ &map:get (sample-api-target) :user
               if (identical? ua ub) 1 0
           :examples $ []
-        |probe-user-is-map $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-user-is-map $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-user-is-map () $ let
                 ua $ &map:get (sample-api-base) :user
               if (map? ua) 1 0
           :examples $ []
-        |probe-user-score-a $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-user-score-a $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-user-score-a () $ let
                 ua $ &map:get (sample-api-base) :user
               &map:get ua :score
           :examples $ []
-        |probe-vector-patch-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-vector-patch-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-vector-patch-count () $ let
                 a $ [] 1 2 3
@@ -2064,7 +2213,8 @@
                 patched $ patch-twig a changes
               &list:count patched
           :examples $ []
-        |probe-vector-patch-nth1 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-vector-patch-nth1 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-vector-patch-nth1 () $ let
                 a $ [] 1 2 3
@@ -2073,12 +2223,14 @@
                 patched $ patch-twig a changes
               &list:nth patched 1
           :examples $ []
-        |probe-wrap-pick-count $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |probe-wrap-pick-count $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn probe-wrap-pick-count () $ &list:count
-              wrap-pick :score $ [] (:: :replace 5)
+              wrap-pick :score $ [] (%:: schema/change-op :replace 5)
           :examples $ []
-        |sample-api-base $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |sample-api-base $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn sample-api-base () $ {}
               :user $ {} (:score 1) (:level 2)
@@ -2086,7 +2238,8 @@
               :flags $ #{} :a :b
               :nested $ {} (:count 4)
           :examples $ []
-        |sample-api-target $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |sample-api-target $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn sample-api-target () $ {}
               :user $ {} (:score 5) (:level 2)
@@ -2094,21 +2247,24 @@
               :flags $ #{} :b :c
               :nested $ {} (:count 10) (:bonus 3)
           :examples $ []
-        |sample-store-a $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |sample-store-a $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn sample-store-a () $ {}
               :user $ {} (:id 1) (:score 3)
               :date $ {} (:year 2016) (:month 10)
               :lit-0 1
           :examples $ []
-        |sample-store-b $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |sample-store-b $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn sample-store-b () $ {}
               :user $ {} (:id 1) (:score 9)
               :date $ {} (:year 2017) (:month 11)
               :lit-0 2
           :examples $ []
-        |test-api-roundtrip-summary $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-api-roundtrip-summary $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-api-roundtrip-summary () $ let
                 base $ sample-api-base
@@ -2127,7 +2283,8 @@
                         if (&set:includes? flags :c) 10 0
                         &+ (&map:get nested :count) (&map:get nested :bonus)
           :examples $ []
-        |test-app-twig-roundtrip-summary $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-app-twig-roundtrip-summary $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-app-twig-roundtrip-summary () $ let
                 old-twig $ twig-container (sample-store-a)
@@ -2143,109 +2300,130 @@
                     &+ (&map:get user :score)
                       &+ (&map:get date :year) (&map:get date :month)
           :examples $ []
-        |test-arg-order $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-arg-order $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-arg-order (a b)
               if (empty? b) 1 0
           :examples $ []
-        |test-arg-order-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-arg-order-call $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-arg-order-call () $ test-arg-order 1 ([])
           :examples $ []
-        |test-diff-identical $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-diff-identical $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-diff-identical () $ diff-twig 1 1 ({})
           :examples $ []
-        |test-diff-identical-empty $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-diff-identical-empty $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-diff-identical-empty () $ if
               empty? $ diff-twig 1 1 ({})
               , 1 0
           :examples $ []
-        |test-empty-list $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-empty-list $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-empty-list () $ if
               empty? $ []
               , 1 0
           :examples $ []
-        |test-empty-map $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-empty-map $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-empty-map () $ if
               empty? $ {}
               , 1 0
           :examples $ []
-        |test-empty-recur-guard $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-empty-recur-guard $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-empty-recur-guard (xs)
               if (empty? xs) (1) (recur xs)
           :examples $ []
-        |test-empty-recur-guard-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-empty-recur-guard-call $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-empty-recur-guard-call () $ test-empty-recur-guard ([])
           :examples $ []
-        |test-empty-recur-list $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-empty-recur-list $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-empty-recur-list (xs)
               if (empty? xs) (1)
                 recur $ &list:rest xs
           :examples $ []
-        |test-empty-recur-list-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-empty-recur-list-call $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-empty-recur-list-call () $ test-empty-recur-list ([])
           :examples $ []
-        |test-identical $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-identical $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-identical () $ if (identical? 1 1) 1 0
           :examples $ []
-        |test-list-arg-kind $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-list-arg-kind $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-list-arg-kind (a b)
               if (list? b) 1 0
           :examples $ []
-        |test-list-arg-kind-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-list-arg-kind-call $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-list-arg-kind-call () $ test-list-arg-kind 1 ([])
           :examples $ []
-        |test-list-empty-proc $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-list-empty-proc $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-list-empty-proc (a b)
               if (&list:empty? b) 1 0
           :examples $ []
-        |test-list-empty-proc-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-list-empty-proc-call $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-list-empty-proc-call () $ test-list-empty-proc 1 ([])
           :examples $ []
-        |test-list-match-empty $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-list-match-empty $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-list-match-empty () $ list-match ([])
               () 1
               (c0 cs) 2
           :examples $ []
-        |test-list-match-pair $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-list-match-pair $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-list-match-pair () $ list-match ([] 3 4)
               () 0
               (c0 cs) c0
           :examples $ []
-        |test-loop-empty $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-loop-empty $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-loop-empty (base changes)
               list-match changes
                 () base
                 (c0 cs) (recur base cs)
           :examples $ []
-        |test-loop-empty-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-loop-empty-call $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-loop-empty-call () $ test-loop-empty 1 ([])
           :examples $ []
-        |test-map-assoc-op $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-map-assoc-op $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-map-assoc-op () $ let
                 base $ {} (:a 1)
                 patched $ patch-map-set base :b 4
               &+ (&map:count patched) (&map:get patched :b)
           :examples $ []
-        |test-map-patch $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-map-patch $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-map-patch () $ let
                 a $ {} (:a 1) (:b 2)
@@ -2255,7 +2433,8 @@
               &+ (&map:count patched)
                 &+ (&map:get patched :b) (&map:get patched :c)
           :examples $ []
-        |test-map-patch2 $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-map-patch2 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-map-patch2 () $ let
                 a $ {} (:a 1) (:b 2)
@@ -2264,36 +2443,43 @@
                 patched $ patch-twig a changes
               &map:count patched
           :examples $ []
-        |test-num-order $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-num-order $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-num-order (a b) (if true b 0)
           :examples $ []
-        |test-num-order-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-num-order-call $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-num-order-call () $ test-num-order 1 2
           :examples $ []
-        |test-patch-empty $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-patch-empty $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-patch-empty () $ patch-twig 1 ([])
           :examples $ []
-        |test-patch-one-assoc $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-patch-one-assoc $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-patch-one-assoc () $ let
                 base $ {} (:a 1)
-                patched $ patch-one base (:: :assoc :b 4)
+                patched $ patch-one base (%:: schema/change-op :assoc :b 4)
               &+ (&map:count patched) (&map:get patched :b)
           :examples $ []
-        |test-scalar-change $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-scalar-change $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-scalar-change () $ patch-twig 1
               diff-twig 1 2 $ {}
           :examples $ []
-        |test-scalar-stable $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-scalar-stable $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-scalar-stable () $ patch-twig 1
               diff-twig 1 1 $ {}
           :examples $ []
-        |test-set-patch $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-set-patch $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-set-patch () $ let
                 a $ {}
@@ -2306,7 +2492,8 @@
               &+ (&set:count s)
                 if (&set:includes? s 4) 10 0
           :examples $ []
-        |test-tuple-patch $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-tuple-patch $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-tuple-patch () $ let
                 a $ :: :a 1 2
@@ -2315,7 +2502,8 @@
                 patched $ patch-twig a changes
               &tuple:nth patched 2
           :examples $ []
-        |test-vector-append-op $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-vector-append-op $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-vector-append-op () $ let
                 base $ [] 1 2
@@ -2323,14 +2511,16 @@
               &+ (&list:count patched)
                 &+ (&list:nth patched 2) (&list:nth patched 3)
           :examples $ []
-        |test-vector-drop-op $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-vector-drop-op $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-vector-drop-op () $ let
                 base $ [] 1 2 3 4
                 patched $ patch-vector-drop base 2
               &+ (&list:count patched) (&list:nth patched 1)
           :examples $ []
-        |test-vector-patch $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: 'Dynamic
+        |test-vector-patch $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn test-vector-patch () $ let
                 a $ {}
@@ -2344,6 +2534,7 @@
                 &+ (&list:nth xs 1)
                   &+ (&list:nth xs 2) (&list:nth xs 3)
           :examples $ []
+          :schema $ :: 'Dynamic
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns recollect.wasm-test $ :require
@@ -2351,3 +2542,4 @@
             recollect.patch :refer $ patch-twig patch-one patch-map patch-map-set patch-vector-append patch-vector-drop
             recollect.app.twig.container :refer $ twig-container
             recollect.util :refer $ literal?
+            recollect.schema :as schema
