@@ -123,7 +123,7 @@
             defn on-click (op)
               fn (e dispatch!)
                 dispatch! op $ js/Math.round
-                  * 100 $ js/Math.random
+                  * 100 $ unsafe-coerce (js/Math.random) Number
           :examples $ []
           :schema $ :: 'Dynamic
         |render-button $ %{} :CodeEntry (:doc |)
@@ -318,7 +318,9 @@
                   update store :set-0 $ fn (set-0)
                     either (rest set-0) (#{})
                 (:date)
-                  update-in store ([] :date :month) inc
+                  update-in store ([] :date :month)
+                    fn (month)
+                      inc $ option:unwrap month
                 (:types d)
                   update store :types $ fn (types-map) (assoc types-map d true)
                 _ $ do (eprintln "|Unhandled op:" op) store
@@ -449,9 +451,9 @@
                   [] $ %:: schema/change-op :replace b
                   let
                       triple $ &map:diff-triple a b
-                      drop-keys $ nth triple 0
-                      new-diff $ nth triple 1
-                      common-triples $ nth triple 2
+                      drop-keys $ &list:nth triple 0
+                      new-diff $ &list:nth triple 1
+                      common-triples $ &list:nth triple 2
                       splice-changes $ if
                         not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
                         [] $ %:: schema/change-op :map-splice drop-keys new-diff
@@ -470,9 +472,9 @@
                 () $ &buf-list:to-list acc
                 (triple rest-triples)
                   let
-                      k $ nth triple 0
-                      va $ nth triple 1
-                      vb $ nth triple 2
+                      k $ &list:nth triple 0
+                      va $ &list:nth triple 1
+                      vb $ &list:nth triple 2
                     if (not= va vb)
                       let
                           child-changes $ diff-twig-iterate va vb options
@@ -488,22 +490,22 @@
           :code $ quote
             defn diff-record (a b options)
               if (identical? a b) ([])
-                if (&record:matches? a b)
-                  diff-record-step (&buf-list:new) 0 (&record:count a) a b options
+                if (&struct:matches? a b)
+                  diff-record-step (&buf-list:new) 0 (&struct:count a) a b options
                   [] $ %:: schema/change-op :replace b
           :examples $ []
           :schema $ :: 'Fn
             {}
-              :args $ [] 'Record 'Record (:: 'Map 'Tag 'Tag)
+              :args $ [] 'Struct 'Struct (:: 'Map 'Tag 'Tag)
               :return $ :: 'List 'recollect.schema/change-op
         |diff-record-step $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn diff-record-step (acc idx n a b options)
               if (&>= idx n) (&buf-list:to-list acc)
                 let
-                    k $ &record:field-tag a idx
-                    va $ &record:nth a idx
-                    vb $ &record:nth b idx
+                    k $ &struct:field-tag a idx
+                    va $ &struct:nth a idx
+                    vb $ &struct:nth b idx
                   if (identical? va vb)
                     diff-record-step acc (&+ idx 1) n a b options
                     let
@@ -513,7 +515,7 @@
           :examples $ []
           :schema $ :: 'Fn
             {}
-              :args $ [] 'Dynamic 'Number 'Number 'Record 'Record (:: 'Map 'Tag 'Tag)
+              :args $ [] 'Dynamic 'Number 'Number 'Struct 'Struct (:: 'Map 'Tag 'Tag)
               :return $ :: 'List 'recollect.schema/change-op
         |diff-set $ %{} :CodeEntry (:doc "|Internal function to compute diff between two sets. Collects :set-splice operations for removed and added elements.")
           :code $ quote
@@ -533,29 +535,29 @@
             defn diff-tuple (a b options)
               if
                 or
-                  not= (nth a 0) (nth b 0)
-                  not= (&tuple:count a) (&tuple:count b)
+                  not= (&enum:nth a 0) (&enum:nth b 0)
+                  not= (&enum:count a) (&enum:count b)
                 [] $ %:: schema/change-op :replace b
                 let
-                    max-idx $ dec (&tuple:count a)
+                    max-idx $ dec (&enum:count a)
                   diff-tuple-step (&buf-list:new) 1 max-idx a b options
           :examples $ []
           :schema $ :: 'Fn
             {}
-              :args $ [] 'Tuple 'Tuple (:: 'Map 'Tag 'Tag)
+              :args $ [] 'Enum 'Enum (:: 'Map 'Tag 'Tag)
               :return $ :: 'List 'recollect.schema/change-op
         |diff-tuple-step $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn diff-tuple-step (acc idx max-idx a b options)
               if (&> idx max-idx) (&buf-list:to-list acc)
                 let
-                    child-changes $ diff-twig-iterate (nth a idx) (nth b idx) options
+                    child-changes $ diff-twig-iterate (&enum:nth a idx) (&enum:nth b idx) options
                     wrapped $ wrap-pick idx child-changes
                   diff-tuple-step (&buf-list:concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
           :schema $ :: 'Fn
             {}
-              :args $ [] 'Dynamic 'Number 'Number 'Tuple 'Tuple (:: 'Map 'Tag 'Tag)
+              :args $ [] 'Dynamic 'Number 'Number 'Enum 'Enum (:: 'Map 'Tag 'Tag)
               :return $ :: 'List 'recollect.schema/change-op
         |diff-twig $ %{} :CodeEntry (:doc "|Calculate differences between two data trees, returning a list of change operations.\n\nArguments:\n  a - old data\n  b - new data\n  options - configuration options, e.g. {:key :id} specifies the key for map matching\n\nReturns: list of change operations that can be applied with patch-twig")
           :code $ quote
@@ -587,11 +589,11 @@
                     (symbol? b)
                       [] $ %:: schema/change-op :replace b
                     (set? b) (diff-set a b)
-                    (tuple? b) (diff-tuple a b options)
+                    (enum? b) (diff-tuple a b options)
                     (map? b) (diff-map a b options)
                     (list? b)
                       find-vector-changes (&buf-list:new) 0 a b options
-                    (record? b) (diff-record a b options)
+                    (struct? b) (diff-record a b options)
                     true $ []
           :examples $ []
           :schema $ :: 'Fn
@@ -611,7 +613,7 @@
                   &buf-list:to-list $ &buf-list:concat acc
                     [] $ %:: schema/change-op :vec-append b-items
                 true $ let
-                    child-changes $ diff-twig-iterate (first a-items) (first b-items) options
+                    child-changes $ diff-twig-iterate (&list:first a-items) (&list:first b-items) options
                     wrapped $ wrap-pick idx child-changes
                   find-vector-changes (&buf-list:concat acc wrapped) (&+ idx 1) (rest a-items) (rest b-items) options
           :examples $ []
@@ -645,7 +647,7 @@
                 if (&> size 0)
                   if (&= size 1)
                     let
-                        c0 $ nth chunk 0
+                        c0 $ &list:nth chunk 0
                       match c0
                         (:replace v)
                           [] $ %:: schema/change-op :assoc k v
@@ -704,18 +706,20 @@
             defn memo-twig-by (key f & args)
               if (nil? key) (f & args)
                 &let
-                  cached-pair $ or
+                  cached-pair $ option:unwrap-or
                     get-in @*twig-frame-cache $ [] f key
-                    get-in @*twig-call-cache $ [] f key
+                    option:unwrap-or
+                      get-in @*twig-call-cache $ [] f key
+                      , nil
                   if (some? cached-pair)
                     if
-                      &= args $ first cached-pair
+                      &= args $ &list:first cached-pair
                       if @*twig-frame-active?
                         &let
-                          ret $ last cached-pair
+                          ret $ &list:last cached-pair
                           swap! *twig-frame-cache assoc-in ([] f key) cached-pair
                           , ret
-                        last cached-pair
+                        &list:last cached-pair
                       &let
                         ret $ f & args
                         if @*twig-frame-active?
@@ -788,7 +792,7 @@
           :code $ quote
             defn twig-memo-size () $ reduce (&map:to-list @*twig-call-cache) 0
               fn (total pair)
-                + total $ count (last pair)
+                + total $ count (&list:last pair)
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'Number)
@@ -868,6 +872,22 @@
             recollect.memo :refer $ memo-twig-by1 begin-twig-frame! finish-twig-frame! reset-twig-memo! twig-memo-size
     |recollect.patch $ %{} :FileEntry
       :defs $ {}
+        |patch-assoc $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn patch-assoc (base k data)
+              if (enum? base) (&enum:assoc base k data) (assoc base k data)
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |patch-get $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn patch-get (base k)
+              if (map? base) (&map:get base k)
+                if (list? base) (&list:nth base k)
+                  if (enum? base) (&enum:nth base k)
+                    if (struct? base) (get base k)
+                      raise $ str |Unsupported-patch-container: base
+          :examples $ []
+          :schema $ :: 'Dynamic
         |patch-map $ %{} :CodeEntry (:doc "|Apply map-splice patch by removing specified keys and merging in new entries.")
           :code $ quote
             defn patch-map (base removed added)
@@ -887,7 +907,7 @@
               :return $ :: 'Map 'K 'V
         |patch-map-set $ %{} :CodeEntry (:doc "|Set a key-value pair in a map. Equivalent to assoc.")
           :code $ quote
-            defn patch-map-set (base k data) (assoc base k data)
+            defn patch-map-set (base k data) (patch-assoc base k data)
           :examples $ []
             quote $ patch-map-set
               {} $ :a 1
@@ -908,26 +928,26 @@
                 (:map-splice removed added) (patch-map base removed added)
                 (:update k c0)
                   let
-                      old-val $ if (map? base) (&map:get base k) (nth base k)
-                    assoc base k $ patch-one old-val c0
+                      old-val $ patch-get base k
+                    patch-assoc base k $ patch-one old-val c0
                 (:update-in ks c0)
                   list-match ks
                     () $ patch-one base c0
                     (k0 rest-ks)
                       let
-                          old-val $ if (map? base) (&map:get base k0) (nth base k0)
-                        assoc base k0 $ patch-one old-val (%:: schema/change-op :update-in rest-ks c0)
+                          old-val $ patch-get base k0
+                        patch-assoc base k0 $ patch-one old-val (%:: schema/change-op :update-in rest-ks c0)
                 (:pick k changes)
                   let
-                      old-val $ if (map? base) (&map:get base k) (nth base k)
-                    assoc base k $ patch-twig old-val changes
+                      old-val $ patch-get base k
+                    patch-assoc base k $ patch-twig old-val changes
                 (:pick-in ks changes)
                   list-match ks
                     () $ patch-twig base changes
                     (k0 rest-ks)
                       let
-                          old-val $ if (map? base) (&map:get base k0) (nth base k0)
-                        assoc base k0 $ patch-one old-val (%:: schema/change-op :pick-in rest-ks changes)
+                          old-val $ patch-get base k0
+                        patch-assoc base k0 $ patch-one old-val (%:: schema/change-op :pick-in rest-ks changes)
                 _ $ raise (str |Unknown-patch-operation: change)
           :examples $ []
           :schema $ :: 'Fn
@@ -2145,7 +2165,7 @@
           :schema $ :: 'Dynamic
         |probe-tuple-count $ %{} :CodeEntry (:doc |)
           :code $ quote
-            defn probe-tuple-count () $ &tuple:count (:: :map-splice 1 2)
+            defn probe-tuple-count () $ &enum:count (:: :map-splice 1 2)
           :examples $ []
           :schema $ :: 'Dynamic
         |probe-user-common-keys-count $ %{} :CodeEntry (:doc |)
@@ -2500,7 +2520,7 @@
                 b $ :: :a 1 3
                 changes $ diff-twig a b ({})
                 patched $ patch-twig a changes
-              &tuple:nth patched 2
+              &enum:nth patched 2
           :examples $ []
           :schema $ :: 'Dynamic
         |test-vector-append-op $ %{} :CodeEntry (:doc |)
