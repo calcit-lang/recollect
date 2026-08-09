@@ -955,7 +955,7 @@
               if (map? base) (&map:get base k)
                 if (list? base) (&list:nth base k)
                   if (enum? base) (&enum:nth base k)
-                    if (struct? base) (get base k)
+                    if (struct? base) (&struct:get base k)
                       raise $ str "|Unsupported-patch-container-type: " (type-of base)
           :examples $ []
           :schema $ :: 'Dynamic
