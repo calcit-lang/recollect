@@ -107,12 +107,15 @@ For record parsing http://stackoverflow.com/a/29133350/883571
 
 Workflow https://github.com/calcit-lang/respo-calcit-workflow .
 
-To run tests:
+Run definition-attached native tests, then compile and run the JS test entry:
 
 ```bash
-yarn test:cr
-yarn test:js
+yarn test
 ```
+
+`yarn test:cr` runs the language built-in tests placed next to the diff, patch,
+memo, and utility definitions. `yarn test:js` keeps a separate JS-target compile
+and entry-point check.
 
 WASM regression checks are enabled both locally and in GitHub Actions now that `setup-cr`
 can install a matching calcit release.
