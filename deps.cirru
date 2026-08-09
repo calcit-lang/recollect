@@ -4,5 +4,4 @@
     |Respo/respo-markdown.calcit |0.4.20
     |Respo/respo-ui.calcit |0.7.1
     |Respo/respo-value.calcit |main
-<<<<<<< HEAD
     |Respo/respo.calcit |0.16.64
