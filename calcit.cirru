@@ -248,7 +248,15 @@
           :schema $ :: 'Dynamic
         |test! $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn test! () nil
+            defn test! () $ let
+                old $ {} (:id 1)
+                  :items $ [] 1 2 3
+                updated $ {} (:id 1)
+                  :items $ [] 1 6 7
+                changes $ diff-twig old updated
+                  {} $ :key :id
+              assert |JS-diff-and-patch-roundtrip $ = updated (patch-twig old changes)
+              , nil
           :examples $ []
           :schema $ :: 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
@@ -485,7 +493,7 @@
             {}
               :args $ [] 'Dynamic 'List (:: 'Map 'Tag 'Tag)
               :return $ :: 'List 'recollect.schema/change-op
-        |diff-record $ %{} 'CodeEntry (:doc "|Internal function to compute diff between two records. Only diffs records of the same type.")
+        |diff-record $ %{} 'CodeEntry (:doc "|Internal function to compute a diff between two structs. Only diffs structs with the same definition.")
           :code $ quote
             defn diff-record (a b options)
               if (identical? a b) ([])
@@ -529,7 +537,7 @@
               :args $ [] (:: 'Set 'T) (:: 'Set 'T)
               :generics $ [] 'T
               :return $ :: 'List 'recollect.schema/change-op
-        |diff-tuple $ %{} 'CodeEntry (:doc "|Internal function to compute diff between two tuples. Replaces if tag or size differs, otherwise diffs elements.")
+        |diff-tuple $ %{} 'CodeEntry (:doc "|Internal function to compute a diff between two enums. Replaces when the variant tag or arity differs; otherwise diffs payload elements.")
           :code $ quote
             defn diff-tuple (a b options)
               if
@@ -948,9 +956,18 @@
                 if (list? base) (&list:nth base k)
                   if (enum? base) (&enum:nth base k)
                     if (struct? base) (get base k)
-                      raise $ str |Unsupported-patch-container: base
+                      raise $ str "|Unsupported-patch-container-type: " (type-of base)
           :examples $ []
           :schema $ :: 'Dynamic
+          :tests $ []
+            %{} 'TestEntry (:name |rejects-unsupported-containers)
+              :code $ quote
+                let
+                    message $ try
+                        patch-get 1 :x
+                      fn (error) error
+                  assert |unsupported-container-includes-type $ = "|Unsupported-patch-container-type: :number" message
+              :tags $ #{} :unit
         |patch-map $ %{} 'CodeEntry (:doc "|Apply map-splice patch by removing specified keys and merging in new entries.")
           :code $ quote
             defn patch-map (base removed added)

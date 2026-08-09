@@ -2,7 +2,7 @@
   "packageManager": "yarn@4.12.0",
   "scripts": {
     "test:cr": "cr test --tag unit --require-match",
-    "test:js": "cr --entry test js && node --no-warnings test.mjs",
+    "test:js": "cr --entry test js && node test.mjs",
     "test:wasm": "bash scripts/test-wasm.sh",
     "run:wasm:api": "bash scripts/run-wasm-api.sh",
     "build:js": "cr js && yarn vite build --base=./",
