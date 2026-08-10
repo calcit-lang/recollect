@@ -955,7 +955,7 @@
               if (map? base) (&map:get base k)
                 if (list? base) (&list:nth base k)
                   if (enum? base) (&enum:nth base k)
-                    if (struct? base) (get base k)
+                    if (struct? base) (&struct:get base k)
                       raise $ str "|Unsupported-patch-container-type: " (type-of base)
           :examples $ []
           :schema $ :: 'Dynamic
@@ -968,6 +968,13 @@
                       fn (error) error
                   assert |unsupported-container-includes-type $ = "|Unsupported-patch-container-type: :number" message
               :tags $ #{} :unit
+            %{} 'TestEntry (:name |reads-typed-struct-field)
+              :code $ quote
+                let
+                    Person $ defstruct Person
+                      :name $ quote String
+                    person $ %{} Person (:name |Ada)
+                  assert= |Ada $ patch-get person :name
         |patch-map $ %{} 'CodeEntry (:doc "|Apply map-splice patch by removing specified keys and merging in new entries.")
           :code $ quote
             defn patch-map (base removed added)
