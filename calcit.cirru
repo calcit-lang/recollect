@@ -14,7 +14,7 @@
           :code $ quote
             defcomp comp-container (data-twig client-store)
               let
-                  states $ :states client-store
+                  states $ &map:get client-store :states
                 div
                   {} $ :style (merge ui/global ui/fullscreen)
                   div
@@ -198,7 +198,7 @@
             defn main! () (load-console-formatter!)
               println "|Running mode:" $ if config/dev? |dev |release
               if
-                some? $ js/document.querySelector |meta.respo-ssr
+                js-present? $ js/document.querySelector |meta.respo-ssr
                 render-app! realize-ssr!
               render-app! render!
               add-watch *store :changes $ fn (store prev) (render-data-twig!)
@@ -286,7 +286,7 @@
           :code $ quote
             defn twig-container (store)
               merge store $ {}
-                :card $ memo-twig-by2 :card twig-card (:user store) (:date store)
+                :card $ memo-twig-by2 :card twig-card (&map:get store :user) (&map:get store :date)
           :examples $ []
           :schema $ :: 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
@@ -307,7 +307,10 @@
                   assoc-in store ([] :map-0 :y) d
                 (:map-0-rm)
                   update-in store ([] :map-0)
-                    fn (cursor) (dissoc cursor :y)
+                    fn (cursor)
+                      dissoc
+                        option:unwrap-or cursor $ {}
+                        , :y
                 (:vec-0 d)
                   update store :vec-0 $ fn (vec-0)
                     -> vec-0 (conj d) (conj :cursor)
@@ -1154,16 +1157,16 @@
       :defs $ {}
         |change-op $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defenum change-op (:replace :dynamic)
-              :vec-append $ :: :list :dynamic
-              :vec-drop :number
-              :assoc :dynamic :dynamic
-              :set-splice (:: :set :dynamic) (:: :set :dynamic)
-              :map-splice (:: :set :dynamic) (:: :map :dynamic :dynamic)
-              :update :dynamic 'recollect.schema/change-op
-              :update-in (:: :list :dynamic) 'recollect.schema/change-op
-              :pick :dynamic $ :: :list 'recollect.schema/change-op
-              :pick-in (:: :list :dynamic) (:: :list 'recollect.schema/change-op)
+            defenum change-op (:replace 'Dynamic)
+              :vec-append $ :: 'List 'Dynamic
+              :vec-drop 'Number
+              :assoc 'Dynamic 'Dynamic
+              :set-splice (:: 'Set 'Dynamic) (:: 'Set 'Dynamic)
+              :map-splice (:: 'Set 'Dynamic) (:: 'Map 'Dynamic 'Dynamic)
+              :update 'Dynamic 'recollect.schema/change-op
+              :update-in (:: 'List 'Dynamic) 'recollect.schema/change-op
+              :pick 'Dynamic $ :: 'List 'recollect.schema/change-op
+              :pick-in (:: 'List 'Dynamic) (:: 'List 'recollect.schema/change-op)
           :examples $ []
           :schema $ :: 'Dynamic
         |store $ %{} 'CodeEntry (:doc |)
