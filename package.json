@@ -10,7 +10,7 @@
     "test": "yarn test:cr && yarn test:js"
   },
   "dependencies": {
-    "@calcit/procs": "^0.13.16"
+    "@calcit/procs": "^0.13.19"
   },
   "devDependencies": {
     "bottom-tip": "^0.1.5",
