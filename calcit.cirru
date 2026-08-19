@@ -1,10 +1,12 @@
 
-{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |recollect) (:version |0.0.28)
+{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |recollect)
   :entries $ {}
-    :default $ {} (:description |) (:init-fn 'recollect.app.main/main!) (:mode :native) (:reload-fn 'recollect.app.main/reload!)
-      :modules $ [] |respo.calcit/ |respo-ui.calcit/ |respo-value.calcit/
+    :default $ {} (:description |) (:init-fn 'recollect.app.main/main!) (:mode :js) (:reload-fn 'recollect.app.main/reload!)
+      :feature-policy $ {}
+      :modules $ [] |respo.calcit/ |respo-ui.calcit/ |respo-value.calcit/ |js-ffi/
       :type-slots $ {}
     :test $ {} (:description |) (:init-fn 'recollect.app.main/test!) (:mode :native) (:reload-fn 'recollect.app.main/test!)
+      :feature-policy $ {}
       :modules $ []
       :type-slots $ {}
   :files $ {}
@@ -1168,7 +1170,7 @@
               :pick 'Dynamic $ :: 'List 'recollect.schema/change-op
               :pick-in (:: 'List 'Dynamic) (:: 'List 'recollect.schema/change-op)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Enum
         |store $ %{} 'CodeEntry (:doc |)
           :code $ quote
             def store $ {}
@@ -1183,7 +1185,7 @@
           :code $ quote
             defstruct Person (:name 'String) (:age 'Number)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Enum
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote (ns recollect.test.fixture)
     |recollect.twig $ %{} 'FileEntry
