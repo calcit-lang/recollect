@@ -218,9 +218,9 @@ head @ Calcit::List(head_items)
 
 ```bash
 # 验证流程
-cd /Users/jon.chen/repo/calcit-lang/calcit && cargo build --bin calcit
+cd /path/to/calcit && cargo build --bin cr-wasm
 cd /Users/jon.chen/repo/calcit-lang/recollect
-CALCIT_BIN=../calcit/target/debug/calcit bash scripts/run-wasm-api.sh 2>&1 1>/dev/null | grep skipping | wc -l
+CR_WASM_BIN=../calcit/target/debug/cr-wasm bash scripts/run-wasm-api.sh 2>&1 1>/dev/null | grep skipping | wc -l
 ```
 
 ---

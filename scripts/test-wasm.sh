@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ -n "${CR_WASM_BIN:-}" ]]; then
+if [[ -n "${CALCIT_BIN:-}" ]]; then
+  BIN="$CALCIT_BIN"
+elif [[ -n "${CR_WASM_BIN:-}" ]]; then
   BIN="$CR_WASM_BIN"
 elif command -v cr-wasm >/dev/null 2>&1; then
   BIN="$(command -v cr-wasm)"
