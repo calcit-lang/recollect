@@ -3,10 +3,10 @@ set -euo pipefail
 
 if [[ -n "${CR_WASM_BIN:-}" ]]; then
   BIN="$CR_WASM_BIN"
-elif command -v calcit >/dev/null 2>&1; then
-  BIN="$(command -v calcit)"
+elif command -v cr-wasm >/dev/null 2>&1; then
+  BIN="$(command -v cr-wasm)"
 else
-  echo "ERROR: calcit binary not found. Set CALCIT_BIN or install calcit."
+  echo "ERROR: internal cr-wasm runner not found. Set CR_WASM_BIN or enable the setup-calcit WASM runner."
   exit 1
 fi
 
