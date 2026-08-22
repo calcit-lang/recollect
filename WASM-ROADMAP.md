@@ -33,7 +33,7 @@
 
 **根本原因**：Cirru 缩进语法中，`if` 条件表达式相对父节点缩进超过 2 格时，会被额外包裹为单元素列表（`[[cond]]`），WASM codegen 处理时遭遇列表头触发"unsupported call head"错误。
 
-**修复方案**：通过 `cr tree replace` 将 `compact.cirru` 中两处双重包裹条件替换为展开后的直接表达式。
+**修复方案**：通过 `calcit tree replace` 将 `calcit.cirru` 中两处双重包裹条件替换为展开后的直接表达式。
 
 ### 2. `conj`（CallSpread + Recur 参数传递 bug）
 
@@ -218,9 +218,9 @@ head @ Calcit::List(head_items)
 
 ```bash
 # 验证流程
-cd /Users/jon.chen/repo/calcit-lang/calcit && cargo build --bin cr-wasm
+cd /Users/jon.chen/repo/calcit-lang/calcit && cargo build --bin calcit
 cd /Users/jon.chen/repo/calcit-lang/recollect
-CR_WASM_BIN=../calcit/target/debug/cr-wasm bash scripts/run-wasm-api.sh 2>&1 1>/dev/null | grep skipping | wc -l
+CALCIT_BIN=../calcit/target/debug/calcit bash scripts/run-wasm-api.sh 2>&1 1>/dev/null | grep skipping | wc -l
 ```
 
 ---

@@ -3,10 +3,10 @@ set -euo pipefail
 
 if [[ -n "${CR_WASM_BIN:-}" ]]; then
   BIN="$CR_WASM_BIN"
-elif command -v cr-wasm >/dev/null 2>&1; then
-  BIN="$(command -v cr-wasm)"
+elif command -v calcit >/dev/null 2>&1; then
+  BIN="$(command -v calcit)"
 else
-  echo "ERROR: cr-wasm binary not found. Set CR_WASM_BIN or install cr-wasm."
+  echo "ERROR: calcit binary not found. Set CALCIT_BIN or install calcit."
   exit 1
 fi
 
