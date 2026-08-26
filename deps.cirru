@@ -1,5 +1,5 @@
 
-{} (:package |recollect) (:calcit-version |0.13.44)
+{} (:package |recollect) (:calcit-version |0.13.45)
   :version |0.0.34
   :dependencies $ {} (|Respo/reel.calcit |0.6.7)
     |Respo/respo-markdown.calcit |0.4.23
