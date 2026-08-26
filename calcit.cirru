@@ -813,20 +813,35 @@
             defn memo-twig-by (key f & args)
               if (nil? key) (f & args)
                 &let
-                  cached-pair $ option:unwrap-or
-                    get-in @*twig-frame-cache $ [] f key
-                    option:unwrap-or
+                  cached-pair-option $ .or-else
+                    assert-type
+                      get-in @*twig-frame-cache $ [] f key
+                      :: 'Option 'Dynamic
+                    fn () $ assert-type
                       get-in @*twig-call-cache $ [] f key
-                      , nil
-                  if (some? cached-pair)
-                    if
-                      &= args $ &list:first cached-pair
-                      if @*twig-frame-active?
+                      :: 'Option 'Dynamic
+                  match cached-pair-option
+                    (:some cached-pair)
+                      if
+                        &= args $ &list:first cached-pair
+                        if @*twig-frame-active?
+                          &let
+                            ret $ &list:last cached-pair
+                            swap! *twig-frame-cache assoc-in ([] f key) cached-pair
+                            , ret
+                          &list:last cached-pair
                         &let
-                          ret $ &list:last cached-pair
-                          swap! *twig-frame-cache assoc-in ([] f key) cached-pair
-                          , ret
-                        &list:last cached-pair
+                          ret $ f & args
+                          if @*twig-frame-active?
+                            &let
+                              result $ identity ret
+                              swap! *twig-frame-cache assoc-in ([] f key) ([] args ret)
+                              , ret
+                            &let
+                              result $ identity ret
+                              swap! *twig-call-cache assoc-in ([] f key) ([] args ret)
+                              , ret
+                    (:none)
                       &let
                         ret $ f & args
                         if @*twig-frame-active?
@@ -838,17 +853,6 @@
                             result $ identity ret
                             swap! *twig-call-cache assoc-in ([] f key) ([] args ret)
                             , ret
-                    &let
-                      ret $ f & args
-                      if @*twig-frame-active?
-                        &let
-                          result $ identity ret
-                          swap! *twig-frame-cache assoc-in ([] f key) ([] args ret)
-                          , ret
-                        &let
-                          result $ identity ret
-                          swap! *twig-call-cache assoc-in ([] f key) ([] args ret)
-                          , ret
           :examples $ []
           :schema $ :: 'Fn
             {} (:rest 'Dynamic) (:return 'Dynamic)
