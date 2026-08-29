@@ -15,7 +15,7 @@ inspection and structured edits, then run `calcit calcit.cirru edit format`.
 The normal validation commands are:
 
 ```bash
-caps --ci
+caps --strict --ci
 yarn install --immutable
 yarn test
 yarn build:js
