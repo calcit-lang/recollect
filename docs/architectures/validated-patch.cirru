@@ -27,7 +27,7 @@
         {}
           :generics $ [] 'T
           :args $ [] 'T
-          :return 'PatchPathSegment
+          :return 'recollect.patch/PatchPathSegment
     'recollect.patch/PatchError $ {}
       :mode :ensure
       :kind :data
@@ -36,10 +36,10 @@
       :code $ quote
         defenum PatchError
           :unsupported-operation 'String
-          :unsupported-container (:: 'List 'PatchPathSegment) 'Tag
-          :missing-node $ :: 'List 'PatchPathSegment
-          :type-mismatch (:: 'List 'PatchPathSegment) 'Tag 'Tag
-          :invalid-index (:: 'List 'PatchPathSegment) 'Number 'Number
+          :unsupported-container (:: 'List 'recollect.patch/PatchPathSegment) 'Tag
+          :missing-node $ :: 'List 'recollect.patch/PatchPathSegment
+          :type-mismatch (:: 'List 'recollect.patch/PatchPathSegment) 'Tag 'Tag
+          :invalid-index (:: 'List 'recollect.patch/PatchPathSegment) 'Number 'Number
     'recollect.patch/PatchBatchOps $ {}
       :mode :ensure
       :kind :data
@@ -50,8 +50,8 @@
           .apply-to $ :: 'Fn
             {}
               :generics $ [] 'T
-              :args $ [] 'PatchBatch 'T
-              :return $ :: 'Result 'T 'PatchError
+              :args $ [] 'recollect.patch/PatchBatch 'T
+              :return $ :: 'Result 'T 'recollect.patch/PatchError
     'recollect.patch/PatchBatchOpsImpl $ {}
       :mode :ensure
       :kind :data
@@ -77,7 +77,7 @@
       :schema $ :: 'Fn
         {}
           :args $ [] (:: 'List 'recollect.schema/change-op)
-          :return 'PatchBatch
+          :return 'recollect.patch/PatchBatch
     'recollect.patch/patch-batch:apply-to $ {}
       :mode :ensure
       :kind :fn
@@ -86,8 +86,8 @@
       :schema $ :: 'Fn
         {}
           :generics $ [] 'T
-          :args $ [] 'PatchBatch 'T
-          :return $ :: 'Result 'T 'PatchError
+          :args $ [] 'recollect.patch/PatchBatch 'T
+          :return $ :: 'Result 'T 'recollect.patch/PatchError
     'recollect.patch/patch-error-message $ {}
       :mode :ensure
       :kind :fn
@@ -95,7 +95,7 @@
       :params $ [] 'error
       :schema $ :: 'Fn
         {}
-          :args $ [] 'PatchError
+          :args $ [] 'recollect.patch/PatchError
           :return 'String
     'recollect.patch/try-patch-get $ {}
       :mode :ensure
@@ -105,8 +105,8 @@
       :schema $ :: 'Fn
         {}
           :generics $ [] 'B 'K 'V
-          :args $ [] 'B 'K (:: 'List 'PatchPathSegment)
-          :return $ :: 'Result 'V 'PatchError
+          :args $ [] 'B 'K (:: 'List 'recollect.patch/PatchPathSegment)
+          :return $ :: 'Result 'V 'recollect.patch/PatchError
     'recollect.patch/try-patch-assoc $ {}
       :mode :ensure
       :kind :fn
@@ -115,8 +115,8 @@
       :schema $ :: 'Fn
         {}
           :generics $ [] 'B 'K 'V
-          :args $ [] 'B 'K 'V (:: 'List 'PatchPathSegment)
-          :return $ :: 'Result 'B 'PatchError
+          :args $ [] 'B 'K 'V (:: 'List 'recollect.patch/PatchPathSegment)
+          :return $ :: 'Result 'B 'recollect.patch/PatchError
     'recollect.patch/try-patch-one-at $ {}
       :mode :ensure
       :kind :fn
@@ -125,8 +125,8 @@
       :schema $ :: 'Fn
         {}
           :generics $ [] 'T
-          :args $ [] 'T 'recollect.schema/change-op (:: 'List 'PatchPathSegment)
-          :return $ :: 'Result 'T 'PatchError
+          :args $ [] 'T 'recollect.schema/change-op (:: 'List 'recollect.patch/PatchPathSegment)
+          :return $ :: 'Result 'T 'recollect.patch/PatchError
     'recollect.patch/try-patch-twig-at $ {}
       :mode :ensure
       :kind :fn
@@ -135,8 +135,8 @@
       :schema $ :: 'Fn
         {}
           :generics $ [] 'T
-          :args $ [] 'T (:: 'List 'recollect.schema/change-op) (:: 'List 'PatchPathSegment)
-          :return $ :: 'Result 'T 'PatchError
+          :args $ [] 'T (:: 'List 'recollect.schema/change-op) (:: 'List 'recollect.patch/PatchPathSegment)
+          :return $ :: 'Result 'T 'recollect.patch/PatchError
     'recollect.patch/try-patch-one $ {}
       :mode :ensure
       :kind :fn
@@ -146,7 +146,7 @@
         {}
           :generics $ [] 'T
           :args $ [] 'T 'recollect.schema/change-op
-          :return $ :: 'Result 'T 'PatchError
+          :return $ :: 'Result 'T 'recollect.patch/PatchError
     'recollect.patch/try-patch-twig $ {}
       :mode :ensure
       :kind :fn
@@ -156,7 +156,7 @@
         {}
           :generics $ [] 'T
           :args $ [] 'T (:: 'List 'recollect.schema/change-op)
-          :return $ :: 'Result 'T 'PatchError
+          :return $ :: 'Result 'T 'recollect.patch/PatchError
   :edges $ #{}
     :: :type 'recollect.patch/PatchError 'recollect.patch/PatchPathSegment
     :: :type 'recollect.patch/PatchBatch 'recollect.schema/change-op
