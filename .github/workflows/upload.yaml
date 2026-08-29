@@ -30,7 +30,7 @@ jobs:
     - uses: dtolnay/rust-toolchain@stable
 
     - name: "deps"
-      run: caps --ci && yarn install --immutable
+      run: caps --strict --ci && yarn install --immutable
 
     - name: "validate snapshot and types"
       run: |
