@@ -952,12 +952,86 @@
         :code $ quote (ns recollect.memo)
     'recollect.patch $ %{} 'FileEntry
       :defs $ {}
+        'PatchBatch $ %{} 'CodeEntry (:doc "|Nominal validated patch batch. Construct with patch-batch and apply with batch .apply-to base.")
+          :code $ quote
+            def PatchBatch $ impl-traits
+              defstruct PatchBatch $ :changes (:: 'List 'recollect.schema/change-op)
+              , PatchBatchOpsImpl
+          :examples $ []
+          :schema $ :: 'StructDef
+        'PatchBatchOps $ %{} 'CodeEntry (:doc "|Method contract for applying a validated patch batch to a base tree.")
+          :code $ quote
+            deftrait PatchBatchOps $ .apply-to
+              :: 'Fn $ {}
+                :generics $ [] 'T
+                :args $ [] 'PatchBatch 'T
+                :return $ :: 'Result 'T 'PatchError
+          :examples $ []
+          :schema $ :: 'Trait
+        'PatchBatchOpsImpl $ %{} 'CodeEntry (:doc "|PatchBatch method implementation.")
+          :code $ quote
+            defimpl PatchBatchOpsImpl PatchBatchOps $ .apply-to patch-batch:apply-to
+          :examples $ []
+          :schema $ :: 'Impl
+        'PatchError $ %{} 'CodeEntry (:doc "|Structured failure returned by validated patch application. Paths point to the rejected node in the base tree.")
+          :code $ quote
+            defenum PatchError (:unsupported-operation 'String)
+              :unsupported-container (:: 'List 'PatchPathSegment) 'Tag
+              :missing-node $ :: 'List 'PatchPathSegment
+              :type-mismatch (:: 'List 'PatchPathSegment) 'Tag 'Tag
+              :invalid-index (:: 'List 'PatchPathSegment) 'Number 'Number
+          :examples $ []
+          :schema $ :: 'EnumDef
+        'PatchPathSegment $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defenum PatchPathSegment (:field 'Tag) (:name 'String) (:index 'Number) (:key 'String)
+          :examples $ []
+          :schema $ :: 'EnumDef
         'patch-assoc $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn patch-assoc (base k data)
               if (enum? base) (&enum:assoc base k data) (assoc base k data)
           :examples $ []
           :schema $ :: 'Dynamic
+        'patch-batch $ %{} 'CodeEntry (:doc "|Wrap a list of public change-op values as a method-oriented PatchBatch.")
+          :code $ quote
+            defn patch-batch (changes)
+              %{} PatchBatch $ :changes changes
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'PatchBatch)
+              :args $ [] (:: 'List 'recollect.schema/change-op)
+          :tags $ #{} :scaffold
+        'patch-batch:apply-to $ %{} 'CodeEntry (:doc "|Apply a PatchBatch atomically and return Result.")
+          :code $ quote
+            defn patch-batch:apply-to (self base)
+              try-patch-twig base $ :changes self
+          :examples $ []
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'PatchBatch 'T
+              :generics $ [] 'T
+              :return $ :: 'Result 'T 'PatchError
+          :tags $ #{} :scaffold
+        'patch-error-message $ %{} 'CodeEntry (:doc "|Render a structured PatchError for compatibility APIs and logs.")
+          :code $ quote
+            defn patch-error-message (error)
+              match error
+                (:unsupported-operation operation) (str "|Unsupported patch operation: " operation)
+                (:unsupported-container path actual)
+                  if (empty? path) (str "|Unsupported-patch-container-type: " actual)
+                    str "|Unsupported patch container at " (str path) "|: " actual
+                (:missing-node path)
+                  str "|Missing patch node at " $ str path
+                (:type-mismatch path expected actual)
+                  str "|Patch type mismatch at " (str path) "|, expected " expected "| but found " actual
+                (:invalid-index path index size)
+                  str "|Invalid patch index at " (str path) "|: " index "| for size " size
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'PatchError
+          :tags $ #{} :scaffold
         'patch-get $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn patch-get (base k)
@@ -1058,6 +1132,20 @@
                       fn (_error) :caught
                   assert |unknown-operation-is-rejected $ = :caught result
               :tags $ #{} :unit
+        'patch-path-segment $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn patch-path-segment (value)
+              cond
+                  tag? value
+                  %:: PatchPathSegment :field value
+                (string? value) (%:: PatchPathSegment :name value)
+                (number? value) (%:: PatchPathSegment :index value)
+                true $ %:: PatchPathSegment :key (str value)
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'PatchPathSegment)
+              :args $ [] 'T
+              :generics $ [] 'T
         'patch-set $ %{} 'CodeEntry (:doc "|Apply set-splice patch by removing and adding elements to a set.")
           :code $ quote
             defn patch-set (base removed added)
@@ -1155,6 +1243,299 @@
               :args $ [] (:: 'List 'T) 'Number
               :generics $ [] 'T
               :return $ :: 'List 'T
+        'try-patch-assoc $ %{} 'CodeEntry (:doc "|Associate a validated patch result without raising.")
+          :code $ quote
+            defn try-patch-assoc (base k data path)
+              let
+                  next-path $ conj path (patch-path-segment k)
+                cond
+                    map? base
+                    %ok $ &map:assoc base k data
+                  (list? base)
+                    if
+                      and (number? k)
+                        = k $ floor k
+                        &>= k 0
+                        &< k $ count base
+                      %ok $ assoc base k data
+                      if (number? k)
+                        %err $ %:: PatchError :invalid-index next-path k (count base)
+                        %err $ %:: PatchError :type-mismatch path :number (type-of k)
+                  (enum? base)
+                    if
+                      and (number? k)
+                        = k $ floor k
+                        &>= k 1
+                        &< k $ &enum:count base
+                      %ok $ &enum:assoc base k data
+                      if (number? k)
+                        %err $ %:: PatchError :invalid-index next-path k (&enum:count base)
+                        %err $ %:: PatchError :type-mismatch path :number (type-of k)
+                  (struct? base)
+                    if
+                      or (tag? k) (string? k)
+                      if (contains? base k)
+                        %ok $ assoc base k data
+                        %err $ %:: PatchError :missing-node next-path
+                      %err $ %:: PatchError :type-mismatch path :field-key (type-of k)
+                  true $ %err
+                    %:: PatchError :unsupported-container path $ type-of base
+          :examples $ []
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'B 'K 'V (:: 'List 'PatchPathSegment)
+              :generics $ [] 'B 'K 'V
+              :return $ :: 'Result 'B 'PatchError
+          :tags $ #{} :scaffold
+        'try-patch-get $ %{} 'CodeEntry (:doc "|Read a patch path segment without raising.")
+          :code $ quote
+            defn try-patch-get (base k path)
+              let
+                  next-path $ conj path (patch-path-segment k)
+                cond
+                    map? base
+                    if (contains? base k)
+                      %ok $ &map:get base k
+                      %err $ %:: PatchError :missing-node next-path
+                  (list? base)
+                    if
+                      and (number? k)
+                        = k $ floor k
+                        &>= k 0
+                        &< k $ count base
+                      %ok $ &list:nth base k
+                      if (number? k)
+                        %err $ %:: PatchError :invalid-index next-path k (count base)
+                        %err $ %:: PatchError :type-mismatch path :number (type-of k)
+                  (enum? base)
+                    if
+                      and (number? k)
+                        = k $ floor k
+                        &>= k 0
+                        &< k $ &enum:count base
+                      %ok $ &enum:nth base k
+                      if (number? k)
+                        %err $ %:: PatchError :invalid-index next-path k (&enum:count base)
+                        %err $ %:: PatchError :type-mismatch path :number (type-of k)
+                  (struct? base)
+                    if
+                      or (tag? k) (string? k)
+                      if (contains? base k)
+                        %ok $ &struct:get base k
+                        %err $ %:: PatchError :missing-node next-path
+                      %err $ %:: PatchError :type-mismatch path :field-key (type-of k)
+                  true $ %err
+                    %:: PatchError :unsupported-container path $ type-of base
+          :examples $ []
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'B 'K (:: 'List 'PatchPathSegment)
+              :generics $ [] 'B 'K 'V
+              :return $ :: 'Result 'V 'PatchError
+          :tags $ #{} :scaffold
+        'try-patch-one $ %{} 'CodeEntry (:doc "|Apply one change operation atomically and return Result.")
+          :code $ quote
+            defn try-patch-one (base change)
+              let
+                  path $ []
+                try-patch-one-at base change path
+          :examples $ []
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'T 'recollect.schema/change-op
+              :generics $ [] 'T
+              :return $ :: 'Result 'T 'PatchError
+          :tags $ #{} :scaffold
+        'try-patch-one-at $ %{} 'CodeEntry (:doc "|Apply one change operation at a diagnostic path.")
+          :code $ quote
+            defn try-patch-one-at (base change path)
+              match change
+                (:replace data) (%ok data)
+                (:vec-append data)
+                  if (list? base)
+                    if (list? data)
+                      %ok $ patch-vector-append base data
+                      %err $ %:: PatchError :type-mismatch path :list (type-of data)
+                    %err $ %:: PatchError :type-mismatch path :list (type-of base)
+                (:vec-drop data)
+                  if (list? base)
+                    if
+                      and (number? data)
+                        = data $ floor data
+                        &>= data 0
+                        &<= data $ count base
+                      %ok $ patch-vector-drop base data
+                      if (number? data)
+                        %err $ %:: PatchError :invalid-index path data (count base)
+                        %err $ %:: PatchError :type-mismatch path :number (type-of data)
+                    %err $ %:: PatchError :type-mismatch path :list (type-of base)
+                (:assoc k data) (try-patch-assoc base k data path)
+                (:set-splice removed added)
+                  if (set? base)
+                    if (set? removed)
+                      if (set? added)
+                        %ok $ patch-set base removed added
+                        %err $ %:: PatchError :type-mismatch path :set (type-of added)
+                      %err $ %:: PatchError :type-mismatch path :set (type-of removed)
+                    %err $ %:: PatchError :type-mismatch path :set (type-of base)
+                (:map-splice removed added)
+                  if (map? base)
+                    if (set? removed)
+                      if (map? added)
+                        %ok $ patch-map base removed added
+                        %err $ %:: PatchError :type-mismatch path :map (type-of added)
+                      %err $ %:: PatchError :type-mismatch path :set (type-of removed)
+                    %err $ %:: PatchError :type-mismatch path :map (type-of base)
+                (:update k c0)
+                  match (try-patch-get base k path)
+                    (:err error) (%err error)
+                    (:ok old-val)
+                      let
+                          next-path $ conj path (patch-path-segment k)
+                        match (try-patch-one-at old-val c0 next-path)
+                          (:err error) (%err error)
+                          (:ok next-val) (try-patch-assoc base k next-val path)
+                (:update-in ks c0)
+                  list-match ks
+                    () $ try-patch-one-at base c0 path
+                    (k0 rest-ks)
+                      match (try-patch-get base k0 path)
+                        (:err error) (%err error)
+                        (:ok old-val)
+                          let
+                              next-path $ conj path (patch-path-segment k0)
+                            match
+                              try-patch-one-at old-val (%:: schema/change-op :update-in rest-ks c0) next-path
+                              (:err error) (%err error)
+                              (:ok next-val) (try-patch-assoc base k0 next-val path)
+                (:pick k changes)
+                  match (try-patch-get base k path)
+                    (:err error) (%err error)
+                    (:ok old-val)
+                      let
+                          next-path $ conj path (patch-path-segment k)
+                        match (try-patch-twig-at old-val changes next-path)
+                          (:err error) (%err error)
+                          (:ok next-val) (try-patch-assoc base k next-val path)
+                (:pick-in ks changes)
+                  list-match ks
+                    () $ try-patch-twig-at base changes path
+                    (k0 rest-ks)
+                      match (try-patch-get base k0 path)
+                        (:err error) (%err error)
+                        (:ok old-val)
+                          let
+                              next-path $ conj path (patch-path-segment k0)
+                            match
+                              try-patch-one-at old-val (%:: schema/change-op :pick-in rest-ks changes) next-path
+                              (:err error) (%err error)
+                              (:ok next-val) (try-patch-assoc base k0 next-val path)
+                _ $ %err
+                  %:: PatchError :unsupported-operation $ str change
+          :examples $ []
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'T 'recollect.schema/change-op (:: 'List 'PatchPathSegment)
+              :generics $ [] 'T
+              :return $ :: 'Result 'T 'PatchError
+          :tags $ #{} :scaffold
+        'try-patch-twig $ %{} 'CodeEntry (:doc "|Apply a patch batch atomically and return Result. No partial tree is observable on failure.")
+          :code $ quote
+            defn try-patch-twig (base changes)
+              let
+                  path $ []
+                try-patch-twig-at base changes path
+          :examples $ []
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'T (:: 'List 'recollect.schema/change-op)
+              :generics $ [] 'T
+              :return $ :: 'Result 'T 'PatchError
+          :tags $ #{} :scaffold
+          :tests $ []
+            %{} 'TestEntry (:name |applies-valid-batches)
+              :code $ quote
+                do
+                  let
+                      base $ {}
+                        :a $ {} (:b 1)
+                      changes $ []
+                        %:: schema/change-op :update-in ([] :a :b) (%:: schema/change-op :replace 2)
+                      expected $ %ok
+                        {} $ :a
+                          {} $ :b 2
+                    assert= expected $ try-patch-twig base changes
+                  let
+                      base $ {} (:n 1)
+                      changes $ [] (%:: schema/change-op :assoc :n 2)
+                      batch $ patch-batch changes
+                    assert=
+                      %ok $ {} (:n 2)
+                      .apply-to batch base
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |reports-structured-path-errors)
+              :code $ quote
+                do
+                  let
+                      base $ {}
+                        :a $ [] 1
+                      changes $ []
+                        %:: schema/change-op :update-in ([] :a 3) (%:: schema/change-op :replace 2)
+                      expected $ %err
+                        %:: PatchError :invalid-index
+                          [] (%:: PatchPathSegment :field :a) (%:: PatchPathSegment :index 3)
+                          , 3 1
+                    assert= expected $ try-patch-twig base changes
+                  let
+                      base $ {} (:a 1)
+                      changes $ []
+                        %:: schema/change-op :update :missing $ %:: schema/change-op :replace 2
+                      expected $ %err
+                        %:: PatchError :missing-node $ [] (%:: PatchPathSegment :field :missing)
+                    assert= expected $ try-patch-twig base changes
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |rejects-batches-atomically)
+              :code $ quote
+                let
+                    base $ {} (:stable 1)
+                    changes $ [] (%:: schema/change-op :assoc :temporary 2)
+                      %:: schema/change-op :update :missing $ %:: schema/change-op :replace 3
+                    result $ try-patch-twig base changes
+                  assert=
+                    %err $ %:: PatchError :missing-node
+                      [] $ %:: PatchPathSegment :field :missing
+                    , result
+                  assert=
+                    {} $ :stable 1
+                    , base
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |rejects-container-and-payload-types)
+              :code $ quote
+                do
+                  assert=
+                    %err $ %:: PatchError :type-mismatch ([]) :list :number
+                    try-patch-one 1 $ %:: schema/change-op :vec-append ([] 2)
+                  assert=
+                    %err $ %:: PatchError :type-mismatch ([]) :map :list
+                    try-patch-one ([])
+                      %:: schema/change-op :map-splice (#{} :a) ({})
+              :tags $ #{} :unit
+        'try-patch-twig-at $ %{} 'CodeEntry (:doc "|Fold a patch batch at a diagnostic path, stopping at the first error.")
+          :code $ quote
+            defn try-patch-twig-at (base changes path)
+              list-match changes
+                () $ %ok base
+                (c0 cs)
+                  match (try-patch-one-at base c0 path)
+                    (:ok next-base) (recur next-base cs path)
+                    (:err error) (%err error)
+          :examples $ []
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'T (:: 'List 'recollect.schema/change-op) (:: 'List 'PatchPathSegment)
+              :generics $ [] 'T
+              :return $ :: 'Result 'T 'PatchError
+          :tags $ #{} :scaffold
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote
           ns recollect.patch $ :require (recollect.schema :as schema)

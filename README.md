@@ -32,6 +32,25 @@ The diff/patch and memoization behavior is covered by native and JavaScript test
 Diff/patch behavior and memoization are covered by the native and JavaScript
 tests in this repository.
 
+Validated patch application is available when incoming changes cross a network
+or persistence boundary:
+
+```cirru
+let
+    batch $ patch-batch changes
+  match $ .apply-to batch old-tree
+    (:ok next-tree) next-tree
+    (:err error)
+      ; Request a full snapshot instead of keeping a partially patched tree.
+      println $ patch-error-message error
+```
+
+`try-patch-one` and `try-patch-twig` return the same structured `Result` without
+constructing a `PatchBatch`. `PatchError` reports unsupported operations,
+unsupported containers, missing nodes, type mismatches, and invalid indexes,
+including the rejected tree path. The older `patch-one` and `patch-twig` APIs
+retain their existing raising behavior and direct hot path for compatibility.
+
 ### Related
 
 For record parsing http://stackoverflow.com/a/29133350/883571
