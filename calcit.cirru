@@ -964,8 +964,8 @@
             deftrait PatchBatchOps $ .apply-to
               :: 'Fn $ {}
                 :generics $ [] 'T
-                :args $ [] 'PatchBatch 'T
-                :return $ :: 'Result 'T 'PatchError
+                :args $ [] 'recollect.patch/PatchBatch 'T
+                :return $ :: 'Result 'T 'recollect.patch/PatchError
           :examples $ []
           :schema $ :: 'Trait
         'PatchBatchOpsImpl $ %{} 'CodeEntry (:doc "|PatchBatch method implementation.")
@@ -976,10 +976,10 @@
         'PatchError $ %{} 'CodeEntry (:doc "|Structured failure returned by validated patch application. Paths point to the rejected node in the base tree.")
           :code $ quote
             defenum PatchError (:unsupported-operation 'String)
-              :unsupported-container (:: 'List 'PatchPathSegment) 'Tag
-              :missing-node $ :: 'List 'PatchPathSegment
-              :type-mismatch (:: 'List 'PatchPathSegment) 'Tag 'Tag
-              :invalid-index (:: 'List 'PatchPathSegment) 'Number 'Number
+              :unsupported-container (:: 'List 'recollect.patch/PatchPathSegment) 'Tag
+              :missing-node $ :: 'List 'recollect.patch/PatchPathSegment
+              :type-mismatch (:: 'List 'recollect.patch/PatchPathSegment) 'Tag 'Tag
+              :invalid-index (:: 'List 'recollect.patch/PatchPathSegment) 'Number 'Number
           :examples $ []
           :schema $ :: 'EnumDef
         'PatchPathSegment $ %{} 'CodeEntry (:doc |)
@@ -999,7 +999,7 @@
               %{} PatchBatch $ :changes changes
           :examples $ []
           :schema $ :: 'Fn
-            {} (:return 'PatchBatch)
+            {} (:return 'recollect.patch/PatchBatch)
               :args $ [] (:: 'List 'recollect.schema/change-op)
           :tags $ #{} :scaffold
         'patch-batch:apply-to $ %{} 'CodeEntry (:doc "|Apply a PatchBatch atomically and return Result.")
@@ -1009,9 +1009,9 @@
           :examples $ []
           :schema $ :: 'Fn
             {}
-              :args $ [] 'PatchBatch 'T
+              :args $ [] 'recollect.patch/PatchBatch 'T
               :generics $ [] 'T
-              :return $ :: 'Result 'T 'PatchError
+              :return $ :: 'Result 'T 'recollect.patch/PatchError
           :tags $ #{} :scaffold
         'patch-error-message $ %{} 'CodeEntry (:doc "|Render a structured PatchError for compatibility APIs and logs.")
           :code $ quote
@@ -1030,7 +1030,7 @@
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'String)
-              :args $ [] 'PatchError
+              :args $ [] 'recollect.patch/PatchError
           :tags $ #{} :scaffold
         'patch-get $ %{} 'CodeEntry (:doc |)
           :code $ quote
@@ -1143,7 +1143,7 @@
                 true $ %:: PatchPathSegment :key (str value)
           :examples $ []
           :schema $ :: 'Fn
-            {} (:return 'PatchPathSegment)
+            {} (:return 'recollect.patch/PatchPathSegment)
               :args $ [] 'T
               :generics $ [] 'T
         'patch-set $ %{} 'CodeEntry (:doc "|Apply set-splice patch by removing and adding elements to a set.")
@@ -1283,9 +1283,9 @@
           :examples $ []
           :schema $ :: 'Fn
             {}
-              :args $ [] 'B 'K 'V (:: 'List 'PatchPathSegment)
+              :args $ [] 'B 'K 'V (:: 'List 'recollect.patch/PatchPathSegment)
               :generics $ [] 'B 'K 'V
-              :return $ :: 'Result 'B 'PatchError
+              :return $ :: 'Result 'B 'recollect.patch/PatchError
           :tags $ #{} :scaffold
         'try-patch-get $ %{} 'CodeEntry (:doc "|Read a patch path segment without raising.")
           :code $ quote
@@ -1329,9 +1329,9 @@
           :examples $ []
           :schema $ :: 'Fn
             {}
-              :args $ [] 'B 'K (:: 'List 'PatchPathSegment)
+              :args $ [] 'B 'K (:: 'List 'recollect.patch/PatchPathSegment)
               :generics $ [] 'B 'K 'V
-              :return $ :: 'Result 'V 'PatchError
+              :return $ :: 'Result 'V 'recollect.patch/PatchError
           :tags $ #{} :scaffold
         'try-patch-one $ %{} 'CodeEntry (:doc "|Apply one change operation atomically and return Result.")
           :code $ quote
@@ -1344,7 +1344,7 @@
             {}
               :args $ [] 'T 'recollect.schema/change-op
               :generics $ [] 'T
-              :return $ :: 'Result 'T 'PatchError
+              :return $ :: 'Result 'T 'recollect.patch/PatchError
           :tags $ #{} :scaffold
         'try-patch-one-at $ %{} 'CodeEntry (:doc "|Apply one change operation at a diagnostic path.")
           :code $ quote
@@ -1435,9 +1435,9 @@
           :examples $ []
           :schema $ :: 'Fn
             {}
-              :args $ [] 'T 'recollect.schema/change-op (:: 'List 'PatchPathSegment)
+              :args $ [] 'T 'recollect.schema/change-op (:: 'List 'recollect.patch/PatchPathSegment)
               :generics $ [] 'T
-              :return $ :: 'Result 'T 'PatchError
+              :return $ :: 'Result 'T 'recollect.patch/PatchError
           :tags $ #{} :scaffold
         'try-patch-twig $ %{} 'CodeEntry (:doc "|Apply a patch batch atomically and return Result. No partial tree is observable on failure.")
           :code $ quote
@@ -1450,7 +1450,7 @@
             {}
               :args $ [] 'T (:: 'List 'recollect.schema/change-op)
               :generics $ [] 'T
-              :return $ :: 'Result 'T 'PatchError
+              :return $ :: 'Result 'T 'recollect.patch/PatchError
           :tags $ #{} :scaffold
           :tests $ []
             %{} 'TestEntry (:name |applies-valid-batches)
@@ -1532,9 +1532,9 @@
           :examples $ []
           :schema $ :: 'Fn
             {}
-              :args $ [] 'T (:: 'List 'recollect.schema/change-op) (:: 'List 'PatchPathSegment)
+              :args $ [] 'T (:: 'List 'recollect.schema/change-op) (:: 'List 'recollect.patch/PatchPathSegment)
               :generics $ [] 'T
-              :return $ :: 'Result 'T 'PatchError
+              :return $ :: 'Result 'T 'recollect.patch/PatchError
           :tags $ #{} :scaffold
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote
