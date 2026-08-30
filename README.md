@@ -19,6 +19,10 @@ calcit docs read <document> --module recollect --full
 calcit docs read upgrade --full
 ```
 
+For diff/patch recovery and resync guidance, use
+`calcit docs read "Validated Recollect patches" --module recollect` after the
+module is installed.
+
 ### Purpose
 
 Rendering data tree and doing diffing would be slow.
