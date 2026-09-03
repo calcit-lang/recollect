@@ -25,8 +25,7 @@
                     div
                       {} $ :style ui/expand
                       div
-                        {} $ :style
-                          merge ui/row $ {} (:padding 8)
+                        {} $ :style (assoc ui/row :padding 8)
                         pre $ {} (:class-name css-code-block)
                           :inner-text $ trim (format-cirru-edn data-twig)
                         =< 8 nil
