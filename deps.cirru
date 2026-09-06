@@ -1,8 +1,8 @@
 
 {} (:package |recollect) (:calcit-version |0.13.77)
-  :version |0.0.42
-  :dependencies $ {} (|Respo/reel.calcit |0.6.13)
-    |Respo/respo-markdown.calcit |0.4.31
-    |Respo/respo-ui.calcit |0.7.16
-    |Respo/respo-value.calcit |0.5.4
-    |Respo/respo.calcit |0.16.91
+  :version |0.0.43
+  :dependencies $ {}
+  :dev-dependencies $ {} (|Respo/respo-ui.calcit |0.7.19)
+    |Respo/respo-value.calcit |0.5.5
+    |Respo/respo.calcit |0.16.95
+    |calcit-lang/js-ffi |0.1.12
