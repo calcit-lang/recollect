@@ -33,6 +33,9 @@ It's like data rendering, with keeps reusing last result of data tree.
 
 The diff/patch and memoization behavior is covered by native and JavaScript tests.
 
+For deterministic visited-node and emitted-operation limits with atomic
+snapshot fallback, see [Budgeted diff traversal](docs/budgeted-diff.md).
+
 Diff/patch behavior and memoization are covered by the native and JavaScript
 tests in this repository.
 
