@@ -11,9 +11,10 @@ state and returns one nominal `DiffOutcome`:
 `DiffBudget` contains independent `Option<Number>` limits for visited nodes and
 emitted operation nodes. `%none` means unlimited. A limit is inclusive: work
 that consumes exactly the configured value succeeds; the next unit fails.
-`DiffStats.emitted-ops` counts nested operation nodes as well as top-level
-operations, so it reflects the structural patch work more accurately than the
-top-level list length.
+`DiffStats.emitted-ops` counts operation-construction work, including
+intermediate child operations that are later normalized into parent operations.
+It is therefore a deterministic work counter, not the final patch-node count or
+the top-level list length.
 
 ```cirru
 ns app.main $ :require
@@ -50,8 +51,9 @@ exceeded call cannot affect a later invocation.
 
 `DiffBudget` 分别用 `Option<Number>` 表示 visited-node 与 emitted-operation
 上限，`%none` 表示该维度不限。上限是包含式的：恰好用满可成功，再消耗一个
-单位才超限。`DiffStats.emitted-ops` 同时统计嵌套与顶层 operation 节点，比只看
-顶层列表长度更接近 patch 的结构工作量。
+单位才超限。`DiffStats.emitted-ops` 统计 operation 构造工作，包括之后被规范化进
+父级 operation 的中间子节点；因此它是确定性的工作计数，不等于最终 patch 节点数
+或顶层列表长度。
 
 首版是可重复验证的工作预算，不是硬墙钟 deadline。类型判断、Map diff
 materialization、key 比较、Set difference、大叶子替换、snapshot 编码、传输队列
