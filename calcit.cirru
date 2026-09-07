@@ -472,7 +472,7 @@
               :budget-exceeded 'recollect.diff/DiffBudgetReason 'recollect.diff/DiffStats
           :examples $ []
           :schema $ :: 'EnumDef
-        'DiffStats $ %{} 'CodeEntry (:doc "|Work consumed by one isolated diff call. Emitted counts operation nodes, including nested patch operations.")
+        'DiffStats $ %{} 'CodeEntry (:doc "|Work consumed by one isolated diff call. Emitted counts operation-construction units, including intermediate nodes later normalized into parent operations.")
           :code $ quote
             defstruct DiffStats (:visited-nodes 'Number) (:emitted-ops 'Number)
           :examples $ []
