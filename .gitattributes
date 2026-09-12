@@ -1,4 +1,6 @@
 
 yarn.lock -diff linguist-generated
 
+config/calcit-quality.cirru -diff linguist-generated
+
 llms/*.md -diff linguist-generated
