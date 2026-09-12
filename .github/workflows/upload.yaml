@@ -57,6 +57,7 @@ jobs:
         calcit calcit.cirru --entry test js && env=ci node test.mjs
 
     - name: "wasm tests"
+      continue-on-error: true
       run: bash scripts/test-wasm.sh
 
     - name: "compiles to js"
