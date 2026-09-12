@@ -76,7 +76,7 @@ yarn test
 memo, and utility definitions. `yarn test:js` keeps a separate JS-target compile
 and entry-point check.
 
-WASM regression checks are enabled both locally and in GitHub Actions with
+Experimental WASM regression checks are available locally and run as a non-blocking GitHub Actions step with
 `setup-calcit` installing the matching Calcit release.
 
 ```bash
@@ -84,7 +84,7 @@ yarn test:wasm
 yarn run:wasm:api
 ```
 
-The `main` and `wasm-support` branches both run the prepared WASM step directly with `cr-wasm`.
+The `main` and `wasm-support` branches both run the prepared WASM step directly with `cr-wasm`. The step remains non-blocking while the experimental backend can emit platform-dependent modules; native and JavaScript checks are the release gates.
 
 `yarn run:wasm:api` is a standalone Node.js runner for the current supported recollect API probes.
 It compiles the `test` entry to WASM, executes exported API-oriented probe functions, and prints

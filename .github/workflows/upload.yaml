@@ -7,6 +7,9 @@ on:
       - wasm-support
   pull_request: {}
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -43,7 +46,12 @@ jobs:
         calcit calcit.cirru analyze weak-types --only schema-dynamic,code-dynamic --intent unresolved --summary-only --format json
         calcit calcit.cirru analyze deprecated --summary-only --format json
         calcit calcit.cirru analyze dynamic-methods --max 0
-        calcit calcit.cirru analyze quality --baseline config/calcit-quality.json
+        calcit calcit.cirru analyze check-public --ns recollect.diff --ns recollect.memo --ns recollect.patch --ns recollect.schema --ns recollect.twig --ns recollect.util --summary-only
+        calcit calcit.cirru analyze check-examples --ns recollect.diff
+        calcit calcit.cirru analyze check-examples --ns recollect.patch
+        calcit calcit.cirru analyze check-examples --ns recollect.twig
+        calcit calcit.cirru analyze check-examples --ns recollect.util
+        calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru
 
     - name: "calcit test"
       run: calcit calcit.cirru --entry test
@@ -53,6 +61,7 @@ jobs:
         calcit calcit.cirru --entry test js && env=ci node test.mjs
 
     - name: "wasm tests"
+      continue-on-error: true
       run: bash scripts/test-wasm.sh
 
     - name: "compiles to js"
