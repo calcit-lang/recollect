@@ -279,9 +279,7 @@
               let
                   bounded-outcome $ diff-twig-budgeted old updated
                     {} $ :key :id
-                    %{} recollect.diff/DiffBudget
-                      :max-visited $ %none
-                      :max-emitted $ %none
+                    recollect.diff/DiffBudget :max-visited (%none) :max-emitted $ %none
                 match bounded-outcome
                   (:complete bounded-changes stats)
                     do
@@ -527,7 +525,7 @@
                         , true
                       do
                         reset! state $ struct-with current $ :exceeded
-                          %some $ %:: DiffBudgetReason :emitted-ops
+                          %some $ DiffBudgetReason :emitted-ops
                         , false
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Bool)
@@ -554,7 +552,7 @@
                         , true
                       do
                         reset! state $ struct-with current $ :exceeded
-                          %some $ %:: DiffBudgetReason :visited-nodes
+                          %some $ DiffBudgetReason :visited-nodes
                         , false
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Bool)
@@ -569,7 +567,7 @@
               if
                 and (some? ka)
                   not $ &= ka kb
-                [] $ %:: schema/change-op :replace b
+                [] $ schema/change-op :replace b
                 let
                     triple $ &map:diff-triple a b
                     drop-keys $ &list:nth triple 0
@@ -577,7 +575,7 @@
                     common-triples $ &list:nth triple 2
                     splice-changes $ if
                       not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
-                      [] $ %:: schema/change-op :map-splice drop-keys new-diff
+                      [] $ schema/change-op :map-splice drop-keys new-diff
                       []
                     init-acc $ &buf-list:concat (&buf-list:new) splice-changes
                   diff-map-step init-acc common-triples options
@@ -594,7 +592,7 @@
               if
                 and (some? ka)
                   not $ &= ka kb
-                emit-change state $ %:: schema/change-op :replace b
+                emit-change state $ schema/change-op :replace b
                 let
                     triple $ &map:diff-triple a b
                     drop-keys $ &list:nth triple 0
@@ -602,7 +600,7 @@
                     common-triples $ &list:nth triple 2
                     splice-changes $ if
                       not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
-                      emit-change state $ %:: schema/change-op :map-splice drop-keys new-diff
+                      emit-change state $ schema/change-op :map-splice drop-keys new-diff
                       []
                     init-acc $ &buf-list:concat (&buf-list:new) splice-changes
                   if (diff-state-exceeded? state) (&buf-list:to-list init-acc) (diff-map-step-budgeted state init-acc common-triples options)
@@ -659,7 +657,7 @@
             if (identical? a b) ([])
               if (&struct:matches? a b)
                 diff-record-step (&buf-list:new) 0 (&struct:count a) a b options
-                [] $ %:: schema/change-op :replace b
+                [] $ schema/change-op :replace b
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'Struct 'Struct $ :: 'Map 'Tag 'Tag
@@ -669,7 +667,7 @@
             if (identical? a b) ([])
               if (&struct:matches? a b)
                 diff-record-step-budgeted state (&buf-list:new) 0 (&struct:count a) a b options
-                emit-change state $ %:: schema/change-op :replace b
+                emit-change state $ schema/change-op :replace b
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) 'Struct 'Struct $ :: 'Map 'Tag 'Tag
@@ -717,7 +715,7 @@
             let
                 added $ set-difference-dynamic b a
                 removed $ set-difference-dynamic a b
-              [] $ %:: schema/change-op :set-splice removed added
+              [] $ schema/change-op :set-splice removed added
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Set 'Dynamic) (:: 'Set 'Dynamic)
@@ -727,7 +725,7 @@
             let
                 added $ set-difference-dynamic b a
                 removed $ set-difference-dynamic a b
-              emit-change state $ %:: schema/change-op :set-splice removed added
+              emit-change state $ schema/change-op :set-splice removed added
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'Set 'Dynamic) (:: 'Set 'Dynamic)
@@ -749,7 +747,7 @@
               or
                 not $ &= (&enum:nth a 0) (&enum:nth b 0)
                 not $ &= (&enum:count a) (&enum:count b)
-              [] $ %:: schema/change-op :replace b
+              [] $ schema/change-op :replace b
               let
                   max-idx $ dec $ &enum:count a
                 diff-tuple-step (&buf-list:new) 1 max-idx a b options
@@ -763,7 +761,7 @@
               or
                 not $ &= (&enum:nth a 0) (&enum:nth b 0)
                 not $ &= (&enum:count a) (&enum:count b)
-              emit-change state $ %:: schema/change-op :replace b
+              emit-change state $ schema/change-op :replace b
               let
                   max-idx $ dec $ &enum:count a
                 diff-tuple-step-budgeted state (&buf-list:new) 1 max-idx a b options
@@ -906,8 +904,8 @@
                 final-state $ deref state
                 stats $ :stats final-state
               match (:exceeded final-state)
-                (:some reason) (%:: DiffOutcome :budget-exceeded reason stats)
-                (:none) (%:: DiffOutcome :complete changes stats)
+                (:some reason) (DiffOutcome :budget-exceeded reason stats)
+                (:none) (DiffOutcome :complete changes stats)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.diff/DiffOutcome)
             :args $ [] 'Dynamic 'Dynamic (:: 'Map 'Tag 'Tag) 'recollect.diff/DiffBudget
@@ -1071,12 +1069,12 @@
             if (identical? a b) ([])
               if
                 not $ &= (type-of a) (type-of b)
-                [] $ %:: schema/change-op :replace b
+                [] $ schema/change-op :replace b
                 cond
                     literal? b
-                    [] $ %:: schema/change-op :replace b
+                    [] $ schema/change-op :replace b
                   (symbol? b)
-                    [] $ %:: schema/change-op :replace b
+                    [] $ schema/change-op :replace b
                   (set? b)
                     diff-set
                       assert-type a $ :: 'Set 'Dynamic
@@ -1097,12 +1095,12 @@
               if (identical? a b) ([])
                 if
                   not $ &= (type-of a) (type-of b)
-                  emit-change state $ %:: schema/change-op :replace b
+                  emit-change state $ schema/change-op :replace b
                   cond
                       literal? b
-                      emit-change state $ %:: schema/change-op :replace b
+                      emit-change state $ schema/change-op :replace b
                     (symbol? b)
-                      emit-change state $ %:: schema/change-op :replace b
+                      emit-change state $ schema/change-op :replace b
                     (set? b) (diff-set-budgeted state a b)
                     (enum? b) (diff-tuple-budgeted state a b options)
                     (map? b) (diff-map-budgeted state a b options)
@@ -1130,9 +1128,9 @@
                 and (empty? a-items) (empty? b-items)
                 &buf-list:to-list acc
               (empty? b-items)
-                &buf-list:to-list $ &buf-list:concat acc $ [] (%:: schema/change-op :vec-drop idx)
+                &buf-list:to-list $ &buf-list:concat acc $ [] (schema/change-op :vec-drop idx)
               (empty? a-items)
-                &buf-list:to-list $ &buf-list:concat acc $ [] (%:: schema/change-op :vec-append b-items)
+                &buf-list:to-list $ &buf-list:concat acc $ [] (schema/change-op :vec-append b-items)
               true $ let
                   child-changes $ diff-twig-iterate (&list:first a-items) (&list:first b-items) options
                   wrapped $ wrap-pick idx child-changes
@@ -1148,9 +1146,9 @@
                   and (empty? a-items) (empty? b-items)
                   &buf-list:to-list acc
                 (empty? b-items)
-                  &buf-list:to-list $ &buf-list:concat acc $ emit-change state (%:: schema/change-op :vec-drop idx)
+                  &buf-list:to-list $ &buf-list:concat acc $ emit-change state (schema/change-op :vec-drop idx)
                 (empty? a-items)
-                  &buf-list:to-list $ &buf-list:concat acc $ emit-change state (%:: schema/change-op :vec-append b-items)
+                  &buf-list:to-list $ &buf-list:concat acc $ emit-change state (schema/change-op :vec-append b-items)
                 true $ let
                     child-changes $ diff-twig-iterate-budgeted state (&list:first a-items) (&list:first b-items) options
                   if (diff-state-exceeded? state) (&buf-list:to-list acc)
@@ -1166,23 +1164,21 @@
           :code $ quote $ defn fold-update (k c0)
             match c0
               (:update k1 c1)
-                %:: schema/change-op :update-in ([] k k1) c1
+                schema/change-op :update-in ([] k k1) c1
               (:update-in ks c2)
-                %:: schema/change-op :update-in (prepend ks k) c2
+                schema/change-op :update-in (prepend ks k) c2
               (:pick k1 cs)
-                %:: schema/change-op :pick-in ([] k k1) cs
+                schema/change-op :pick-in ([] k k1) cs
               (:pick-in ks cs)
-                %:: schema/change-op :pick-in (prepend ks k) cs
-              _ $ %:: schema/change-op :update k c0
+                schema/change-op :pick-in (prepend ks k) cs
+              _ $ schema/change-op :update k c0
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.schema/change-op)
             :args $ [] 'Dynamic 'recollect.schema/change-op
         'new-diff-state $ %{} 'CodeEntry
           :doc "|Create isolated work counters for one diff invocation."
           :code $ quote $ defn new-diff-state (budget)
-            atom $ %{} DiffWorkState (:budget budget)
-              :stats $ %{} DiffStats (:visited-nodes 0) (:emitted-ops 0)
-              :exceeded $ %none
+            atom $ DiffWorkState :budget budget :stats (DiffStats :visited-nodes 0 :emitted-ops 0) :exceeded $ %none
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'recollect.diff/DiffBudget
@@ -1216,9 +1212,7 @@
         'unlimited-diff-budget $ %{} 'CodeEntry
           :doc "|Construct an unlimited budget for compatibility entry points."
           :code $ quote $ defn unlimited-diff-budget (unit)
-            %{} DiffBudget
-              :max-visited $ %none
-              :max-emitted $ %none
+            DiffBudget :max-visited (%none) :max-emitted $ %none
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.diff/DiffBudget)
             :args $ [] 'Unit
@@ -1233,11 +1227,11 @@
                       c0 $ &list:nth chunk 0
                     match c0
                       (:replace v)
-                        [] $ %:: schema/change-op :assoc k v
+                        [] $ schema/change-op :assoc k v
                       (:assoc k1 v)
-                        [] $ %:: schema/change-op :update k c0
+                        [] $ schema/change-op :update k c0
                       _ $ [] $ fold-update k c0
-                  [] $ %:: schema/change-op :pick k chunk
+                  [] $ schema/change-op :pick k chunk
                 []
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -1254,11 +1248,11 @@
                       c0 $ &list:nth chunk 0
                     match c0
                       (:replace v)
-                        emit-change state $ %:: schema/change-op :assoc k v
+                        emit-change state $ schema/change-op :assoc k v
                       (:assoc k1 v)
-                        emit-change state $ %:: schema/change-op :update k c0
+                        emit-change state $ schema/change-op :update k c0
                       _ $ emit-change state $ fold-update k c0
-                  emit-change state $ %:: schema/change-op :pick k chunk
+                  emit-change state $ schema/change-op :pick k chunk
                 []
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -1612,7 +1606,7 @@
                   (k0 rest-ks)
                     let
                         old-val $ patch-get base k0
-                      patch-assoc base k0 $ patch-one old-val $ %:: schema/change-op :update-in rest-ks c0
+                      patch-assoc base k0 $ patch-one old-val $ schema/change-op :update-in rest-ks c0
               (:pick k changes)
                 let
                     old-val $ patch-get base k
@@ -1623,7 +1617,7 @@
                   (k0 rest-ks)
                     let
                         old-val $ patch-get base k0
-                      patch-assoc base k0 $ patch-one old-val $ %:: schema/change-op :pick-in rest-ks changes
+                      patch-assoc base k0 $ patch-one old-val $ schema/change-op :pick-in rest-ks changes
               _ $ raise $ str |Unknown-patch-operation: change
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
@@ -1640,10 +1634,10 @@
           :code $ quote $ defn patch-path-segment (value)
             cond
                 tag? value
-                %:: PatchPathSegment :field value
-              (string? value) (%:: PatchPathSegment :name value)
-              (number? value) (%:: PatchPathSegment :index value)
-              true $ %:: PatchPathSegment :key $ str value
+                PatchPathSegment :field value
+              (string? value) (PatchPathSegment :name value)
+              (number? value) (PatchPathSegment :index value)
+              true $ PatchPathSegment :key $ str value
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchPathSegment)
             :args $ [] 'Dynamic
@@ -1749,35 +1743,35 @@
                 next-path $ &list:append path $ patch-path-segment k
               cond
                   map? base
-                  %:: PatchResult :ok $ &map:assoc base k data
+                  PatchResult :ok $ &map:assoc base k data
                 (list? base)
                   if
                     and (number? k)
                       = k $ floor k
                       &>= k 0
                       &< k $ count base
-                    %:: PatchResult :ok $ &list:assoc base k data
+                    PatchResult :ok $ &list:assoc base k data
                     if (number? k)
-                      %:: PatchResult :err $ %:: PatchError :invalid-index next-path k $ count base
-                      %:: PatchResult :err $ %:: PatchError :type-mismatch path :number $ type-of k
+                      PatchResult :err $ PatchError :invalid-index next-path k $ count base
+                      PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
                 (enum? base)
                   if
                     and (number? k)
                       = k $ floor k
                       &>= k 1
                       &< k $ &enum:count base
-                    %:: PatchResult :ok $ &enum:assoc base k data
+                    PatchResult :ok $ &enum:assoc base k data
                     if (number? k)
-                      %:: PatchResult :err $ %:: PatchError :invalid-index next-path k $ &enum:count base
-                      %:: PatchResult :err $ %:: PatchError :type-mismatch path :number $ type-of k
+                      PatchResult :err $ PatchError :invalid-index next-path k $ &enum:count base
+                      PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
                 (struct? base)
                   if
                     or (tag? k) (string? k)
                     if (contains? base k)
-                      %:: PatchResult :ok $ &struct:assoc base k data
-                      %:: PatchResult :err $ %:: PatchError :missing-node next-path
-                    %:: PatchResult :err $ %:: PatchError :type-mismatch path :field-key $ type-of k
-                true $ %:: PatchResult :err $ %:: PatchError :unsupported-container path (type-of base)
+                      PatchResult :ok $ &struct:assoc base k data
+                      PatchResult :err $ PatchError :missing-node next-path
+                    PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
+                true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
             :args $ [] 'Dynamic 'Dynamic 'Dynamic $ :: 'List 'Dynamic
@@ -1789,36 +1783,36 @@
               cond
                   map? base
                   if (contains? base k)
-                    %:: PatchResult :ok $ &map:get base k
-                    %:: PatchResult :err $ %:: PatchError :missing-node next-path
+                    PatchResult :ok $ &map:get base k
+                    PatchResult :err $ PatchError :missing-node next-path
                 (list? base)
                   if
                     and (number? k)
                       = k $ floor k
                       &>= k 0
                       &< k $ count base
-                    %:: PatchResult :ok $ &list:nth base k
+                    PatchResult :ok $ &list:nth base k
                     if (number? k)
-                      %:: PatchResult :err $ %:: PatchError :invalid-index next-path k $ count base
-                      %:: PatchResult :err $ %:: PatchError :type-mismatch path :number $ type-of k
+                      PatchResult :err $ PatchError :invalid-index next-path k $ count base
+                      PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
                 (enum? base)
                   if
                     and (number? k)
                       = k $ floor k
                       &>= k 0
                       &< k $ &enum:count base
-                    %:: PatchResult :ok $ &enum:nth base k
+                    PatchResult :ok $ &enum:nth base k
                     if (number? k)
-                      %:: PatchResult :err $ %:: PatchError :invalid-index next-path k $ &enum:count base
-                      %:: PatchResult :err $ %:: PatchError :type-mismatch path :number $ type-of k
+                      PatchResult :err $ PatchError :invalid-index next-path k $ &enum:count base
+                      PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
                 (struct? base)
                   if
                     or (tag? k) (string? k)
                     if (contains? base k)
-                      %:: PatchResult :ok $ &map:get (&struct:to-map base) k
-                      %:: PatchResult :err $ %:: PatchError :missing-node next-path
-                    %:: PatchResult :err $ %:: PatchError :type-mismatch path :field-key $ type-of k
-                true $ %:: PatchResult :err $ %:: PatchError :unsupported-container path (type-of base)
+                      PatchResult :ok $ &map:get (&struct:to-map base) k
+                      PatchResult :err $ PatchError :missing-node next-path
+                    PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
+                true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
             :args $ [] 'Dynamic 'Dynamic $ :: 'List 'Dynamic
@@ -1837,13 +1831,13 @@
           :doc "|Apply one change operation at a diagnostic path."
           :code $ quote $ defn try-patch-one-at (base change path)
             match change
-              (:replace data) (%:: PatchResult :ok data)
+              (:replace data) (PatchResult :ok data)
               (:vec-append data)
                 if (list? base)
                   if (list? data)
-                    %:: PatchResult :ok $ patch-vector-append base data
-                    %:: PatchResult :err $ %:: PatchError :type-mismatch path :list $ type-of data
-                  %:: PatchResult :err $ %:: PatchError :type-mismatch path :list $ type-of base
+                    PatchResult :ok $ patch-vector-append base data
+                    PatchResult :err $ PatchError :type-mismatch path :list $ type-of data
+                  PatchResult :err $ PatchError :type-mismatch path :list $ type-of base
               (:vec-drop data)
                 if (list? base)
                   if
@@ -1851,73 +1845,73 @@
                       = data $ floor data
                       &>= data 0
                       &<= data $ count base
-                    %:: PatchResult :ok $ patch-vector-drop base data
+                    PatchResult :ok $ patch-vector-drop base data
                     if (number? data)
-                      %:: PatchResult :err $ %:: PatchError :invalid-index path data $ count base
-                      %:: PatchResult :err $ %:: PatchError :type-mismatch path :number $ type-of data
-                  %:: PatchResult :err $ %:: PatchError :type-mismatch path :list $ type-of base
+                      PatchResult :err $ PatchError :invalid-index path data $ count base
+                      PatchResult :err $ PatchError :type-mismatch path :number $ type-of data
+                  PatchResult :err $ PatchError :type-mismatch path :list $ type-of base
               (:assoc k data) (try-patch-assoc base k data path)
               (:set-splice removed added)
                 if (set? base)
                   if (set? removed)
                     if (set? added)
-                      %:: PatchResult :ok $ patch-set base removed added
-                      %:: PatchResult :err $ %:: PatchError :type-mismatch path :set $ type-of added
-                    %:: PatchResult :err $ %:: PatchError :type-mismatch path :set $ type-of removed
-                  %:: PatchResult :err $ %:: PatchError :type-mismatch path :set $ type-of base
+                      PatchResult :ok $ patch-set base removed added
+                      PatchResult :err $ PatchError :type-mismatch path :set $ type-of added
+                    PatchResult :err $ PatchError :type-mismatch path :set $ type-of removed
+                  PatchResult :err $ PatchError :type-mismatch path :set $ type-of base
               (:map-splice removed added)
                 if (map? base)
                   if (set? removed)
                     if (map? added)
-                      %:: PatchResult :ok $ patch-map base removed added
-                      %:: PatchResult :err $ %:: PatchError :type-mismatch path :map $ type-of added
-                    %:: PatchResult :err $ %:: PatchError :type-mismatch path :set $ type-of removed
-                  %:: PatchResult :err $ %:: PatchError :type-mismatch path :map $ type-of base
+                      PatchResult :ok $ patch-map base removed added
+                      PatchResult :err $ PatchError :type-mismatch path :map $ type-of added
+                    PatchResult :err $ PatchError :type-mismatch path :set $ type-of removed
+                  PatchResult :err $ PatchError :type-mismatch path :map $ type-of base
               (:update k c0)
                 match (try-patch-get base k path)
-                  (:err error) (%:: PatchResult :err error)
+                  (:err error) (PatchResult :err error)
                   (:ok old-val)
                     let
                         next-path $ &list:append path $ patch-path-segment k
                       match (try-patch-one-at old-val c0 next-path)
-                        (:err error) (%:: PatchResult :err error)
+                        (:err error) (PatchResult :err error)
                         (:ok next-val) (try-patch-assoc base k next-val path)
               (:update-in ks c0)
                 list-match ks
                   () $ try-patch-one-at base c0 path
                   (k0 rest-ks)
                     match (try-patch-get base k0 path)
-                      (:err error) (%:: PatchResult :err error)
+                      (:err error) (PatchResult :err error)
                       (:ok old-val)
                         let
                             next-path $ &list:append path $ patch-path-segment k0
                           match
-                            try-patch-one-at old-val (%:: schema/change-op :update-in rest-ks c0) next-path
-                            (:err error) (%:: PatchResult :err error)
+                            try-patch-one-at old-val (schema/change-op :update-in rest-ks c0) next-path
+                            (:err error) (PatchResult :err error)
                             (:ok next-val) (try-patch-assoc base k0 next-val path)
               (:pick k changes)
                 match (try-patch-get base k path)
-                  (:err error) (%:: PatchResult :err error)
+                  (:err error) (PatchResult :err error)
                   (:ok old-val)
                     let
                         next-path $ &list:append path $ patch-path-segment k
                       match (try-patch-twig-at old-val changes next-path)
-                        (:err error) (%:: PatchResult :err error)
+                        (:err error) (PatchResult :err error)
                         (:ok next-val) (try-patch-assoc base k next-val path)
               (:pick-in ks changes)
                 list-match ks
                   () $ try-patch-twig-at base changes path
                   (k0 rest-ks)
                     match (try-patch-get base k0 path)
-                      (:err error) (%:: PatchResult :err error)
+                      (:err error) (PatchResult :err error)
                       (:ok old-val)
                         let
                             next-path $ &list:append path $ patch-path-segment k0
                           match
-                            try-patch-one-at old-val (%:: schema/change-op :pick-in rest-ks changes) next-path
-                            (:err error) (%:: PatchResult :err error)
+                            try-patch-one-at old-val (schema/change-op :pick-in rest-ks changes) next-path
+                            (:err error) (PatchResult :err error)
                             (:ok next-val) (try-patch-assoc base k0 next-val path)
-              _ $ %:: PatchResult :err $ %:: PatchError :unsupported-operation (str change)
+              _ $ PatchResult :err $ PatchError :unsupported-operation (str change)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
             :args $ [] 'Dynamic 'recollect.schema/change-op $ :: 'List 'Dynamic
@@ -2014,11 +2008,11 @@
           :doc "|Fold a patch batch at a diagnostic path, stopping at the first error."
           :code $ quote $ defn try-patch-twig-at (base changes path)
             list-match changes
-              () $ %:: PatchResult :ok base
+              () $ PatchResult :ok base
               (c0 cs)
                 match (try-patch-one-at base c0 path)
                   (:ok next-base) (recur next-base cs path)
-                  (:err error) (%:: PatchResult :err error)
+                  (:err error) (PatchResult :err error)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
             :args $ [] 'Dynamic (:: 'List 'recollect.schema/change-op) (:: 'List 'Dynamic)
@@ -2263,9 +2257,9 @@
         'probe-app-twig-change-count $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn probe-app-twig-change-count ()
             let
-              old-twig $ twig-container $ sample-store-a
-              new-twig $ twig-container $ sample-store-b
-              changes $ diff-twig old-twig new-twig $ {}
+                old-twig $ twig-container $ sample-store-a
+                new-twig $ twig-container $ sample-store-b
+                changes $ diff-twig old-twig new-twig $ {}
               &list:count changes
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
@@ -2303,7 +2297,7 @@
           :code $ quote $ defn probe-cond-number ()
             cond
                 literal? 5
-                [] $ %:: schema/change-op :replace 5
+                [] $ schema/change-op :replace 5
               true []
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
@@ -2407,7 +2401,7 @@
                   {} (:a 1) (:b 3) (:c 4)
                   {}
               match (first changes)
-                (:map-splice removed added) (1)
+                (:map-splice removed added) 1
                 (:assoc k v) 2
                 _ 0
           :examples $ []
@@ -2603,7 +2597,7 @@
           :code $ quote $ defn probe-map-assoc ()
             let
                 a $ {} $ :a 1
-                b $ .&map:assoc a :b 2
+                b $ &map:assoc a :b 2
               &map:count b
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
@@ -2961,7 +2955,7 @@
           :code $ quote $ defn probe-patch-one-dynamic ()
             let
                 base $ {} $ :a 1
-                c $ %:: schema/change-op :assoc :b 2
+                c $ schema/change-op :assoc :b 2
               &map:count $ patch-one base c
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
@@ -2970,7 +2964,7 @@
         'probe-patch-one-map-splice $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn probe-patch-one-map-splice ()
             &map:count $ patch-one ({})
-              %:: schema/change-op :map-splice (#{})
+              schema/change-op :map-splice (#{})
                 {} $ :a 1
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
@@ -2981,7 +2975,7 @@
             let
                 base $ patch-one
                   {} $ :a 1
-                  %:: schema/change-op :assoc :b 2
+                  schema/change-op :assoc :b 2
               &map:count base
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
@@ -2992,7 +2986,7 @@
             let
                 base $ patch-one
                   {} $ :a 1
-                  %:: schema/change-op :assoc :b 2
+                  schema/change-op :assoc :b 2
               if (map? base) 1 0
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
@@ -3003,10 +2997,10 @@
             let
                 r1 $ patch-one
                   {} $ :a 1
-                  %:: schema/change-op :assoc :b 2
+                  schema/change-op :assoc :b 2
                 r2 $ patch-one
                   {} $ :a 1
-                  %:: schema/change-op :assoc :c 3
+                  schema/change-op :assoc :c 3
               &+ (&map:count r1) (&map:count r2)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
@@ -3017,9 +3011,9 @@
             &map:count $ patch-twig
               {} (:a 1) (:b 2)
               []
-                %:: schema/change-op :map-splice (#{})
+                schema/change-op :map-splice (#{})
                   {} (:b 3) (:c 4)
-                %:: schema/change-op :assoc :b 3
+                schema/change-op :assoc :b 3
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ []
@@ -3029,8 +3023,8 @@
             let
                 base $ patch-one
                   {} $ :a 1
-                  %:: schema/change-op :assoc :b 2
-                change $ %:: schema/change-op :assoc :c 3
+                  schema/change-op :assoc :b 2
+                change $ schema/change-op :assoc :c 3
               &map:count $ patch-one base change
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
@@ -3039,7 +3033,7 @@
         'probe-patch-twig-manual $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn probe-patch-twig-manual ()
             let
-                changes $ [] (%:: schema/change-op :assoc :b 2) (%:: schema/change-op :assoc :c 3)
+                changes $ [] (schema/change-op :assoc :b 2) (schema/change-op :assoc :c 3)
                 base0 $ {} $ :a 1
                 c0 $ &list:nth changes 0
                 cs $ &list:slice changes 1
@@ -3055,7 +3049,7 @@
           :code $ quote $ defn probe-patch-twig-single ()
             &map:count $ patch-twig
               {} $ :a 1
-              [] $ %:: schema/change-op :assoc :b 2
+              [] $ schema/change-op :assoc :b 2
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ []
@@ -3064,7 +3058,7 @@
           :code $ quote $ defn probe-patch-twig-two ()
             &map:count $ patch-twig
               {} $ :a 1
-              [] (%:: schema/change-op :assoc :b 2) (%:: schema/change-op :assoc :c 3)
+              [] (schema/change-op :assoc :b 2) (schema/change-op :assoc :c 3)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ []
@@ -3073,8 +3067,8 @@
           :code $ quote $ defn probe-pick-patch ()
             let
                 m $ {} $ :items ([] 1 2 3)
-                change $ %:: schema/change-op :pick :items $ [] (%:: schema/change-op :assoc 1 7) (%:: schema/change-op :assoc 2 8)
-                  %:: schema/change-op :vec-append $ [] 9
+                change $ schema/change-op :pick :items $ [] (schema/change-op :assoc 1 7) (schema/change-op :assoc 2 8)
+                  schema/change-op :vec-append $ [] 9
                 patched $ patch-one m change
               &list:count $ &map:get patched :items
           :examples $ []
@@ -3118,7 +3112,7 @@
                 pairs $ &map:to-list $ {} (:score 1) (:level 2)
               list-match pairs
                 () 0
-                pair rest-pairs 1
+                (pair rest-pairs) 1
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ []
@@ -3226,7 +3220,7 @@
             :features $ #{} :js-ffi
         'probe-wrap-pick-count $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn probe-wrap-pick-count ()
-            &list:count $ wrap-pick :score $ [] (%:: schema/change-op :replace 5)
+            &list:count $ wrap-pick :score $ [] (schema/change-op :replace 5)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ []
@@ -3364,7 +3358,7 @@
             :features $ #{} :js-ffi
         'test-empty-recur-guard $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-recur-guard (xs)
-            if (empty? xs) (1) (recur xs)
+            if (empty? xs) 1 $ recur xs
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] 'Dynamic
@@ -3378,8 +3372,7 @@
             :features $ #{} :js-ffi
         'test-empty-recur-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-recur-list (xs)
-            if (empty? xs) (1)
-              recur $ &list:rest xs
+            if (empty? xs) 1 $ recur $ &list:rest xs
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] 'Dynamic
@@ -3509,7 +3502,7 @@
             :features $ #{} :js-ffi
         'test-patch-empty $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-patch-empty ()
-            patch-twig 1 $ []
+            patch-twig 1 $ assert-type ([]) (:: 'List 'recollect.schema/change-op)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ []
@@ -3518,7 +3511,7 @@
           :code $ quote $ defn test-patch-one-assoc ()
             let
                 base $ {} $ :a 1
-                patched $ patch-one base $ %:: schema/change-op :assoc :b 4
+                patched $ patch-one base $ schema/change-op :assoc :b 4
               &+ (&map:count patched) (&map:get patched :b)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
