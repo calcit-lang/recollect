@@ -9,7 +9,7 @@
       :type-slots $ {}
     :test $ {} (:description |) (:init-fn 'recollect.app.main/test!) (:mode :native) (:reload-fn 'recollect.app.main/test!) (:target :native)
       :feature-policy $ {}
-      :modules $ []
+      :modules $ [] |js-ffi/
       :type-slots $ {}
   :files $ {}
     'recollect.app.comp.container $ %{} 'FileEntry
