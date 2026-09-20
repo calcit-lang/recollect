@@ -185,7 +185,8 @@
           :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
-            when (and config/dev?) (js/console.log |Dispatch: op)
+            when (and config/dev?)
+              shared/console-log! $ str |Dispatch: op
             reset! *store $ next-store op
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
@@ -195,7 +196,7 @@
           :code $ quote $ defn main! () (load-console-formatter!)
             println "|Running mode:" $ if config/dev? |dev |release
             if
-              js-present? $ js/document.querySelector |meta.respo-ssr
+              option:some? $ browser/query-selector |meta.respo-ssr
               render-app! realize-ssr!
             render-app! render!
             add-watch *store :changes $ fn (store prev) (render-data-twig!)
@@ -248,7 +249,10 @@
             :features $ #{} :js-ffi
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! (renderer)
-            renderer (js/document.querySelector |.app) (comp-container @*data-twig @*client-store) dispatch!
+            renderer
+              option:unwrap $ browser/query-selector |.app
+              comp-container @*data-twig @*client-store
+              , dispatch!
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] 'Dynamic
@@ -259,7 +263,7 @@
                 data-twig $ twig-container @*store
                 options $ {} $ :key :id
                 changes $ diff-twig @*data-twig data-twig options
-              js/console.log |Changes changes
+              shared/console-log! $ str |Changes changes
               ; println "|Data twig:" data-twig
               reset! *data-twig $ next-data-twig
               reset! *client-store $ next-client-store changes
@@ -306,6 +310,8 @@
             recollect.twig :refer $ clear-twig-caches!
             |./calcit.build-errors :default build-errors
             |bottom-tip :default hud!
+            js-ffi.browser :as browser
+            js-ffi.shared :as shared
     'recollect.app.twig.container $ %{} 'FileEntry
       :defs $ {}
         'twig-card $ %{} 'CodeEntry (:doc |)
