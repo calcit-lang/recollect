@@ -5,7 +5,7 @@
       :declaredOptional 0
       :deprecatedCalls 0
       :schemaDynamic 1
-      :typeNone 1
+      :typeNone 0
       :typeNotFull 1
       :unresolved 2
       :unsafeCoerce 0
@@ -40,10 +40,10 @@
       :codeNil 4
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
-      :typeNotFull 1
-      :unresolved 5
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 4
       :unsafeCoerce 0
     |recollect.app.comp.panel/on-click $ {} (:codeDynamic 0)
       :codeNil 0
@@ -1975,10 +1975,10 @@
     :codeNil 10
     :declaredOptional 0
     :deprecatedCalls 0
-    :schemaDynamic 116
-    :typeNone 3
-    :typeNotFull 213
-    :unresolved 126
+    :schemaDynamic 115
+    :typeNone 1
+    :typeNotFull 212
+    :unresolved 125
     :unsafeCoerce 1
   :scope $ {} (:includeDependencies false)
     :namespace nil
