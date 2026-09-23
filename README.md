@@ -40,9 +40,10 @@ Diff/patch behavior and memoization are covered by the native and JavaScript
 tests in this repository.
 
 Validated patch application is available when incoming changes cross a network
-or persistence boundary:
+or persistence boundary. The following sketch assumes the caller supplies
+`changes`, `old-tree`, and its own full-snapshot recovery path:
 
-```cirru
+```cirru.no-check
 let
     batch $ patch-batch changes
   match $ .apply-to batch old-tree
@@ -76,20 +77,26 @@ yarn test
 memo, and utility definitions. `yarn test:js` keeps a separate JS-target compile
 and entry-point check.
 
-Experimental WASM regression checks are available locally and run as a non-blocking GitHub Actions step with
-`setup-calcit` installing the matching Calcit release.
+The non-blocking GitHub Actions WASM check validates the `test` entry with the
+current public Calcit CLI:
+
+```bash
+calcit wasm calcit.cirru --entry test --check-only
+```
+
+The following experimental Node runners still use the retired `cr-wasm`
+command and need a separate migration before they can run against Calcit 0.19:
 
 ```bash
 yarn test:wasm
 yarn run:wasm:api
 ```
 
-The `main` and `wasm-support` branches both run the prepared WASM step directly with `cr-wasm`. The step remains non-blocking while the experimental backend can emit platform-dependent modules; native and JavaScript checks are the release gates.
-
-`yarn run:wasm:api` is a standalone Node.js runner for the current supported recollect API probes.
-It compiles the `test` entry to WASM, executes exported API-oriented probe functions, and prints
-fixture data together with compact numeric summaries so runtime progress can be tracked before
-broader Respo integration is ready.
+The current `calcit wasm calcit.cirru --entry test` emit is blocked by the
+demo-only `respo.cursor/update-states` reference in `recollect.app.updater`.
+Native and JavaScript tests remain the release gates. `yarn run:wasm:api` is
+kept for its API probes until the WASM runner and entry dependency graph are
+migrated together.
 
 ### License
 

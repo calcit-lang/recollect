@@ -41,7 +41,9 @@
                       :style $ {} (:line-height |1.4) (:margin "|0 8px")
                       :inner-text $ format-cirru-edn changes
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
+            :args $ [] 'T $ :: 'Map 'Tag 'Dynamic
+            :generics $ [] 'T
         'css-code-block $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-code-block
             {} $ |$0 $ {} (:line-height |20px) (:margin 0) (:padding |8px) (:border-radius |4px)
@@ -116,7 +118,8 @@
                 {} $ :style style-line
                 render-button "|Change types" :types
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
+            :args $ []
         'on-click $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn on-click (op)
             fn (e dispatch!)
