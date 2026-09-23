@@ -1,5 +1,5 @@
 {
-  "packageManager": "yarn@4.12.0",
+  "packageManager": "yarn@4.18.0",
   "scripts": {
     "test:calcit": "calcit calcit.cirru test --tag unit --require-match",
     "test:js": "calcit calcit.cirru --entry test js && node test.mjs",
