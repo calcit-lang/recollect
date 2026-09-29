@@ -85,7 +85,7 @@ calcit wasm calcit.cirru --entry test --check-only
 ```
 
 The following experimental Node runners still use the retired `cr-wasm`
-command and need a separate migration before they can run against Calcit 0.19:
+command and need a separate migration before they can run against Calcit 0.27.0:
 
 ```bash
 yarn test:wasm
