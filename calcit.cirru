@@ -286,7 +286,7 @@
               let
                   bounded-outcome $ diff-twig-budgeted old updated
                     {} $ :key :id
-                    recollect.diff/DiffBudget :max-visited (%none) :max-emitted $ %none
+                    recollect.diff/DiffBudget :max-visited (Option :none) :max-emitted $ Option :none
                 match bounded-outcome
                   (:complete bounded-changes stats)
                     do
@@ -534,7 +534,7 @@
                         , true
                       do
                         reset! state $ struct-with current $ :exceeded
-                          %some $ DiffBudgetReason :emitted-ops
+                          Option :some $ DiffBudgetReason :emitted-ops
                         , false
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Bool)
@@ -561,7 +561,7 @@
                         , true
                       do
                         reset! state $ struct-with current $ :exceeded
-                          %some $ DiffBudgetReason :visited-nodes
+                          Option :some $ DiffBudgetReason :visited-nodes
                         , false
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Bool)
@@ -923,20 +923,20 @@
               :code $ quote $ do
                 let
                     zero-budget $ %{} DiffBudget
-                      :max-visited $ %some 0
-                      :max-emitted $ %none
+                      :max-visited $ Option :some 0
+                      :max-emitted $ Option :none
                     outcome $ diff-twig-budgeted 1 1 ({}) zero-budget
                   match outcome
                     (:budget-exceeded reason stats)
                       do
-                        assert |zero-budget-reports-visited-limit $ &= reason $ %:: DiffBudgetReason :visited-nodes
+                        assert |zero-budget-reports-visited-limit $ &= reason $ DiffBudgetReason :visited-nodes
                         assert |zero-budget-consumes-no-visited-node $ &= 0 $ :visited-nodes stats
                         assert |zero-budget-emits-no-operation $ &= 0 $ :emitted-ops stats
                     _ $ assert |zero-budget-must-exceed false
                 let
                     one-budget $ %{} DiffBudget
-                      :max-visited $ %some 1
-                      :max-emitted $ %some 0
+                      :max-visited $ Option :some 1
+                      :max-emitted $ Option :some 0
                     outcome $ diff-twig-budgeted 1 1 ({}) one-budget
                   match outcome
                     (:complete changes stats)
@@ -950,26 +950,26 @@
               :code $ quote $ do
                 let
                     exact-budget $ %{} DiffBudget
-                      :max-visited $ %some 1
-                      :max-emitted $ %some 1
+                      :max-visited $ Option :some 1
+                      :max-emitted $ Option :some 1
                     outcome $ diff-twig-budgeted 1 2 ({}) exact-budget
                   match outcome
                     (:complete changes stats)
                       do
                         assert |exact-emitted-limit-keeps-change $ =
-                          [] $ %:: schema/change-op :replace 2
+                          [] $ schema/change-op :replace 2
                           , changes
                         assert |exact-emitted-limit-counts-one $ &= 1 $ :emitted-ops stats
                     _ $ assert |exact-emitted-limit-must-complete false
                 let
                     zero-emitted $ %{} DiffBudget
-                      :max-visited $ %some 1
-                      :max-emitted $ %some 0
+                      :max-visited $ Option :some 1
+                      :max-emitted $ Option :some 0
                     outcome $ diff-twig-budgeted 1 2 ({}) zero-emitted
                   match outcome
                     (:budget-exceeded reason stats)
                       do
-                        assert |emitted-overflow-reports-reason $ &= reason $ %:: DiffBudgetReason :emitted-ops
+                        assert |emitted-overflow-reports-reason $ &= reason $ DiffBudgetReason :emitted-ops
                         assert |overflow-retains-consumed-visit $ &= 1 $ :visited-nodes stats
                         assert |overflow-publishes-no-emitted-op $ &= 0 $ :emitted-ops stats
                     _ $ assert |zero-emitted-budget-must-exceed false
@@ -978,20 +978,20 @@
               :code $ quote $ do
                 let
                     limited $ %{} DiffBudget
-                      :max-visited $ %some 3
-                      :max-emitted $ %none
+                      :max-visited $ Option :some 3
+                      :max-emitted $ Option :none
                     outcome $ diff-twig-budgeted ([] 1 2 3) ([] 1 2 4) ({}) limited
                   match outcome
                     (:budget-exceeded reason stats)
                       do
-                        assert |visited-limit-wins-before-late-change $ &= reason $ %:: DiffBudgetReason :visited-nodes
+                        assert |visited-limit-wins-before-late-change $ &= reason $ DiffBudgetReason :visited-nodes
                         assert |visited-limit-stops-at-bound $ &= 3 $ :visited-nodes stats
                         assert |late-change-was-not-emitted $ &= 0 $ :emitted-ops stats
                     _ $ assert |low-op-high-visited-must-exceed false
                 let
                     exact $ %{} DiffBudget
-                      :max-visited $ %some 4
-                      :max-emitted $ %some 2
+                      :max-visited $ Option :some 4
+                      :max-emitted $ Option :some 2
                     outcome $ diff-twig-budgeted ([] 1 2 3) ([] 1 2 4) ({}) exact
                   match outcome
                     (:complete changes stats)
@@ -999,7 +999,7 @@
                         assert |exact-list-bound-visits-four $ &= 4 $ :visited-nodes stats
                         assert |nested-operation-tree-counts-two $ &= 2 $ :emitted-ops stats
                         assert |bounded-list-roundtrip $ =
-                          [] $ %:: schema/change-op :assoc 2 4
+                          [] $ schema/change-op :assoc 2 4
                           , changes
                     _ $ assert |exact-list-bound-must-complete false
               :tags $ #{} :unit
@@ -1025,8 +1025,8 @@
                     _ $ assert |unlimited-budget-must-complete false
                 let
                     blocked $ %{} DiffBudget
-                      :max-visited $ %some 0
-                      :max-emitted $ %none
+                      :max-visited $ Option :some 0
+                      :max-emitted $ Option :none
                     first-outcome $ diff-twig-budgeted 1 2 ({}) blocked
                     second-outcome $ diff-twig-budgeted 1 2 ({}) (unlimited-diff-budget &unit)
                   match first-outcome
@@ -1035,7 +1035,7 @@
                   match second-outcome
                     (:complete changes _)
                       assert |later-call-has-isolated-state $ =
-                        [] $ %:: schema/change-op :replace 2
+                        [] $ schema/change-op :replace 2
                         , changes
                     _ $ assert |second-call-must-complete false
               :tags $ #{} :unit
@@ -1043,8 +1043,8 @@
               :code $ quote $ do
                 let
                     budget $ %{} DiffBudget
-                      :max-visited $ %some 1
-                      :max-emitted $ %some 1
+                      :max-visited $ Option :some 1
+                      :max-emitted $ Option :some 1
                     outcome $ diff-twig-budgeted ([] 1 2)
                       {} $ :replaced true
                       {}
@@ -1053,7 +1053,7 @@
                     (:complete changes stats)
                       do
                         assert |full-type-replacement-is-one-op $ =
-                          [] $ %:: schema/change-op :replace $ {} (:replaced true)
+                          [] $ schema/change-op :replace $ {} (:replaced true)
                           , changes
                         assert |full-type-replacement-visits-root-only $ &= 1 $ :visited-nodes stats
                     _ $ assert |full-replacement-must-complete false
@@ -1187,7 +1187,7 @@
         'new-diff-state $ %{} 'CodeEntry
           :doc "|Create isolated work counters for one diff invocation."
           :code $ quote $ defn new-diff-state (budget)
-            atom $ DiffWorkState :budget budget :stats (DiffStats :visited-nodes 0 :emitted-ops 0) :exceeded $ %none
+            atom $ DiffWorkState :budget budget :stats (DiffStats :visited-nodes 0 :emitted-ops 0) :exceeded $ Option :none
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'recollect.diff/DiffBudget
@@ -1221,7 +1221,7 @@
         'unlimited-diff-budget $ %{} 'CodeEntry
           :doc "|Construct an unlimited budget for compatibility entry points."
           :code $ quote $ defn unlimited-diff-budget (unit)
-            DiffBudget :max-visited (%none) :max-emitted $ %none
+            DiffBudget :max-visited (Option :none) :max-emitted $ Option :none
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.diff/DiffBudget)
             :args $ [] 'Unit

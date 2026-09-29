@@ -9,7 +9,7 @@ state and returns one nominal `DiffOutcome`:
   consumed work statistics, never a partial patch batch.
 
 `DiffBudget` contains independent `Option<Number>` limits for visited nodes and
-emitted operation nodes. `%none` means unlimited. A limit is inclusive: work
+emitted operation nodes. `(Option :none)` means unlimited. A limit is inclusive: work
 that consumes exactly the configured value succeeds; the next unit fails.
 `DiffStats.emitted-ops` counts operation-construction work, including
 intermediate child operations that are later normalized into parent operations.
@@ -22,8 +22,8 @@ ns app.main $ :require
 
 defn main! () $ let
     budget $ %{} DiffBudget
-      :max-visited $ %some 20000
-      :max-emitted $ %some 2000
+      :max-visited $ Option :some 20000
+      :max-emitted $ Option :some 2000
     outcome $ diff-twig-budgeted 1 2 ({}) budget
   , outcome
 ```
@@ -50,7 +50,7 @@ exceeded call cannot affect a later invocation.
   半批 patch。
 
 `DiffBudget` 分别用 `Option<Number>` 表示 visited-node 与 emitted-operation
-上限，`%none` 表示该维度不限。上限是包含式的：恰好用满可成功，再消耗一个
+上限，`(Option :none)` 表示该维度不限。上限是包含式的：恰好用满可成功，再消耗一个
 单位才超限。`DiffStats.emitted-ops` 统计 operation 构造工作，包括之后被规范化进
 父级 operation 的中间子节点；因此它是确定性的工作计数，不等于最终 patch 节点数
 或顶层列表长度。
