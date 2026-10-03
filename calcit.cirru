@@ -2111,7 +2111,8 @@
               true 0
           :examples $ [] $ quote (compare 1 2)
           :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Dynamic 'Dynamic
+            :args $ [] 'T 'T
+            :generics $ [] 'T
         'literal? $ %{} 'CodeEntry
           :doc "|Check if value is a literal type (string, number, boolean, nil, tag, or symbol)."
           :code $ quote $ defn literal? (x)
