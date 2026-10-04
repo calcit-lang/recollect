@@ -77,8 +77,8 @@ yarn test
 memo, and utility definitions. `yarn test:js` keeps a separate JS-target compile
 and entry-point check.
 
-The non-blocking GitHub Actions WASM check validates the `test` entry with the
-current public Calcit CLI:
+The non-blocking GitHub Actions WASM check attempts to validate the `test` entry
+with the current public Calcit CLI:
 
 ```bash
 calcit wasm calcit.cirru --entry test --check-only
@@ -92,8 +92,9 @@ yarn test:wasm
 yarn run:wasm:api
 ```
 
-The current `calcit wasm calcit.cirru --entry test` emit is blocked by the
-demo-only `respo.cursor/update-states` reference in `recollect.app.updater`.
+The current CI eligibility check fails with `E_WASM_UNSUPPORTED_JS_FFI` at
+`js-ffi.node/path-basename`; a green overall job does not prove WASM support.
+Older emission attempts also encountered demo-only Respo dependencies.
 Native and JavaScript tests remain the release gates. `yarn run:wasm:api` is
 kept for its API probes until the WASM runner and entry dependency graph are
 migrated together.
