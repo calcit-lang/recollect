@@ -92,8 +92,9 @@ yarn test:wasm
 yarn run:wasm:api
 ```
 
-The current CI eligibility check fails with `E_WASM_UNSUPPORTED_JS_FFI` at
-`js-ffi.node/path-basename`; a green overall job does not prove WASM support.
+The current CI eligibility check fails with `E_WASM_UNSUPPORTED_JS_FFI` in
+`js-ffi.node` path helpers (e.g. `path-basename` or `path-join`); the first
+reported helper can vary. A green overall job does not prove WASM support.
 Older emission attempts also encountered demo-only Respo dependencies.
 Native and JavaScript tests remain the release gates. `yarn run:wasm:api` is
 kept for its API probes until the WASM runner and entry dependency graph are
