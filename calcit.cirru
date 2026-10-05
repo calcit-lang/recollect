@@ -202,8 +202,8 @@
               option:some? $ browser/query-selector |meta.respo-ssr
               render-app! realize-ssr!
             render-app! render!
-            add-watch *store :changes $ fn (store prev) (render-data-twig!)
-            add-watch *client-store :changes $ fn (client-store prev) (render-app! render!)
+            add-watch! *store :changes $ fn (store prev) (render-data-twig!)
+            add-watch! *client-store :changes $ fn (client-store prev) (render-app! render!)
             ; render-data-twig!
             println "|app started!"
           :examples $ []
@@ -215,7 +215,7 @@
             assert-type (patch-twig @*client-store changes) (:: 'Map 'Dynamic 'Dynamic)
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic
+            :args $ [] $ :: 'List 'recollect.schema/change-op
             :features $ #{} :js-ffi
             :return $ :: 'Map 'Dynamic 'Dynamic
         'next-data-twig $ %{} 'CodeEntry (:doc |)
@@ -238,9 +238,9 @@
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
-              do (remove-watch *store :changes) (remove-watch *client-store :changes) (clear-cache!)
-                add-watch *store :changes $ fn (store prev) (render-data-twig!)
-                add-watch *client-store :changes $ fn (client-store prev) (render-app! render!)
+              do (remove-watch! *store :changes) (remove-watch! *client-store :changes) (clear-cache!)
+                add-watch! *store :changes $ fn (store prev) (render-data-twig!)
+                add-watch! *client-store :changes $ fn (client-store prev) (render-app! render!)
                 clear-twig-caches!
                 ; render-data-twig!
                 render-app! render!
@@ -398,9 +398,9 @@
         'bench-fn $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn bench-fn (label n f)
             let
-                t0 $ cpu-time
+                t0 $ monotonic-time-ms
                 _ $ reduce (range n) nil $ fn (acc i) (f)
-                t1 $ cpu-time
+                t1 $ monotonic-time-ms
                 elapsed $ - t1 t0
                 per-iter $ / elapsed n
               println $ str label "|: " n "|x => " elapsed "|ms total, " per-iter |ms/iter
@@ -574,7 +574,7 @@
                 ka $ &map:get a id-k
                 kb $ &map:get b id-k
               if
-                and (some? ka)
+                and (non-nil? ka)
                   not $ &= ka kb
                 [] $ schema/change-op :replace b
                 let
@@ -599,7 +599,7 @@
                 ka $ &map:get a id-k
                 kb $ &map:get b id-k
               if
-                and (some? ka)
+                and (non-nil? ka)
                   not $ &= ka kb
                 emit-change state $ schema/change-op :replace b
                 let
@@ -2128,7 +2128,7 @@
             list-match ys
               () xs
               (y0 yss)
-                recur (&list:append xs y0) yss
+                recur (xs .append y0) yss
           :examples $ [] $ quote
             vec-add ([] 1 2) ([] 3 4)
           :schema $ :: 'Fn $ {}
