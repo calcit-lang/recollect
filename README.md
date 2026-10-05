@@ -77,8 +77,8 @@ yarn test
 memo, and utility definitions. `yarn test:js` keeps a separate JS-target compile
 and entry-point check.
 
-The non-blocking GitHub Actions WASM check validates the `test` entry with the
-current public Calcit CLI:
+The non-blocking GitHub Actions WASM check attempts to validate the `test` entry
+with the current public Calcit CLI:
 
 ```bash
 calcit wasm calcit.cirru --entry test --check-only
@@ -92,11 +92,28 @@ yarn test:wasm
 yarn run:wasm:api
 ```
 
-The current `calcit wasm calcit.cirru --entry test` emit is blocked by the
-demo-only `respo.cursor/update-states` reference in `recollect.app.updater`.
+The current CI eligibility check fails with `E_WASM_UNSUPPORTED_JS_FFI` in
+`js-ffi.node` path helpers (e.g. `path-basename` or `path-join`); the first
+reported helper can vary. A green overall job does not prove WASM support.
+Older emission attempts also encountered demo-only Respo dependencies.
 Native and JavaScript tests remain the release gates. `yarn run:wasm:api` is
 kept for its API probes until the WASM runner and entry dependency graph are
 migrated together.
+
+### COS/CDN 配置
+
+前端 `dist` 使用正式 COS Action v1.2.0 对应的已审查提交，通过
+`public-base-url` 启用内置公网校验，不新增 CDN 校验脚本。
+main 前缀保持 `calcit-lang/recollect/`，`wasm-support` 保持
+`calcit-lang/recollect/branches/wasm-support/`；PR 使用
+`calcit-lang/recollect/pr/<number>/<run-id>/<attempt>/`，不同 PR、运行和重试
+互相隔离。每个 PR、main 和分支分别排队，保留等待任务，不取消活跃上传。
+原服务器部署的源、目标与仅 main push 部署条件不变。
+
+本轮仅修改部署配置与说明，保留当前 Calcit/procs 0.27.0、全部原类型／质量
+门禁、算法与 native/JS 测试。既有 Caps 普通解析的传递版本冲突仍在，不称
+strict Caps 已通过。独立 0.28.0 候选的算法测试通过，但完整浏览器入口仍被
+共享 Respo 告警阻塞；本轮 COS 验收不代表完整 Calcit 升级完成。
 
 ### License
 
