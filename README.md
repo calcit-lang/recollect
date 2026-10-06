@@ -117,9 +117,9 @@ Respo alpha.7 和 JS-FFI alpha.13，保留全部原类型／质量预算和 nati
 示例 patch 输入保留 `diff-twig` 的 `List<change-op>` 类型，迁移十处旧调用；
 `vec-add` 改用保持元素泛型的 `.append`，没有更改原断言。
 
-CI 改为严格 Caps：当前 Value 0.5.12 仍请求 Respo 0.16.113，因此完整检查
-会在依赖解析失败。普通 Caps 只用于本地诊断和回归，不能作为发布通过证据。
-需要 Value #38 合并并发布 0.5.13 后，才能升级此依赖并重跑完整 Actions。
+CI 保留严格 Caps：Value #38 已合并且主分支完整检查通过，现已发布 0.5.13，
+本项目升级该版本以对齐传递 Respo 依赖。完整 Actions 通过后再发布 0.0.54；
+普通 Caps 本地回归不作为发布通过证据。
 详情见[发布工具链迁移记录](history/20261005-published-alpha6.md)。
 
 ### License

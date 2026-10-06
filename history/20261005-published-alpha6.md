@@ -34,3 +34,12 @@ Value #38 合并并正式发布 0.5.13 后，再更新该依赖、重跑全部�
 普通 Caps 本地回归不证明完整 Actions 通过，PR 保持 draft，不发布 0.0.54。
 本地 alpha.6 CLI 的 eligibility 命令报告该 build 未启用 WASM/WASI，未通过；
 不以 native/JS 测试或旧 CI 的 JS-FFI 诊断证明当前 WASM 支持。
+
+## 2026-10-06 发布依赖对齐
+
+用户授权配套依赖发版。Value #38 已合并，主分支 Actions 37442535044
+完整通过，0.5.13 发布在合并提交 f3add2f。仅将 Value 依赖升级至该发布标签，
+不更改源码、公开合同、测试或任何门禁预算。重新运行本 PR 完整 CI 后再判断
+是否可合并和发布 0.0.54。当前机器默认 CLI 是 0.28.0；alpha.6 Release 中
+下载的 calcit 是 Linux ELF，不能作为 macOS 本地通过证据，因此使用原有 Linux
+Actions 验证精确 alpha.6 工具链，不修改或跳过检查。
