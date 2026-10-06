@@ -294,6 +294,7 @@
                       assert |JS-budgeted-diff-counts-work $ &> (:visited-nodes stats) 0
                   _ $ assert |JS-budgeted-diff-must-complete false
               , nil
+            recollect.test.fixture/test-memo-lifecycle!
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ []
@@ -1304,6 +1305,7 @@
           :code $ quote $ defn begin-twig-frame! ()
             reset! *twig-frame-cache $ {}
             reset! *twig-frame-active? true
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -1313,6 +1315,7 @@
             if @*twig-frame-active? $ reset! *twig-call-cache $ assert-type @*twig-frame-cache (:: 'Map 'Dynamic 'Dynamic)
             reset! *twig-frame-active? false
             reset! *twig-frame-cache $ {}
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -1437,9 +1440,14 @@
             reset! *twig-call-cache $ {}
             reset! *twig-frame-cache $ {}
             reset! *twig-frame-active? false
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
+          :tests $ [] $ %{} 'TestEntry
+            :name |lifecycle-returns-unit-and-retains-frame-behavior
+            :code $ quote $ recollect.test.fixture/test-memo-lifecycle!
+            :tags $ #{} :memo-lifecycle :unit
         'twig-memo-size $ %{} 'CodeEntry
           :doc "|Return the number of retained keyed twig memo entries."
           :code $ quote $ defn twig-memo-size ()
@@ -2054,11 +2062,43 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.schema
     'recollect.test.fixture $ %{} 'FileEntry
-      :defs $ {} $ 'Person
-        %{} 'CodeEntry (:doc |)
+      :defs $ {}
+        'Person $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct Person (:name 'String) (:age 'Number)
           :examples $ []
           :schema $ :: 'Enum
+        'test-memo-lifecycle! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn test-memo-lifecycle! ()
+            let
+                builder $ fn (value)
+                  hint-fn $ {}
+                    :args $ [] 'Number
+                    :return 'Number
+                  , value
+              assert= &unit $ recollect.memo/reset-twig-memo!
+              assert= 0 $ recollect.memo/twig-memo-size
+              assert= &unit $ recollect.memo/begin-twig-frame!
+              assert= true $ deref recollect.memo/*twig-frame-active?
+              assert= 7 $ recollect.memo/memo-twig-by1 :kept builder 7
+              assert= &unit $ recollect.memo/finish-twig-frame!
+              assert= false $ deref recollect.memo/*twig-frame-active?
+              assert= ({}) (deref recollect.memo/*twig-frame-cache)
+              assert= 1 $ recollect.memo/twig-memo-size
+              assert= &unit $ recollect.memo/finish-twig-frame!
+              assert= 1 $ recollect.memo/twig-memo-size
+              assert= &unit $ recollect.memo/begin-twig-frame!
+              assert= 8 $ recollect.memo/memo-twig-by1 :discarded builder 8
+              assert= &unit $ recollect.memo/reset-twig-memo!
+              assert= false $ deref recollect.memo/*twig-frame-active?
+              assert= ({}) (deref recollect.memo/*twig-frame-cache)
+              assert= 0 $ recollect.memo/twig-memo-size
+              assert= &unit $ recollect.memo/reset-twig-memo!
+              assert= &unit $ recollect.memo/finish-twig-frame!
+              assert= 0 $ recollect.memo/twig-memo-size
+            , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.test.fixture
     'recollect.twig $ %{} 'FileEntry
