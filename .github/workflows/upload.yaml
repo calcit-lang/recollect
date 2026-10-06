@@ -40,10 +40,8 @@ jobs:
 
     - uses: dtolnay/rust-toolchain@stable
 
-    # respo-value still requests an earlier Respo release, so strict Caps
-    # resolution would reject the otherwise compatible highest SemVer set.
     - name: "deps"
-      run: caps --ci && yarn install --immutable && caps verify --toolchain
+      run: caps --strict --ci && yarn install --immutable && caps verify --toolchain
 
     - name: "validate snapshot and types"
       run: |

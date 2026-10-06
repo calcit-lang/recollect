@@ -85,16 +85,18 @@ calcit wasm calcit.cirru --entry test --check-only
 ```
 
 The following experimental Node runners still use the retired `cr-wasm`
-command and need a separate migration before they can run against Calcit 0.27.0:
+command and need a separate migration before they can run against the pinned CLI:
 
 ```bash
 yarn test:wasm
 yarn run:wasm:api
 ```
 
-The current CI eligibility check fails with `E_WASM_UNSUPPORTED_JS_FFI` in
+The earlier CI eligibility check failed with `E_WASM_UNSUPPORTED_JS_FFI` in
 `js-ffi.node` path helpers (e.g. `path-basename` or `path-join`); the first
-reported helper can vary. A green overall job does not prove WASM support.
+reported helper can vary. The local pinned alpha.6 build reports WASM/WASI
+code generation disabled; this migration does not establish WASM support.
+A green overall job does not prove WASM support.
 Older emission attempts also encountered demo-only Respo dependencies.
 Native and JavaScript tests remain the release gates. `yarn run:wasm:api` is
 kept for its API probes until the WASM runner and entry dependency graph are
@@ -110,10 +112,15 @@ main 前缀保持 `calcit-lang/recollect/`，`wasm-support` 保持
 互相隔离。每个 PR、main 和分支分别排队，保留等待任务，不取消活跃上传。
 原服务器部署的源、目标与仅 main push 部署条件不变。
 
-本轮仅修改部署配置与说明，保留当前 Calcit/procs 0.27.0、全部原类型／质量
-门禁、算法与 native/JS 测试。既有 Caps 普通解析的传递版本冲突仍在，不称
-strict Caps 已通过。独立 0.28.0 候选的算法测试通过，但完整浏览器入口仍被
-共享 Respo 告警阻塞；本轮 COS 验收不代表完整 Calcit 升级完成。
+准备中的 0.0.54 固定已发布 Calcit/procs `0.29.0-alpha.6`、UI alpha.4、
+Respo alpha.7 和 JS-FFI alpha.13，保留全部原类型／质量预算和 native/JS 测试。
+示例 patch 输入保留 `diff-twig` 的 `List<change-op>` 类型，迁移十处旧调用；
+`vec-add` 改用保持元素泛型的 `.append`，没有更改原断言。
+
+CI 保留严格 Caps：Value #38 已合并且主分支完整检查通过，现已发布 0.5.13，
+本项目升级该版本以对齐传递 Respo 依赖。完整 Actions 通过后再发布 0.0.54；
+普通 Caps 本地回归不作为发布通过证据。
+详情见[发布工具链迁移记录](history/20261005-published-alpha6.md)。
 
 ### License
 
