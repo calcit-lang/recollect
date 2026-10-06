@@ -293,6 +293,10 @@
                       assert |JS-budgeted-diff-matches-legacy $ &= changes bounded-changes
                       assert |JS-budgeted-diff-counts-work $ &> (:visited-nodes stats) 0
                   _ $ assert |JS-budgeted-diff-must-complete false
+              assert= &unit $ memo/reset-twig-memo!
+              assert= &unit $ memo/begin-twig-frame!
+              assert= &unit $ memo/finish-twig-frame!
+              assert= &unit $ clear-twig-caches!
               , nil
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
@@ -315,6 +319,7 @@
             |bottom-tip :default hud!
             js-ffi.browser :as browser
             js-ffi.shared :as shared
+            recollect.memo :as memo
     'recollect.app.twig.container $ %{} 'FileEntry
       :defs $ {}
         'twig-card $ %{} 'CodeEntry (:doc |)
@@ -1304,6 +1309,7 @@
           :code $ quote $ defn begin-twig-frame! ()
             reset! *twig-frame-cache $ {}
             reset! *twig-frame-active? true
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -1313,6 +1319,7 @@
             if @*twig-frame-active? $ reset! *twig-call-cache $ assert-type @*twig-frame-cache (:: 'Map 'Dynamic 'Dynamic)
             reset! *twig-frame-active? false
             reset! *twig-frame-cache $ {}
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -1437,9 +1444,18 @@
             reset! *twig-call-cache $ {}
             reset! *twig-frame-cache $ {}
             reset! *twig-frame-active? false
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
+          :tests $ [] $ %{} 'TestEntry (:name |lifecycle-returns-unit)
+            :code $ quote $ do
+              assert= &unit $ reset-twig-memo!
+              assert= &unit $ begin-twig-frame!
+              assert= &unit $ finish-twig-frame!
+              assert= &unit $ finish-twig-frame!
+              assert= &unit $ reset-twig-memo!
+            :tags $ #{} :unit
         'twig-memo-size $ %{} 'CodeEntry
           :doc "|Return the number of retained keyed twig memo entries."
           :code $ quote $ defn twig-memo-size ()
