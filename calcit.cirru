@@ -1859,7 +1859,10 @@
                   if
                     or (tag? k) (string? k)
                     if (contains? base k)
-                      PatchResult :ok $ &struct:assoc base k data
+                      try
+                        PatchResult :ok $ &struct:assoc base k data
+                        fn (_error)
+                          PatchResult :err $ PatchError :type-mismatch next-path :field-value $ type-of data
                       PatchResult :err $ PatchError :missing-node next-path
                     PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
