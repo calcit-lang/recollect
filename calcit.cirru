@@ -626,10 +626,9 @@
                     drop-keys $ &list:nth triple 0
                     new-diff $ &list:nth triple 1
                     common-triples $ checked-triples $ &list:nth triple 2
-                    splice-changes $ if
-                      not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
-                      emit-change state $ schema/change-op :map-splice drop-keys new-diff
-                      []
+                    splice-changes $ &let
+                      changes $ map-splice-changes drop-keys new-diff
+                      if (empty? changes) changes $ emit-change state $ &list:nth changes 0
                     init-acc splice-changes
                   if (diff-state-exceeded? state) init-acc $ diff-map-step-budgeted state init-acc common-triples options
           :examples $ []
@@ -686,7 +685,7 @@
           :code $ quote $ defn diff-record (a b options)
             if (identical? a b) ([])
               if (&struct:matches? a b)
-                diff-record-step ([]) 0 (&struct:count a) a b options
+                diff-record-step (empty-changes) 0 (&struct:count a) a b options
                 [] $ schema/change-op :replace b
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -696,7 +695,7 @@
           :code $ quote $ defn diff-record-budgeted (state a b options)
             if (identical? a b) ([])
               if (&struct:matches? a b)
-                diff-record-step-budgeted state ([]) 0 (&struct:count a) a b options
+                diff-record-step-budgeted state (empty-changes) 0 (&struct:count a) a b options
                 emit-change state $ schema/change-op :replace b
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -777,7 +776,7 @@
               [] $ schema/change-op :replace b
               let
                   max-idx $ dec $ &enum:count a
-                diff-tuple-step ([]) 1 max-idx a b options
+                diff-tuple-step (empty-changes) 1 max-idx a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'Enum 'Enum $ :: 'Map 'Tag 'Tag
@@ -791,7 +790,7 @@
               emit-change state $ schema/change-op :replace b
               let
                   max-idx $ dec $ &enum:count a
-                diff-tuple-step-budgeted state ([]) 1 max-idx a b options
+                diff-tuple-step-budgeted state (empty-changes) 1 max-idx a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) 'Enum 'Enum $ :: 'Map 'Tag 'Tag
@@ -1110,7 +1109,7 @@
                       [] $ schema/change-op :replace b
                   (list? b)
                     if (list? a)
-                      find-vector-changes ([]) 0 a b options
+                      find-vector-changes (empty-changes) 0 a b options
                       [] $ schema/change-op :replace b
                   (struct? b)
                     if (struct? a) (diff-record a b options)
@@ -1132,12 +1131,22 @@
                       emit-change state $ schema/change-op :replace b
                     (symbol? b)
                       emit-change state $ schema/change-op :replace b
-                    (set? b) (diff-set-budgeted state a b)
-                    (enum? b) (diff-tuple-budgeted state a b options)
-                    (map? b) (diff-map-budgeted state a b options)
+                    (set? b)
+                      if (set? a) (diff-set-budgeted state a b)
+                        emit-change state $ schema/change-op :replace b
+                    (enum? b)
+                      if (enum? a) (diff-tuple-budgeted state a b options)
+                        emit-change state $ schema/change-op :replace b
+                    (map? b)
+                      if (map? a) (diff-map-budgeted state a b options)
+                        emit-change state $ schema/change-op :replace b
                     (list? b)
-                      find-vector-changes-budgeted state ([]) 0 a b options
-                    (struct? b) (diff-record-budgeted state a b options)
+                      if (list? a)
+                        find-vector-changes-budgeted state (empty-changes) 0 a b options
+                        emit-change state $ schema/change-op :replace b
+                    (struct? b)
+                      if (struct? a) (diff-record-budgeted state a b options)
+                        emit-change state $ schema/change-op :replace b
                     true $ []
               []
           :examples $ []
@@ -1151,6 +1160,12 @@
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) 'recollect.schema/change-op
+            :return $ :: 'List 'recollect.schema/change-op
+        'empty-changes $ %{} 'CodeEntry (:doc "|类型化的空变更列表，作为差异累加器初值。")
+          :code $ quote $ defn empty-changes () ([])
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ []
             :return $ :: 'List 'recollect.schema/change-op
         'find-vector-changes $ %{} 'CodeEntry
           :doc "|Internal function to find changes between two vectors. Recursively compares elements from the tail."
@@ -1546,6 +1561,12 @@
           :code $ quote $ defenum PatchResult (:ok 'Dynamic) (:err 'recollect.patch/PatchError)
           :examples $ []
           :schema $ :: 'Enum
+        'empty-patch-path $ %{} 'CodeEntry (:doc "|类型化的根补丁路径。")
+          :code $ quote $ defn empty-patch-path () ([])
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ []
+            :return $ :: 'List 'recollect.patch/PatchPathSegment
         'patch-assoc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn patch-assoc (base k data)
             cond
@@ -1810,7 +1831,7 @@
           :doc "|Associate a validated patch result without raising."
           :code $ quote $ defn try-patch-assoc (base k data path)
             let
-                next-path $ &list:append path $ patch-path-segment k
+                next-path $ append path $ patch-path-segment k
               cond
                   map? base
                   PatchResult :ok $ &map:assoc base k data
@@ -1844,12 +1865,12 @@
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'Dynamic 'Dynamic 'Dynamic $ :: 'List 'Dynamic
+            :args $ [] 'Dynamic 'Dynamic 'Dynamic $ :: 'List 'recollect.patch/PatchPathSegment
           :tags $ #{} :scaffold
         'try-patch-get $ %{} 'CodeEntry (:doc "|Read a patch path segment without raising.")
           :code $ quote $ defn try-patch-get (base k path)
             let
-                next-path $ &list:append path $ patch-path-segment k
+                next-path $ append path $ patch-path-segment k
               cond
                   map? base
                   if (contains? base k)
@@ -1885,13 +1906,13 @@
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'Dynamic 'Dynamic $ :: 'List 'Dynamic
+            :args $ [] 'Dynamic 'Dynamic $ :: 'List 'recollect.patch/PatchPathSegment
           :tags $ #{} :scaffold
         'try-patch-one $ %{} 'CodeEntry
           :doc "|Apply one change operation atomically and return Result."
           :code $ quote $ defn try-patch-one (base change)
             let
-                path $ []
+                path $ empty-patch-path
               try-patch-one-at base change path
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
@@ -1942,7 +1963,7 @@
                   (:err error) (PatchResult :err error)
                   (:ok old-val)
                     let
-                        next-path $ &list:append path $ patch-path-segment k
+                        next-path $ append path $ patch-path-segment k
                       match (try-patch-one-at old-val c0 next-path)
                         (:err error) (PatchResult :err error)
                         (:ok next-val) (try-patch-assoc base k next-val path)
@@ -1954,7 +1975,7 @@
                       (:err error) (PatchResult :err error)
                       (:ok old-val)
                         let
-                            next-path $ &list:append path $ patch-path-segment k0
+                            next-path $ append path $ patch-path-segment k0
                           match
                             try-patch-one-at old-val (schema/change-op :update-in rest-ks c0) next-path
                             (:err error) (PatchResult :err error)
@@ -1964,7 +1985,7 @@
                   (:err error) (PatchResult :err error)
                   (:ok old-val)
                     let
-                        next-path $ &list:append path $ patch-path-segment k
+                        next-path $ append path $ patch-path-segment k
                       match (try-patch-twig-at old-val changes next-path)
                         (:err error) (PatchResult :err error)
                         (:ok next-val) (try-patch-assoc base k next-val path)
@@ -1976,7 +1997,7 @@
                       (:err error) (PatchResult :err error)
                       (:ok old-val)
                         let
-                            next-path $ &list:append path $ patch-path-segment k0
+                            next-path $ append path $ patch-path-segment k0
                           match
                             try-patch-one-at old-val (schema/change-op :pick-in rest-ks changes) next-path
                             (:err error) (PatchResult :err error)
@@ -1984,13 +2005,13 @@
               _ $ PatchResult :err $ PatchError :unsupported-operation (str change)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'Dynamic 'recollect.schema/change-op $ :: 'List 'Dynamic
+            :args $ [] 'Dynamic 'recollect.schema/change-op $ :: 'List 'recollect.patch/PatchPathSegment
           :tags $ #{} :scaffold
         'try-patch-twig $ %{} 'CodeEntry
           :doc "|Apply a patch batch atomically and return Result. No partial tree is observable on failure."
           :code $ quote $ defn try-patch-twig (base changes)
             let
-                path $ []
+                path $ empty-patch-path
               try-patch-twig-at base changes path
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
@@ -2085,7 +2106,7 @@
                   (:err error) (PatchResult :err error)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'Dynamic (:: 'List 'recollect.schema/change-op) (:: 'List 'Dynamic)
+            :args $ [] 'Dynamic (:: 'List 'recollect.schema/change-op) (:: 'List 'recollect.patch/PatchPathSegment)
           :tags $ #{} :scaffold
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.patch

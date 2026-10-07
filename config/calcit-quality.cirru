@@ -270,6 +270,15 @@
       :typeNotFull 1
       :unresolved 2
       :unsafeCoerce 0
+    |recollect.diff/checked-triples $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 2
+      :typeNone 0
+      :typeNotFull 1
+      :unresolved 2
+      :unsafeCoerce 0
     |recollect.diff/diff-map $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -422,6 +431,15 @@
       :typeNone 0
       :typeNotFull 1
       :unresolved 1
+      :unsafeCoerce 0
+    |recollect.diff/map-splice-changes $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 2
+      :typeNone 0
+      :typeNotFull 1
+      :unresolved 2
       :unsafeCoerce 0
     |recollect.diff/set-difference-dynamic $ {} (:codeDynamic 0)
       :codeNil 0
@@ -647,6 +665,24 @@
       :typeNone 0
       :typeNotFull 1
       :unresolved 2
+      :unsafeCoerce 0
+    |recollect.schema/decode-change-op $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 1
+      :typeNone 0
+      :typeNotFull 1
+      :unresolved 1
+      :unsafeCoerce 0
+    |recollect.schema/decode-changes $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 1
+      :typeNone 0
+      :typeNotFull 1
+      :unresolved 1
       :unsafeCoerce 0
     |recollect.schema/store $ {} (:codeDynamic 0)
       :codeNil 0
@@ -1975,10 +2011,10 @@
     :codeNil 10
     :declaredOptional 0
     :deprecatedCalls 0
-    :schemaDynamic 115
+    :schemaDynamic 121
     :typeNone 1
-    :typeNotFull 212
-    :unresolved 125
+    :typeNotFull 216
+    :unresolved 131
     :unsafeCoerce 1
   :scope $ {} (:includeDependencies false)
     :namespace nil
