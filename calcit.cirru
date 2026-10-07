@@ -1212,7 +1212,7 @@
                       if (&set:includes? b x) acc $ &list:append acc x
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic 'Dynamic
+            :args $ [] (:: 'Set 'Dynamic) (:: 'Set 'Dynamic)
             :return $ :: 'Set 'Dynamic
         'set-difference-iter $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn set-difference-iter (xs a acc)
@@ -1521,9 +1521,13 @@
           :code $ quote $ defn patch-assoc (base k data)
             cond
                 enum? base
-                &enum:assoc base k data
-              (list? base) (&list:assoc base k data)
-              true $ &map:assoc base k data
+                if (number? k) (&enum:assoc base k data)
+                  raise $ str "|patch-assoc expected a Number index for enum, got: " k
+              (list? base)
+                if (number? k) (&list:assoc base k data)
+                  raise $ str "|patch-assoc expected a Number index for list, got: " k
+              (map? base) (&map:assoc base k data)
+              true $ raise $ str "|Unsupported-patch-container-type: " (type-of base)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] 'Dynamic 'Dynamic 'Dynamic
@@ -1565,8 +1569,12 @@
         'patch-get $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn patch-get (base k)
             if (map? base) (&map:get base k)
-              if (list? base) (&list:nth base k)
-                if (enum? base) (&enum:nth base k)
+              if (list? base)
+                if (number? k) (&list:nth base k)
+                  raise $ str "|patch-get expected a Number index for list, got: " k
+                if (enum? base)
+                  if (number? k) (&enum:nth base k)
+                    raise $ str "|patch-get expected a Number index for enum, got: " k
                   if (struct? base)
                     &map:get (&struct:to-map base) k
                     raise $ str "|Unsupported-patch-container-type: " $ type-of base
@@ -1616,11 +1624,19 @@
           :code $ quote $ defn patch-one (base change)
             match change
               (:replace data) data
-              (:vec-append data) (patch-vector-append base data)
-              (:vec-drop data) (patch-vector-drop base data)
+              (:vec-append data)
+                if (list? base) (patch-vector-append base data)
+                  raise $ str "|patch-one cannot apply this change to: " $ type-of base
+              (:vec-drop data)
+                if (list? base) (patch-vector-drop base data)
+                  raise $ str "|patch-one cannot apply this change to: " $ type-of base
               (:assoc k data) (patch-map-set base k data)
-              (:set-splice removed added) (patch-set base removed added)
-              (:map-splice removed added) (patch-map base removed added)
+              (:set-splice removed added)
+                if (set? base) (patch-set base removed added)
+                  raise $ str "|patch-one cannot apply this change to: " $ type-of base
+              (:map-splice removed added)
+                if (map? base) (patch-map base removed added)
+                  raise $ str "|patch-one cannot apply this change to: " $ type-of base
               (:update k c0)
                 let
                     old-val $ patch-get base k
