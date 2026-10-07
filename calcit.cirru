@@ -605,7 +605,7 @@
                     new-diff $ &list:nth triple 1
                     common-triples $ checked-triples $ &list:nth triple 2
                     splice-changes $ map-splice-changes drop-keys new-diff
-                    init-acc $ splice-changes
+                    init-acc splice-changes
                   diff-map-step init-acc common-triples options
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -630,7 +630,7 @@
                       not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
                       emit-change state $ schema/change-op :map-splice drop-keys new-diff
                       []
-                    init-acc $ splice-changes
+                    init-acc splice-changes
                   if (diff-state-exceeded? state) init-acc $ diff-map-step-budgeted state init-acc common-triples options
           :examples $ []
           :schema $ :: 'Fn $ {}
