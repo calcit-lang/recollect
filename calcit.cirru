@@ -1904,12 +1904,12 @@
                   PatchResult :err $ PatchError :invalid-index
                     [] $ PatchPathSegment :index 0
                     , 0 3
-                  try-patch-assoc (:: :sample 1 2) 0 7 $ []
+                  try-patch-assoc (:: :sample 1 2) 0 7 $ empty-patch-path
                 assert= (PatchResult :ok :sample)
-                  try-patch-get (:: :sample 1 2) 0 $ []
+                  try-patch-get (:: :sample 1 2) 0 $ empty-patch-path
                 assert=
                   PatchResult :ok $ [] 7 2
-                  try-patch-assoc ([] 1 2) 0 7 $ []
+                  try-patch-assoc ([] 1 2) 0 7 $ empty-patch-path
               :tags $ #{} :unit
         'try-patch-get $ %{} 'CodeEntry (:doc "|Read a patch path segment without raising.")
           :code $ quote $ defn try-patch-get (base k path)
