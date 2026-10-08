@@ -1860,7 +1860,7 @@
                     or (tag? k) (string? k)
                     if (contains? base k)
                       try
-                        PatchResult :ok $ &struct:assoc base k data
+                        PatchResult :ok $ struct-with base $ k data
                         fn (_error)
                           PatchResult :err $ PatchError :type-mismatch next-path :field-value $ type-of data
                       PatchResult :err $ PatchError :missing-node next-path
@@ -1870,6 +1870,33 @@
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
             :args $ [] 'Dynamic 'Dynamic 'Dynamic $ :: 'List 'recollect.patch/PatchPathSegment
           :tags $ #{} :scaffold
+          :tests $ [] $ %{} 'TestEntry (:name |checks-dynamic-struct-field-writes)
+            :code $ quote $ let
+                CheckedPerson $ defstruct CheckedPerson (:name 'String) (:age 'Number)
+                base $ %{} CheckedPerson (:name |Ada) (:age 20)
+                path $ [] $ PatchPathSegment :field :person
+              assert=
+                PatchResult :ok $ %{} CheckedPerson (:name |Ada) (:age 21)
+                try-patch-assoc base :age 21 path
+              assert=
+                PatchResult :ok $ %{} CheckedPerson (:name |Grace) (:age 20)
+                try-patch-assoc base |name |Grace path
+              assert=
+                PatchResult :err $ PatchError :type-mismatch
+                  append path $ PatchPathSegment :field :age
+                  , :field-value $ type-of |wrong
+                try-patch-assoc base :age |wrong path
+              assert=
+                PatchResult :err $ PatchError :type-mismatch
+                  append path $ PatchPathSegment :name |name
+                  , :field-value $ type-of 42
+                try-patch-assoc base |name 42 path
+              assert= (PatchResult :ok 20) (try-patch-get base :age path)
+              assert= (PatchResult :ok |Ada) (try-patch-get base |name path)
+              assert=
+                %{} CheckedPerson (:name |Ada) (:age 20)
+                , base
+            :tags $ #{} :unit
         'try-patch-get $ %{} 'CodeEntry (:doc "|Read a patch path segment without raising.")
           :code $ quote $ defn try-patch-get (base k path)
             let
@@ -1880,30 +1907,30 @@
                     PatchResult :ok $ &map:get base k
                     PatchResult :err $ PatchError :missing-node next-path
                 (list? base)
-                  if
-                    and (number? k)
-                      = k $ floor k
-                      &>= k 0
-                      &< k $ count base
-                    PatchResult :ok $ &list:nth base k
-                    if (number? k)
+                  if (number? k)
+                    if
+                      and
+                        = k $ floor k
+                        &>= k 0
+                        &< k $ count base
+                      PatchResult :ok $ &list:nth base k
                       PatchResult :err $ PatchError :invalid-index next-path k $ count base
-                      PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
+                    PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
                 (enum? base)
-                  if
-                    and (number? k)
-                      = k $ floor k
-                      &>= k 0
-                      &< k $ &enum:count base
-                    PatchResult :ok $ &enum:nth base k
-                    if (number? k)
+                  if (number? k)
+                    if
+                      and
+                        = k $ floor k
+                        &>= k 0
+                        &< k $ &enum:count base
+                      PatchResult :ok $ &enum:nth base k
                       PatchResult :err $ PatchError :invalid-index next-path k $ &enum:count base
-                      PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
+                    PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
                 (struct? base)
                   if
                     or (tag? k) (string? k)
                     if (contains? base k)
-                      PatchResult :ok $ &map:get (&struct:to-map base) k
+                      PatchResult :ok $ &map:get (&struct:to-map base) (turn-tag k)
                       PatchResult :err $ PatchError :missing-node next-path
                     PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
