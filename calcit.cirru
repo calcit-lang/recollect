@@ -517,6 +517,23 @@
             by-key (:: :a 1) (:: :b 2)
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ [] 'Dynamic 'Dynamic
+        'checked-triples $ %{} 'CodeEntry (:doc "|校验 &map:diff-triple 的公共项列表。")
+          :code $ quote $ defn checked-triples (value)
+            if (list? value)
+              foldl value ([])
+                defn %checked-triple (acc item)
+                  hint-fn $ {}
+                    :args $ []
+                      :: 'List $ :: 'List 'Dynamic
+                      , 'Dynamic
+                    :return $ :: 'List $ :: 'List 'Dynamic
+                  if (list? item) (append acc item)
+                    raise $ str "|recollect expected a map entry triple, got: " $ type-of item
+              raise $ str "|recollect expected common entries as a list, got: " $ type-of value
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'Dynamic
+            :return $ :: 'List $ :: 'List 'Dynamic
         'consume-emitted! $ %{} 'CodeEntry
           :doc "|Consume one emitted-operation unit or record the first exceeded reason."
           :code $ quote $ defn consume-emitted! (state)
@@ -586,12 +603,9 @@
                     triple $ &map:diff-triple a b
                     drop-keys $ &list:nth triple 0
                     new-diff $ &list:nth triple 1
-                    common-triples $ &list:nth triple 2
-                    splice-changes $ if
-                      not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
-                      [] $ schema/change-op :map-splice drop-keys new-diff
-                      []
-                    init-acc $ &buf-list:concat (&buf-list:new) splice-changes
+                    common-triples $ checked-triples $ &list:nth triple 2
+                    splice-changes $ map-splice-changes drop-keys new-diff
+                    init-acc splice-changes
                   diff-map-step init-acc common-triples options
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -611,13 +625,12 @@
                     triple $ &map:diff-triple a b
                     drop-keys $ &list:nth triple 0
                     new-diff $ &list:nth triple 1
-                    common-triples $ &list:nth triple 2
-                    splice-changes $ if
-                      not $ and (&set:empty? drop-keys) (&map:empty? new-diff)
-                      emit-change state $ schema/change-op :map-splice drop-keys new-diff
-                      []
-                    init-acc $ &buf-list:concat (&buf-list:new) splice-changes
-                  if (diff-state-exceeded? state) (&buf-list:to-list init-acc) (diff-map-step-budgeted state init-acc common-triples options)
+                    common-triples $ checked-triples $ &list:nth triple 2
+                    splice-changes $ &let
+                      changes $ map-splice-changes drop-keys new-diff
+                      if (empty? changes) changes $ emit-change state $ &list:nth changes 0
+                    init-acc splice-changes
+                  if (diff-state-exceeded? state) init-acc $ diff-map-step-budgeted state init-acc common-triples options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'Map 'Dynamic 'Dynamic) (:: 'Map 'Dynamic 'Dynamic) (:: 'Map 'Tag 'Tag)
@@ -625,7 +638,7 @@
         'diff-map-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-map-step (acc triples options)
             list-match triples
-              () $ &buf-list:to-list acc
+              () acc
               (triple rest-triples)
                 let
                     k $ &list:nth triple 0
@@ -636,41 +649,43 @@
                     let
                         child-changes $ diff-twig-iterate va vb options
                         wrapped $ wrap-pick k child-changes
-                      diff-map-step (&buf-list:concat acc wrapped) rest-triples options
+                      diff-map-step (&list:concat acc wrapped) rest-triples options
                     diff-map-step acc rest-triples options
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic (:: 'List 'Dynamic) (:: 'Map 'Tag 'Tag)
+            :args $ [] (:: 'List 'recollect.schema/change-op)
+              :: 'List $ :: 'List 'Dynamic
+              :: 'Map 'Tag 'Tag
             :return $ :: 'List 'recollect.schema/change-op
         'diff-map-step-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware iteration over common map values.")
           :code $ quote $ defn diff-map-step-budgeted (state acc triples options)
-            if (diff-state-exceeded? state) (&buf-list:to-list acc)
-              list-match triples
-                () $ &buf-list:to-list acc
-                (triple rest-triples)
-                  let
-                      k $ &list:nth triple 0
-                      va $ &list:nth triple 1
-                      vb $ &list:nth triple 2
-                    if
-                      not $ &= va vb
-                      let
-                          child-changes $ diff-twig-iterate-budgeted state va vb options
-                        if (diff-state-exceeded? state) (&buf-list:to-list acc)
-                          let
-                              wrapped $ wrap-pick-budgeted state k child-changes
-                            diff-map-step-budgeted state (&buf-list:concat acc wrapped) rest-triples options
-                      diff-map-step-budgeted state acc rest-triples options
+            if (diff-state-exceeded? state) acc $ list-match triples
+              () acc
+              (triple rest-triples)
+                let
+                    k $ &list:nth triple 0
+                    va $ &list:nth triple 1
+                    vb $ &list:nth triple 2
+                  if
+                    not $ &= va vb
+                    let
+                        child-changes $ diff-twig-iterate-budgeted state va vb options
+                      if (diff-state-exceeded? state) acc $ let
+                          wrapped $ wrap-pick-budgeted state k child-changes
+                        diff-map-step-budgeted state (&list:concat acc wrapped) rest-triples options
+                    diff-map-step-budgeted state acc rest-triples options
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) 'Dynamic (:: 'List 'Dynamic) (:: 'Map 'Tag 'Tag)
+            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'List 'recollect.schema/change-op)
+              :: 'List $ :: 'List 'Dynamic
+              :: 'Map 'Tag 'Tag
             :return $ :: 'List 'recollect.schema/change-op
         'diff-record $ %{} 'CodeEntry
           :doc "|Internal function to compute a diff between two structs. Only diffs structs with the same definition."
           :code $ quote $ defn diff-record (a b options)
             if (identical? a b) ([])
               if (&struct:matches? a b)
-                diff-record-step (&buf-list:new) 0 (&struct:count a) a b options
+                diff-record-step (empty-changes) 0 (&struct:count a) a b options
                 [] $ schema/change-op :replace b
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -680,7 +695,7 @@
           :code $ quote $ defn diff-record-budgeted (state a b options)
             if (identical? a b) ([])
               if (&struct:matches? a b)
-                diff-record-step-budgeted state (&buf-list:new) 0 (&struct:count a) a b options
+                diff-record-step-budgeted state (empty-changes) 0 (&struct:count a) a b options
                 emit-change state $ schema/change-op :replace b
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -688,27 +703,25 @@
             :return $ :: 'List 'recollect.schema/change-op
         'diff-record-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-record-step (acc idx n a b options)
-            if (&>= idx n) (&buf-list:to-list acc)
-              let
-                  k $ &struct:field-tag a idx
-                  va $ &map:get (&struct:to-map a) (&struct:field-tag a idx)
-                  vb $ &map:get (&struct:to-map b) (&struct:field-tag b idx)
-                if (identical? va vb)
-                  diff-record-step acc (&+ idx 1) n a b options
-                  let
-                      child-changes $ diff-twig-iterate va vb options
-                      wrapped $ wrap-pick k child-changes
-                    diff-record-step (&buf-list:concat acc wrapped) (&+ idx 1) n a b options
+            if (&>= idx n) acc $ let
+                k $ &struct:field-tag a idx
+                va $ &map:get (&struct:to-map a) (&struct:field-tag a idx)
+                vb $ &map:get (&struct:to-map b) (&struct:field-tag b idx)
+              if (identical? va vb)
+                diff-record-step acc (&+ idx 1) n a b options
+                let
+                    child-changes $ diff-twig-iterate va vb options
+                    wrapped $ wrap-pick k child-changes
+                  diff-record-step (&list:concat acc wrapped) (&+ idx 1) n a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic 'Number 'Number 'Struct 'Struct $ :: 'Map 'Tag 'Tag
+            :args $ [] (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Struct 'Struct $ :: 'Map 'Tag 'Tag
             :return $ :: 'List 'recollect.schema/change-op
         'diff-record-step-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware iteration over struct fields.")
           :code $ quote $ defn diff-record-step-budgeted (state acc idx n a b options)
             if
               or (diff-state-exceeded? state) (&>= idx n)
-              &buf-list:to-list acc
-              let
+              , acc $ let
                   k $ &struct:field-tag a idx
                   va $ &map:get (&struct:to-map a) (&struct:field-tag a idx)
                   vb $ &map:get (&struct:to-map b) (&struct:field-tag b idx)
@@ -716,13 +729,12 @@
                   diff-record-step-budgeted state acc (&+ idx 1) n a b options
                   let
                       child-changes $ diff-twig-iterate-budgeted state va vb options
-                    if (diff-state-exceeded? state) (&buf-list:to-list acc)
-                      let
-                          wrapped $ wrap-pick-budgeted state k child-changes
-                        diff-record-step-budgeted state (&buf-list:concat acc wrapped) (&+ idx 1) n a b options
+                    if (diff-state-exceeded? state) acc $ let
+                        wrapped $ wrap-pick-budgeted state k child-changes
+                      diff-record-step-budgeted state (&list:concat acc wrapped) (&+ idx 1) n a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) 'Dynamic 'Number 'Number 'Struct 'Struct $ :: 'Map 'Tag 'Tag
+            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Struct 'Struct $ :: 'Map 'Tag 'Tag
             :return $ :: 'List 'recollect.schema/change-op
         'diff-set $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-set (a b)
@@ -764,7 +776,7 @@
               [] $ schema/change-op :replace b
               let
                   max-idx $ dec $ &enum:count a
-                diff-tuple-step (&buf-list:new) 1 max-idx a b options
+                diff-tuple-step (empty-changes) 1 max-idx a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'Enum 'Enum $ :: 'Map 'Tag 'Tag
@@ -778,36 +790,33 @@
               emit-change state $ schema/change-op :replace b
               let
                   max-idx $ dec $ &enum:count a
-                diff-tuple-step-budgeted state (&buf-list:new) 1 max-idx a b options
+                diff-tuple-step-budgeted state (empty-changes) 1 max-idx a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) 'Enum 'Enum $ :: 'Map 'Tag 'Tag
             :return $ :: 'List 'recollect.schema/change-op
         'diff-tuple-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-tuple-step (acc idx max-idx a b options)
-            if (&> idx max-idx) (&buf-list:to-list acc)
-              let
-                  child-changes $ diff-twig-iterate (&enum:nth a idx) (&enum:nth b idx) options
-                  wrapped $ wrap-pick idx child-changes
-                diff-tuple-step (&buf-list:concat acc wrapped) (&+ idx 1) max-idx a b options
+            if (&> idx max-idx) acc $ let
+                child-changes $ diff-twig-iterate (&enum:nth a idx) (&enum:nth b idx) options
+                wrapped $ wrap-pick idx child-changes
+              diff-tuple-step (&list:concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic 'Number 'Number 'Enum 'Enum $ :: 'Map 'Tag 'Tag
+            :args $ [] (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Enum 'Enum $ :: 'Map 'Tag 'Tag
             :return $ :: 'List 'recollect.schema/change-op
         'diff-tuple-step-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware iteration over enum payloads.")
           :code $ quote $ defn diff-tuple-step-budgeted (state acc idx max-idx a b options)
             if
               or (diff-state-exceeded? state) (&> idx max-idx)
-              &buf-list:to-list acc
-              let
+              , acc $ let
                   child-changes $ diff-twig-iterate-budgeted state (&enum:nth a idx) (&enum:nth b idx) options
-                if (diff-state-exceeded? state) (&buf-list:to-list acc)
-                  let
-                      wrapped $ wrap-pick-budgeted state idx child-changes
-                    diff-tuple-step-budgeted state (&buf-list:concat acc wrapped) (&+ idx 1) max-idx a b options
+                if (diff-state-exceeded? state) acc $ let
+                    wrapped $ wrap-pick-budgeted state idx child-changes
+                  diff-tuple-step-budgeted state (&list:concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) 'Dynamic 'Number 'Number 'Enum 'Enum $ :: 'Map 'Tag 'Tag
+            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Enum 'Enum $ :: 'Map 'Tag 'Tag
             :return $ :: 'List 'recollect.schema/change-op
         'diff-twig $ %{} 'CodeEntry
           :doc "|Calculate differences between two data trees, returning a list of change operations.\n\nArguments:\n  a - old data\n  b - new data\n  options - configuration options, e.g. {:key :id} specifies the key for map matching\n\nReturns: list of change operations that can be applied with patch-twig"
@@ -1090,14 +1099,21 @@
                   (symbol? b)
                     [] $ schema/change-op :replace b
                   (set? b)
-                    diff-set
-                      assert-type a $ :: 'Set 'Dynamic
-                      assert-type b $ :: 'Set 'Dynamic
-                  (enum? b) (diff-tuple a b options)
-                  (map? b) (diff-map a b options)
+                    if (set? a) (diff-set a b)
+                      [] $ schema/change-op :replace b
+                  (enum? b)
+                    if (enum? a) (diff-tuple a b options)
+                      [] $ schema/change-op :replace b
+                  (map? b)
+                    if (map? a) (diff-map a b options)
+                      [] $ schema/change-op :replace b
                   (list? b)
-                    find-vector-changes (&buf-list:new) 0 a b options
-                  (struct? b) (diff-record a b options)
+                    if (list? a)
+                      find-vector-changes (empty-changes) 0 a b options
+                      [] $ schema/change-op :replace b
+                  (struct? b)
+                    if (struct? a) (diff-record a b options)
+                      [] $ schema/change-op :replace b
                   true $ []
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -1115,12 +1131,22 @@
                       emit-change state $ schema/change-op :replace b
                     (symbol? b)
                       emit-change state $ schema/change-op :replace b
-                    (set? b) (diff-set-budgeted state a b)
-                    (enum? b) (diff-tuple-budgeted state a b options)
-                    (map? b) (diff-map-budgeted state a b options)
+                    (set? b)
+                      if (set? a) (diff-set-budgeted state a b)
+                        emit-change state $ schema/change-op :replace b
+                    (enum? b)
+                      if (enum? a) (diff-tuple-budgeted state a b options)
+                        emit-change state $ schema/change-op :replace b
+                    (map? b)
+                      if (map? a) (diff-map-budgeted state a b options)
+                        emit-change state $ schema/change-op :replace b
                     (list? b)
-                      find-vector-changes-budgeted state (&buf-list:new) 0 a b options
-                    (struct? b) (diff-record-budgeted state a b options)
+                      if (list? a)
+                        find-vector-changes-budgeted state (empty-changes) 0 a b options
+                        emit-change state $ schema/change-op :replace b
+                    (struct? b)
+                      if (struct? a) (diff-record-budgeted state a b options)
+                        emit-change state $ schema/change-op :replace b
                     true $ []
               []
           :examples $ []
@@ -1135,43 +1161,47 @@
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) 'recollect.schema/change-op
             :return $ :: 'List 'recollect.schema/change-op
+        'empty-changes $ %{} 'CodeEntry (:doc "|类型化的空变更列表，作为差异累加器初值。")
+          :code $ quote $ defn empty-changes () ([])
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ []
+            :return $ :: 'List 'recollect.schema/change-op
         'find-vector-changes $ %{} 'CodeEntry
           :doc "|Internal function to find changes between two vectors. Recursively compares elements from the tail."
           :code $ quote $ defn find-vector-changes (acc idx a-items b-items options)
             cond
                 and (empty? a-items) (empty? b-items)
-                &buf-list:to-list acc
+                , acc
               (empty? b-items)
-                &buf-list:to-list $ &buf-list:concat acc $ [] (schema/change-op :vec-drop idx)
+                &list:concat acc $ [] $ schema/change-op :vec-drop idx
               (empty? a-items)
-                &buf-list:to-list $ &buf-list:concat acc $ [] (schema/change-op :vec-append b-items)
+                &list:concat acc $ [] $ schema/change-op :vec-append b-items
               true $ let
                   child-changes $ diff-twig-iterate (&list:first a-items) (&list:first b-items) options
                   wrapped $ wrap-pick idx child-changes
-                find-vector-changes (&buf-list:concat acc wrapped) (&+ idx 1) (&list:rest a-items) (&list:rest b-items) options
+                find-vector-changes (&list:concat acc wrapped) (&+ idx 1) (&list:rest a-items) (&list:rest b-items) options
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic 'Number (:: 'List 'Dynamic) (:: 'List 'Dynamic) (:: 'Map 'Tag 'Tag)
+            :args $ [] (:: 'List 'recollect.schema/change-op) 'Number (:: 'List 'Dynamic) (:: 'List 'Dynamic) (:: 'Map 'Tag 'Tag)
             :return $ :: 'List 'recollect.schema/change-op
         'find-vector-changes-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware list diff.")
           :code $ quote $ defn find-vector-changes-budgeted (state acc idx a-items b-items options)
-            if (diff-state-exceeded? state) (&buf-list:to-list acc)
-              cond
-                  and (empty? a-items) (empty? b-items)
-                  &buf-list:to-list acc
-                (empty? b-items)
-                  &buf-list:to-list $ &buf-list:concat acc $ emit-change state (schema/change-op :vec-drop idx)
-                (empty? a-items)
-                  &buf-list:to-list $ &buf-list:concat acc $ emit-change state (schema/change-op :vec-append b-items)
-                true $ let
-                    child-changes $ diff-twig-iterate-budgeted state (&list:first a-items) (&list:first b-items) options
-                  if (diff-state-exceeded? state) (&buf-list:to-list acc)
-                    let
-                        wrapped $ wrap-pick-budgeted state idx child-changes
-                      find-vector-changes-budgeted state (&buf-list:concat acc wrapped) (&+ idx 1) (&list:rest a-items) (&list:rest b-items) options
+            if (diff-state-exceeded? state) acc $ cond
+                and (empty? a-items) (empty? b-items)
+                , acc
+              (empty? b-items)
+                &list:concat acc $ emit-change state $ schema/change-op :vec-drop idx
+              (empty? a-items)
+                &list:concat acc $ emit-change state $ schema/change-op :vec-append b-items
+              true $ let
+                  child-changes $ diff-twig-iterate-budgeted state (&list:first a-items) (&list:first b-items) options
+                if (diff-state-exceeded? state) acc $ let
+                    wrapped $ wrap-pick-budgeted state idx child-changes
+                  find-vector-changes-budgeted state (&list:concat acc wrapped) (&+ idx 1) (&list:rest a-items) (&list:rest b-items) options
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) 'Dynamic 'Number (:: 'List 'Dynamic) (:: 'List 'Dynamic) (:: 'Map 'Tag 'Tag)
+            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'List 'recollect.schema/change-op) 'Number (:: 'List 'Dynamic) (:: 'List 'Dynamic) (:: 'Map 'Tag 'Tag)
             :return $ :: 'List 'recollect.schema/change-op
         'fold-update $ %{} 'CodeEntry
           :doc "|Internal helper to fold :update operations into :update-in for nested paths."
@@ -1189,6 +1219,20 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.schema/change-op)
             :args $ [] 'Dynamic 'recollect.schema/change-op
+        'map-splice-changes $ %{} 'CodeEntry (:doc "|校验 &map:diff-triple 的删除键与新增项，生成 map-splice 变更。")
+          :code $ quote $ defn map-splice-changes (drop-keys new-diff)
+            if (set? drop-keys)
+              if (map? new-diff)
+                if
+                  and (&set:empty? drop-keys) (&map:empty? new-diff)
+                  []
+                  [] $ schema/change-op :map-splice drop-keys new-diff
+                raise $ str "|recollect expected added entries as a map, got: " $ type-of new-diff
+              raise $ str "|recollect expected removed keys as a set, got: " $ type-of drop-keys
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'Dynamic 'Dynamic
+            :return $ :: 'List 'recollect.schema/change-op
         'new-diff-state $ %{} 'CodeEntry
           :doc "|Create isolated work counters for one diff invocation."
           :code $ quote $ defn new-diff-state (budget)
@@ -1212,7 +1256,7 @@
                       if (&set:includes? b x) acc $ &list:append acc x
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic 'Dynamic
+            :args $ [] (:: 'Set 'Dynamic) (:: 'Set 'Dynamic)
             :return $ :: 'Set 'Dynamic
         'set-difference-iter $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn set-difference-iter (xs a acc)
@@ -1517,13 +1561,23 @@
           :code $ quote $ defenum PatchResult (:ok 'Dynamic) (:err 'recollect.patch/PatchError)
           :examples $ []
           :schema $ :: 'Enum
+        'empty-patch-path $ %{} 'CodeEntry (:doc "|类型化的根补丁路径。")
+          :code $ quote $ defn empty-patch-path () ([])
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ []
+            :return $ :: 'List 'recollect.patch/PatchPathSegment
         'patch-assoc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn patch-assoc (base k data)
             cond
                 enum? base
-                &enum:assoc base k data
-              (list? base) (&list:assoc base k data)
-              true $ &map:assoc base k data
+                if (number? k) (&enum:assoc base k data)
+                  raise $ str "|patch-assoc expected a Number index for enum, got: " k
+              (list? base)
+                if (number? k) (&list:assoc base k data)
+                  raise $ str "|patch-assoc expected a Number index for list, got: " k
+              (map? base) (&map:assoc base k data)
+              true $ raise $ str "|Unsupported-patch-container-type: " (type-of base)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] 'Dynamic 'Dynamic 'Dynamic
@@ -1565,8 +1619,12 @@
         'patch-get $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn patch-get (base k)
             if (map? base) (&map:get base k)
-              if (list? base) (&list:nth base k)
-                if (enum? base) (&enum:nth base k)
+              if (list? base)
+                if (number? k) (&list:nth base k)
+                  raise $ str "|patch-get expected a Number index for list, got: " k
+                if (enum? base)
+                  if (number? k) (&enum:nth base k)
+                    raise $ str "|patch-get expected a Number index for enum, got: " k
                   if (struct? base)
                     &map:get (&struct:to-map base) k
                     raise $ str "|Unsupported-patch-container-type: " $ type-of base
@@ -1616,11 +1674,19 @@
           :code $ quote $ defn patch-one (base change)
             match change
               (:replace data) data
-              (:vec-append data) (patch-vector-append base data)
-              (:vec-drop data) (patch-vector-drop base data)
+              (:vec-append data)
+                if (list? base) (patch-vector-append base data)
+                  raise $ str "|patch-one cannot apply this change to: " $ type-of base
+              (:vec-drop data)
+                if (list? base) (patch-vector-drop base data)
+                  raise $ str "|patch-one cannot apply this change to: " $ type-of base
               (:assoc k data) (patch-map-set base k data)
-              (:set-splice removed added) (patch-set base removed added)
-              (:map-splice removed added) (patch-map base removed added)
+              (:set-splice removed added)
+                if (set? base) (patch-set base removed added)
+                  raise $ str "|patch-one cannot apply this change to: " $ type-of base
+              (:map-splice removed added)
+                if (map? base) (patch-map base removed added)
+                  raise $ str "|patch-one cannot apply this change to: " $ type-of base
               (:update k c0)
                 let
                     old-val $ patch-get base k
@@ -1765,7 +1831,7 @@
           :doc "|Associate a validated patch result without raising."
           :code $ quote $ defn try-patch-assoc (base k data path)
             let
-                next-path $ &list:append path $ patch-path-segment k
+                next-path $ append path $ patch-path-segment k
               cond
                   map? base
                   PatchResult :ok $ &map:assoc base k data
@@ -1793,18 +1859,21 @@
                   if
                     or (tag? k) (string? k)
                     if (contains? base k)
-                      PatchResult :ok $ &struct:assoc base k data
+                      try
+                        PatchResult :ok $ &struct:assoc base k data
+                        fn (_error)
+                          PatchResult :err $ PatchError :type-mismatch next-path :field-value $ type-of data
                       PatchResult :err $ PatchError :missing-node next-path
                     PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'Dynamic 'Dynamic 'Dynamic $ :: 'List 'Dynamic
+            :args $ [] 'Dynamic 'Dynamic 'Dynamic $ :: 'List 'recollect.patch/PatchPathSegment
           :tags $ #{} :scaffold
         'try-patch-get $ %{} 'CodeEntry (:doc "|Read a patch path segment without raising.")
           :code $ quote $ defn try-patch-get (base k path)
             let
-                next-path $ &list:append path $ patch-path-segment k
+                next-path $ append path $ patch-path-segment k
               cond
                   map? base
                   if (contains? base k)
@@ -1840,13 +1909,13 @@
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'Dynamic 'Dynamic $ :: 'List 'Dynamic
+            :args $ [] 'Dynamic 'Dynamic $ :: 'List 'recollect.patch/PatchPathSegment
           :tags $ #{} :scaffold
         'try-patch-one $ %{} 'CodeEntry
           :doc "|Apply one change operation atomically and return Result."
           :code $ quote $ defn try-patch-one (base change)
             let
-                path $ []
+                path $ empty-patch-path
               try-patch-one-at base change path
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
@@ -1897,7 +1966,7 @@
                   (:err error) (PatchResult :err error)
                   (:ok old-val)
                     let
-                        next-path $ &list:append path $ patch-path-segment k
+                        next-path $ append path $ patch-path-segment k
                       match (try-patch-one-at old-val c0 next-path)
                         (:err error) (PatchResult :err error)
                         (:ok next-val) (try-patch-assoc base k next-val path)
@@ -1909,7 +1978,7 @@
                       (:err error) (PatchResult :err error)
                       (:ok old-val)
                         let
-                            next-path $ &list:append path $ patch-path-segment k0
+                            next-path $ append path $ patch-path-segment k0
                           match
                             try-patch-one-at old-val (schema/change-op :update-in rest-ks c0) next-path
                             (:err error) (PatchResult :err error)
@@ -1919,7 +1988,7 @@
                   (:err error) (PatchResult :err error)
                   (:ok old-val)
                     let
-                        next-path $ &list:append path $ patch-path-segment k
+                        next-path $ append path $ patch-path-segment k
                       match (try-patch-twig-at old-val changes next-path)
                         (:err error) (PatchResult :err error)
                         (:ok next-val) (try-patch-assoc base k next-val path)
@@ -1931,7 +2000,7 @@
                       (:err error) (PatchResult :err error)
                       (:ok old-val)
                         let
-                            next-path $ &list:append path $ patch-path-segment k0
+                            next-path $ append path $ patch-path-segment k0
                           match
                             try-patch-one-at old-val (schema/change-op :pick-in rest-ks changes) next-path
                             (:err error) (PatchResult :err error)
@@ -1939,13 +2008,13 @@
               _ $ PatchResult :err $ PatchError :unsupported-operation (str change)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'Dynamic 'recollect.schema/change-op $ :: 'List 'Dynamic
+            :args $ [] 'Dynamic 'recollect.schema/change-op $ :: 'List 'recollect.patch/PatchPathSegment
           :tags $ #{} :scaffold
         'try-patch-twig $ %{} 'CodeEntry
           :doc "|Apply a patch batch atomically and return Result. No partial tree is observable on failure."
           :code $ quote $ defn try-patch-twig (base changes)
             let
-                path $ []
+                path $ empty-patch-path
               try-patch-twig-at base changes path
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
@@ -2040,7 +2109,7 @@
                   (:err error) (PatchResult :err error)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'Dynamic (:: 'List 'recollect.schema/change-op) (:: 'List 'Dynamic)
+            :args $ [] 'Dynamic (:: 'List 'recollect.schema/change-op) (:: 'List 'recollect.patch/PatchPathSegment)
           :tags $ #{} :scaffold
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.patch
@@ -2062,6 +2131,86 @@
             :pick-in (:: 'List 'Dynamic) (:: 'List 'recollect.schema/change-op)
           :examples $ []
           :schema $ :: 'Enum
+        'decode-change-op $ %{} 'CodeEntry (:doc "|按变体标签与载荷类型校验单个 change-op，嵌套操作递归解码。")
+          :code $ quote $ defn decode-change-op (x)
+            if (enum? x)
+              &let
+                kind $ &enum:nth x 0
+                &let
+                  size $ &enum:count x
+                  cond
+                      and (&= kind :replace) (&= size 2)
+                      change-op :replace $ &enum:nth x 1
+                    (and (&= kind :vec-append) (&= size 2))
+                      &let
+                        data $ &enum:nth x 1
+                        if (list? data) (change-op :vec-append data)
+                          raise $ str "|recollect cannot decode change operation: " x
+                    (and (&= kind :vec-drop) (&= size 2))
+                      &let
+                        data $ &enum:nth x 1
+                        if (number? data) (change-op :vec-drop data)
+                          raise $ str "|recollect cannot decode change operation: " x
+                    (and (&= kind :assoc) (&= size 3))
+                      change-op :assoc (&enum:nth x 1) (&enum:nth x 2)
+                    (and (&= kind :set-splice) (&= size 3))
+                      &let
+                        removed $ &enum:nth x 1
+                        &let
+                          added $ &enum:nth x 2
+                          if (set? removed)
+                            if (set? added) (change-op :set-splice removed added)
+                              raise $ str "|recollect cannot decode change operation: " x
+                            raise $ str "|recollect cannot decode change operation: " x
+                    (and (&= kind :map-splice) (&= size 3))
+                      &let
+                        removed $ &enum:nth x 1
+                        &let
+                          added $ &enum:nth x 2
+                          if (set? removed)
+                            if (map? added) (change-op :map-splice removed added)
+                              raise $ str "|recollect cannot decode change operation: " x
+                            raise $ str "|recollect cannot decode change operation: " x
+                    (and (&= kind :update) (&= size 3))
+                      change-op :update (&enum:nth x 1)
+                        decode-change-op $ &enum:nth x 2
+                    (and (&= kind :update-in) (&= size 3))
+                      &let
+                        ks $ &enum:nth x 1
+                        if (list? ks)
+                          change-op :update-in ks $ decode-change-op $ &enum:nth x 2
+                          raise $ str "|recollect cannot decode change operation: " x
+                    (and (&= kind :pick) (&= size 3))
+                      change-op :pick (&enum:nth x 1)
+                        decode-changes $ &enum:nth x 2
+                    (and (&= kind :pick-in) (&= size 3))
+                      &let
+                        ks $ &enum:nth x 1
+                        if (list? ks)
+                          change-op :pick-in ks $ decode-changes $ &enum:nth x 2
+                          raise $ str "|recollect cannot decode change operation: " x
+                    true $ raise $ str "|recollect cannot decode change operation: " x
+              raise $ str "|recollect cannot decode change operation: " x
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'recollect.schema/change-op)
+            :args $ [] 'Dynamic
+        'decode-changes $ %{} 'CodeEntry
+          :doc "|在网络/EDN 边界逐项校验并重建 change-op 列表，替代对未知数据的 assert-type。"
+          :code $ quote $ defn decode-changes (xs)
+            if (list? xs)
+              foldl xs ([])
+                defn %decode-changes (acc x)
+                  hint-fn $ {}
+                    :args $ []
+                      :: (quote List) (quote recollect.schema/change-op)
+                      quote Dynamic
+                    :return $ :: (quote List) (quote recollect.schema/change-op)
+                  append acc $ decode-change-op x
+              raise $ str "|recollect expected a list of changes, got: " $ type-of xs
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'Dynamic
+            :return $ :: 'List 'recollect.schema/change-op
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             {} $ :states $ {}
