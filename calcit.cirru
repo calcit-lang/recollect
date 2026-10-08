@@ -1836,25 +1836,25 @@
                   map? base
                   PatchResult :ok $ &map:assoc base k data
                 (list? base)
-                  if
-                    and (number? k)
-                      = k $ floor k
-                      &>= k 0
-                      &< k $ count base
-                    PatchResult :ok $ &list:assoc base k data
-                    if (number? k)
+                  if (number? k)
+                    if
+                      and
+                        = k $ floor k
+                        &>= k 0
+                        &< k $ count base
+                      PatchResult :ok $ &list:assoc base k data
                       PatchResult :err $ PatchError :invalid-index next-path k $ count base
-                      PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
+                    PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
                 (enum? base)
-                  if
-                    and (number? k)
-                      = k $ floor k
-                      &>= k 1
-                      &< k $ &enum:count base
-                    PatchResult :ok $ &enum:assoc base k data
-                    if (number? k)
+                  if (number? k)
+                    if
+                      and
+                        = k $ floor k
+                        &>= k 1
+                        &< k $ &enum:count base
+                      PatchResult :ok $ &enum:assoc base k data
                       PatchResult :err $ PatchError :invalid-index next-path k $ &enum:count base
-                      PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
+                    PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
                 (struct? base)
                   if
                     or (tag? k) (string? k)
