@@ -20,12 +20,16 @@ for (const [source, count, expected] of [
     assert.deepEqual(apply(index), ["err", ["invalid-index", [["index", index]], index, count]])
   }
   assert.deepEqual(apply(1), ["ok", expected])
+  if (source.startsWith("::")) {
+    assert.deepEqual(apply(0), ["err", ["invalid-index", [["index", 0]], 0, count]])
+  }
   const read = (index) => c.to_js_data(try_patch_get(base, index, c.parse_cirru_edn("[]")))
   assert.deepEqual(read("x"), ["err", ["type-mismatch", [], "number", "string"]])
   for (const index of [-1, 0.5, count]) {
     assert.deepEqual(read(index), ["err", ["invalid-index", [["index", index]], index, count]])
   }
   assert.deepEqual(read(1), ["ok", source.startsWith("[]") ? 2 : 1])
+  assert.deepEqual(read(0), ["ok", source.startsWith("[]") ? 1 : "sample"])
   assert.deepEqual(c.to_js_data(base), before)
 }
 

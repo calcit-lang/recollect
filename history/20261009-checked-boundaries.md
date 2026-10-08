@@ -15,3 +15,7 @@
 验证：21 项原生 attached tests、JS List/Enum 的合法和非法读写索引、Struct Tag/String 正常读写、错误字段类型及原值不变；quality baseline、26/26 patch public definitions、JS/Vite 通过。
 
 Timegrass 客户端 16/16、服务端 92/92、真实 native wire→JS HTML 及数据库回归通过。最新完整检查清除了两个 Recollect helper 的诊断，随后暴露 `render!` 与应用 dispatch 回调参数的契约矛盾；另有 core update / each。仍有 3 项独立诊断、1 项源码证明提示、165 项类型审查。dispatch 路线待 #195 既定评估流程确认，完整验收未通过。
+
+## Review 回归：Enum 的 0 号槽
+
+增加原生及 JS 的 0 号槽回归：Enum 读取 0 返回 variant Tag，写入 0 必须返回 invalid-index；List 写入 0 仍合法。原生 attached tests 22/22，JS 回归通过。处理 CodeRabbit 对初始 PR 的测试边界意见。

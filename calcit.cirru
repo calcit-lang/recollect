@@ -1870,33 +1870,47 @@
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
             :args $ [] 'Dynamic 'Dynamic 'Dynamic $ :: 'List 'recollect.patch/PatchPathSegment
           :tags $ #{} :scaffold
-          :tests $ [] $ %{} 'TestEntry (:name |checks-dynamic-struct-field-writes)
-            :code $ quote $ let
-                CheckedPerson $ defstruct CheckedPerson (:name 'String) (:age 'Number)
-                base $ %{} CheckedPerson (:name |Ada) (:age 20)
-                path $ [] $ PatchPathSegment :field :person
-              assert=
-                PatchResult :ok $ %{} CheckedPerson (:name |Ada) (:age 21)
-                try-patch-assoc base :age 21 path
-              assert=
-                PatchResult :ok $ %{} CheckedPerson (:name |Grace) (:age 20)
-                try-patch-assoc base |name |Grace path
-              assert=
-                PatchResult :err $ PatchError :type-mismatch
-                  append path $ PatchPathSegment :field :age
-                  , :field-value $ type-of |wrong
-                try-patch-assoc base :age |wrong path
-              assert=
-                PatchResult :err $ PatchError :type-mismatch
-                  append path $ PatchPathSegment :name |name
-                  , :field-value $ type-of 42
-                try-patch-assoc base |name 42 path
-              assert= (PatchResult :ok 20) (try-patch-get base :age path)
-              assert= (PatchResult :ok |Ada) (try-patch-get base |name path)
-              assert=
-                %{} CheckedPerson (:name |Ada) (:age 20)
-                , base
-            :tags $ #{} :unit
+          :tests $ []
+            %{} 'TestEntry (:name |checks-dynamic-struct-field-writes)
+              :code $ quote $ let
+                  CheckedPerson $ defstruct CheckedPerson (:name 'String) (:age 'Number)
+                  base $ %{} CheckedPerson (:name |Ada) (:age 20)
+                  path $ [] $ PatchPathSegment :field :person
+                assert=
+                  PatchResult :ok $ %{} CheckedPerson (:name |Ada) (:age 21)
+                  try-patch-assoc base :age 21 path
+                assert=
+                  PatchResult :ok $ %{} CheckedPerson (:name |Grace) (:age 20)
+                  try-patch-assoc base |name |Grace path
+                assert=
+                  PatchResult :err $ PatchError :type-mismatch
+                    append path $ PatchPathSegment :field :age
+                    , :field-value $ type-of |wrong
+                  try-patch-assoc base :age |wrong path
+                assert=
+                  PatchResult :err $ PatchError :type-mismatch
+                    append path $ PatchPathSegment :name |name
+                    , :field-value $ type-of 42
+                  try-patch-assoc base |name 42 path
+                assert= (PatchResult :ok 20) (try-patch-get base :age path)
+                assert= (PatchResult :ok |Ada) (try-patch-get base |name path)
+                assert=
+                  %{} CheckedPerson (:name |Ada) (:age 20)
+                  , base
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |preserves-enum-tag-index)
+              :code $ quote $ do
+                assert=
+                  PatchResult :err $ PatchError :invalid-index
+                    [] $ PatchPathSegment :index 0
+                    , 0 3
+                  try-patch-assoc (:: :sample 1 2) 0 7 $ []
+                assert= (PatchResult :ok :sample)
+                  try-patch-get (:: :sample 1 2) 0 $ []
+                assert=
+                  PatchResult :ok $ [] 7 2
+                  try-patch-assoc ([] 1 2) 0 7 $ []
+              :tags $ #{} :unit
         'try-patch-get $ %{} 'CodeEntry (:doc "|Read a patch path segment without raising.")
           :code $ quote $ defn try-patch-get (base k path)
             let
