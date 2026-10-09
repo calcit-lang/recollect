@@ -165,15 +165,15 @@
     'recollect.app.main $ %{} 'FileEntry
       :defs $ {}
         '*client-store $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *client-store schema/store
+          :code $ quote $ defref *client-store schema/store
           :examples $ []
           :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
         '*data-twig $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *data-twig nil
+          :code $ quote $ defref *data-twig nil
           :examples $ []
           :schema $ :: 'Ref $ :: 'Map 'Tag (:: 'Map 'Dynamic 'Dynamic)
         '*store $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *store
+          :code $ quote $ defref *store
             &merge schema/store $ {} (:lit-0 1)
               :vec-0 $ [] $ {} (:a 1)
               :vec-0 $ [] $ {} (:a 1)
@@ -1236,7 +1236,7 @@
         'new-diff-state $ %{} 'CodeEntry
           :doc "|Create isolated work counters for one diff invocation."
           :code $ quote $ defn new-diff-state (budget)
-            atom $ DiffWorkState :budget budget :stats (DiffStats :visited-nodes 0 :emitted-ops 0) :exceeded $ Option :none
+            ref $ DiffWorkState :budget budget :stats (DiffStats :visited-nodes 0 :emitted-ops 0) :exceeded $ Option :none
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'recollect.diff/DiffBudget
@@ -1324,15 +1324,15 @@
     'recollect.memo $ %{} 'FileEntry
       :defs $ {}
         '*twig-call-cache $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *twig-call-cache ({})
+          :code $ quote $ defref *twig-call-cache ({})
           :examples $ []
           :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
         '*twig-frame-active? $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *twig-frame-active? false
+          :code $ quote $ defref *twig-frame-active? false
           :examples $ []
           :schema $ :: 'Ref 'Bool
         '*twig-frame-cache $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *twig-frame-cache ({})
+          :code $ quote $ defref *twig-frame-cache ({})
           :examples $ []
           :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
         'assoc-in-map $ %{} 'CodeEntry (:doc |)
@@ -1432,7 +1432,7 @@
             :generics $ [] 'K 'A 'R
           :tests $ [] $ %{} 'TestEntry (:name |caches-values-and-prunes-frames)
             :code $ quote $ let
-                calls $ atom 0
+                calls $ ref 0
                 build $ assert-type
                   fn (value) (swap! calls inc)
                     {} $ :value value
