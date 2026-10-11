@@ -1,5 +1,5 @@
 
-{} (:calcit-version |0.29.0-alpha.19)
+{} (:calcit-version |0.29.0-alpha.30)
   :version |0.0.57
   :dependencies $ {} (|Respo/respo-ui.calcit |0.7.32-alpha.6)
     |Respo/respo-value.calcit |0.5.15

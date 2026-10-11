@@ -301,30 +301,12 @@
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 2
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 2
-      :unsafeCoerce 0
-    |recollect.diff/diff-map-step-budgeted $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 2
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 2
-      :unsafeCoerce 0
-    |recollect.diff/diff-record-step $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
       :schemaDynamic 1
       :typeNone 0
       :typeNotFull 1
       :unresolved 1
       :unsafeCoerce 0
-    |recollect.diff/diff-record-step-budgeted $ {} (:codeDynamic 0)
+    |recollect.diff/diff-map-step-budgeted $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -350,24 +332,6 @@
       :typeNone 0
       :typeNotFull 1
       :unresolved 2
-      :unsafeCoerce 0
-    |recollect.diff/diff-tuple-step $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 1
-      :unsafeCoerce 0
-    |recollect.diff/diff-tuple-step-budgeted $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 1
       :unsafeCoerce 0
     |recollect.diff/diff-twig $ {} (:codeDynamic 0)
       :codeNil 0
@@ -409,19 +373,19 @@
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 3
+      :schemaDynamic 2
       :typeNone 0
       :typeNotFull 1
-      :unresolved 3
+      :unresolved 2
       :unsafeCoerce 0
     |recollect.diff/find-vector-changes-budgeted $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 3
+      :schemaDynamic 2
       :typeNone 0
       :typeNotFull 1
-      :unresolved 3
+      :unresolved 2
       :unsafeCoerce 0
     |recollect.diff/fold-update $ {} (:codeDynamic 0)
       :codeNil 0
@@ -616,19 +580,19 @@
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 4
+      :schemaDynamic 3
       :typeNone 0
       :typeNotFull 1
-      :unresolved 4
+      :unresolved 3
       :unsafeCoerce 0
     |recollect.patch/try-patch-get $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 3
+      :schemaDynamic 2
       :typeNone 0
       :typeNotFull 1
-      :unresolved 3
+      :unresolved 2
       :unsafeCoerce 0
     |recollect.patch/try-patch-one $ {} (:codeDynamic 0)
       :codeNil 0
@@ -643,10 +607,10 @@
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 2
+      :schemaDynamic 1
       :typeNone 0
       :typeNotFull 1
-      :unresolved 2
+      :unresolved 1
       :unsafeCoerce 0
     |recollect.patch/try-patch-twig $ {} (:codeDynamic 0)
       :codeNil 0
@@ -661,10 +625,10 @@
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 2
+      :schemaDynamic 1
       :typeNone 0
       :typeNotFull 1
-      :unresolved 2
+      :unresolved 1
       :unsafeCoerce 0
     |recollect.schema/decode-change-op $ {} (:codeDynamic 0)
       :codeNil 0
@@ -693,15 +657,6 @@
       :typeNotFull 0
       :unresolved 1
       :unsafeCoerce 0
-    |recollect.util/compare $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 2
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 2
-      :unsafeCoerce 0
     |recollect.util/literal? $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -720,934 +675,7 @@
       :typeNotFull 1
       :unresolved 0
       :unsafeCoerce 0
-    |recollect.wasm-test/probe-api-base-let-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-api-base-map-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-api-base-to-list-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-api-change-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-api-changes $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-api-common-keys-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-api-diff-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-api-items-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-api-nested-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-api-patched-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-api-patched-score $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-app-twig-change-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-assoc-chain $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-assoc-map-list $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-assoc-simple $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-cond-number $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-diff-iterate-path $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-diff-map-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-diff-map-step-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-diff-map-step-k2 $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-diff-step-key0 $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-diff-step-slice $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-diff-twig-iterate-numbers $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-diff-twig-map-c0 $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-diff-twig-map-len $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-double-assoc-call $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-empty-map $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-eq-false $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-flags-diff-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-foldl-map-assoc $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-inline-map-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-inline-map-to-list $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-inline-pair-first $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-inline-user-diff $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-items-change-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-items-diff-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-items-direct-patch $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-items-via-map $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-list-match-map-pairs $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-list-match-simple $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-literal-5 $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-literal-number $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-literal-v2 $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-manual-or $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-assoc $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-count-1 $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-count-from-let $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-diff-new $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-diff-new-a-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-diff-new-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-diff-new2 $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-includes-value-hit $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-includes-value-miss $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-items-diff-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-keys $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-keys-type $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-keys2 $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-keys3 $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-step-not-eq $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-step-pair0 $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-step-rest $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-step-slice $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-step-va $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-step-vb $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-map-to-list-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-nested-bonus $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-nested-changes-count $ {} (:codeDynamic 0)
-      :codeNil 2
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 2
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-nested-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-nested-map-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-number-question $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-or-bool $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-or-number $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-or-rev $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-or-v2 $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-pairs-empty $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-pairs-first-type $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-patch-map-simple $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-patch-one-dynamic $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-patch-one-map-splice $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-patch-one-result-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-patch-one-result-type $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-patch-one-twice $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-patch-twig-hardcoded $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-patch-twig-iter2-base $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-patch-twig-manual $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-patch-twig-single $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-patch-twig-two $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-pick-patch $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-slice-empty $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-string-question $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
     |recollect.wasm-test/probe-tag-match $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-tags $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-to-list-match-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-tuple-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-user-common-keys-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-user-common-keys-includes $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-user-common-keys-level $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-user-diff-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-user-identical $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-user-is-map $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-user-score-a $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-vector-patch-count $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-vector-patch-nth1 $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
-    |recollect.wasm-test/probe-wrap-pick-count $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -1863,15 +891,6 @@
       :typeNotFull 1
       :unresolved 0
       :unsafeCoerce 0
-    |recollect.wasm-test/test-loop-empty $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 0
-      :unsafeCoerce 0
     |recollect.wasm-test/test-loop-empty-call $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -2008,13 +1027,13 @@
       :unresolved 0
       :unsafeCoerce 0
   :metrics $ {} (:codeDynamic 0)
-    :codeNil 10
+    :codeNil 8
     :declaredOptional 0
     :deprecatedCalls 0
-    :schemaDynamic 121
+    :schemaDynamic 107
     :typeNone 1
-    :typeNotFull 216
-    :unresolved 131
+    :typeNotFull 107
+    :unresolved 115
     :unsafeCoerce 1
   :scope $ {} (:includeDependencies false)
     :namespace nil
