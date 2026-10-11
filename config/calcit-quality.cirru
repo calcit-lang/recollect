@@ -9,15 +9,6 @@
       :typeNotFull 1
       :unresolved 2
       :unsafeCoerce 0
-    |recollect.app.comp.container/css-code-block $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
-      :typeNotFull 1
-      :unresolved 1
-      :unsafeCoerce 0
     |recollect.app.comp.container/deep-a $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -62,33 +53,6 @@
       :typeNone 0
       :typeNotFull 1
       :unresolved 0
-      :unsafeCoerce 0
-    |recollect.app.comp.panel/style-line $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 1
-      :unsafeCoerce 0
-    |recollect.app.config/dev? $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 1
-      :unsafeCoerce 0
-    |recollect.app.config/site $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 1
       :unsafeCoerce 0
     |recollect.app.main/*client-store $ {} (:codeDynamic 0)
       :codeNil 0
@@ -405,15 +369,6 @@
       :typeNotFull 1
       :unresolved 2
       :unsafeCoerce 0
-    |recollect.diff/set-difference-dynamic $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 3
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 3
-      :unsafeCoerce 0
     |recollect.diff/set-difference-iter $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -540,34 +495,7 @@
       :typeNotFull 1
       :unresolved 1
       :unsafeCoerce 0
-    |recollect.patch/patch-set $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 4
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 4
-      :unsafeCoerce 0
     |recollect.patch/patch-twig $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 2
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 2
-      :unsafeCoerce 0
-    |recollect.patch/patch-vector-append $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 3
-      :typeNone 0
-      :typeNotFull 1
-      :unresolved 3
-      :unsafeCoerce 0
-    |recollect.patch/patch-vector-drop $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -1030,10 +958,10 @@
     :codeNil 8
     :declaredOptional 0
     :deprecatedCalls 0
-    :schemaDynamic 107
-    :typeNone 1
-    :typeNotFull 107
-    :unresolved 115
+    :schemaDynamic 91
+    :typeNone 0
+    :typeNotFull 102
+    :unresolved 99
     :unsafeCoerce 1
   :scope $ {} (:includeDependencies false)
     :namespace nil
