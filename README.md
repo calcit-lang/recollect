@@ -92,8 +92,8 @@ yarn test:wasm
 yarn run:wasm:api
 ```
 
-当前已发布的 alpha.12 工具链执行上述 eligibility check 时，明确返回
-`E_WASM_UNSUPPORTED_JS_FFI`：`js-ffi.node/path-join` 的 JavaScript 实现不能
+当前固定的正式 0.29.0 工具链执行上述 eligibility check 时，明确返回
+`E_WASM_UNSUPPORTED_JS_FFI`：`js-ffi.node/path-basename` 的 JavaScript 实现不能
 lower 到 WASM；这不是 WASM codegen 被关闭。此迁移不宣称完整 WASM 支持，
 整体 CI 绿色也不能替代 WASM 验收。
 Older emission attempts also encountered demo-only Respo dependencies.
@@ -111,11 +111,16 @@ main 前缀保持 `calcit-lang/recollect/`，`wasm-support` 保持
 互相隔离。每个 PR、main 和分支分别排队，保留等待任务，不取消活跃上传。
 原服务器部署的源、目标与仅 main push 部署条件不变。
 
-当前源码固定已发布 Calcit/procs `0.29.0-alpha.12`、Respo alpha.8、
-Value 0.5.14 和 JS-FFI alpha.13，其他模块精确版本以 `deps.cirru` 为准。
-保留全部原类型／质量预算和 native/JS 测试。
-示例 patch 输入保留 `diff-twig` 的 `List<change-op>` 类型，迁移十处旧调用；
-`vec-add` 改用保持元素泛型的 `.append`，没有更改原断言。
+当前源码固定正式 Calcit/procs `0.29.0`、Respo `0.16.114`、
+UI `0.7.32`、Value `0.5.16` 和 JS-FFI `0.2.1`，包括传递依赖的
+精确版本以 `deps.cirru` 和严格 Caps 解析结果为准。
+保留原 native/JS 测试，并检查完整公开命名空间和现有示例。
+旧质量预算在通过后退役，使用当前 CLI 的严格类型检查和弱类型诊断；
+仍存在的开放异构数据边界不会被表述为已全部强类型化。
+
+演示操作的入口参数使用 `Enum`，按钮使用 `Tag`；移除与日期操作
+按 updater 合同发送零 payload。Set 移除使用 Set 解构，不再错误调用
+List 的 `rest`，空 Set 保持不变。未增加 cast 或独立校验脚本。
 
 CI 保留严格 Caps，UI、Router、Respo、Value 必须形成一致的正式版本图，
 不能通过修改模块缓存或关闭 strict 解决版本冲突。完整 Actions 与 review 通过、

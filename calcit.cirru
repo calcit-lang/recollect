@@ -123,11 +123,14 @@
         'on-click $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn on-click (op)
             fn (e dispatch!)
-              dispatch! op $ js/Math.round $ * 100
-                unsafe-coerce (js/Math.random) Number
+              if
+                .includes? (#{} :map-0-rm :vec-0-rm :set-0-rm :date) op
+                dispatch! $ :: op
+                dispatch! op $ js/Math.round $ * 100
+                  unsafe-coerce (js/Math.random) Number
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic
+            :args $ [] 'Tag
             :features $ #{} :js-ffi
         'render-button $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-button (title op)
@@ -135,7 +138,7 @@
               :on-click $ on-click op
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Dynamic
+            :args $ [] 'String 'Tag
             :features $ #{} :js-ffi
         'style-line $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-line
@@ -193,7 +196,7 @@
             reset! *store $ next-store op
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic
+            :args $ [] 'Enum
             :features $ #{} :js-ffi
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!)
@@ -232,7 +235,7 @@
             assert-type (updater @*store op) (:: 'Map 'Dynamic 'Dynamic)
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic
+            :args $ [] 'Enum
             :features $ #{} :js-ffi
             :return $ :: 'Map 'Dynamic 'Dynamic
         'reload! $ %{} 'CodeEntry (:doc |)
@@ -372,9 +375,13 @@
               (:set-0 d)
                 &map:assoc store :set-0 $ &union (&map:get store :set-0) (#{} d)
               (:set-0-rm)
-                &map:assoc store :set-0 $ either
-                  &list:rest $ &map:get store :set-0
-                  #{}
+                &let
+                  items $ &map:get store :set-0
+                  if (set? items)
+                    &map:assoc store :set-0 $ match (.destruct items)
+                      (:some _item rest) rest
+                      (:none) items
+                    raise |Expected-set-for-set-0
               (:date)
                 let
                     date $ or (&map:get store :date) ({})
@@ -387,7 +394,7 @@
               _ $ do (eprintln "|Unhandled op:" op) store
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Dynamic
+            :args $ [] 'Dynamic 'Enum
             :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.updater
