@@ -126,8 +126,8 @@
               if
                 .includes? (#{} :map-0-rm :vec-0-rm :set-0-rm :date) op
                 dispatch! $ :: op
-                dispatch! op $ js/Math.round $ * 100
-                  unsafe-coerce (js/Math.random) Number
+                dispatch! $ :: op $ round
+                  * 100 $ js-ffi.contract/expect-number |Math.random $ js/Math.random
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] 'Tag
@@ -215,7 +215,7 @@
             :features $ #{} :js-ffi
         'next-client-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-client-store (changes)
-            assert-type (patch-twig @*client-store changes) (:: 'Map 'Dynamic 'Dynamic)
+            decode-map-as (patch-twig @*client-store changes) (:: 'Map 'Dynamic 'Dynamic)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] $ :: 'List 'recollect.schema/change-op
@@ -850,13 +850,13 @@
                     old $ {} (:id 1) (:data 1)
                     new $ {} (:id 2) (:data 1)
                   assert |changed-key-replaces-map $ =
-                    [] $ %:: schema/change-op :replace new
+                    [] $ schema/change-op :replace new
                     diff-twig old new $ {} $ :key :id
                 let
                     old $ {} (:id 1) (:data 1)
                     new $ {} (:id 1) (:data 2)
                   assert |same-key-updates-field $ =
-                    [] $ %:: schema/change-op :assoc :data 2
+                    [] $ schema/change-op :assoc :data 2
                     diff-twig old new $ {} $ :key :id
                 let
                     old $ {} $ :a
@@ -864,14 +864,14 @@
                     new $ {} $ :a
                       {} $ :c 2
                   assert |nested-map-splice-has-removed-and-added-values $ =
-                    [] $ %:: schema/change-op :update :a $ %:: schema/change-op :map-splice (#{} :b)
+                    [] $ schema/change-op :update :a $ schema/change-op :map-splice (#{} :b)
                       {} $ :c 2
                     diff-twig old new $ {} $ :key :id
                 let
                     old $ {} $ :a (#{} 1 2 3)
                     new $ {} $ :a (#{} 2 3 4)
                   assert |set-splice-reports-removed-and-added-members $ =
-                    [] $ %:: schema/change-op :update :a $ %:: schema/change-op :set-splice (#{} 1) (#{} 4)
+                    [] $ schema/change-op :update :a $ schema/change-op :set-splice (#{} 1) (#{} 4)
                     diff-twig old new $ {} $ :key :id
                 assert |equal-sets-have-no-diff $ &= ([])
                   diff-twig
@@ -885,16 +885,16 @@
                     old $ {} $ :a ([] 1 2 3 4)
                     new $ {} $ :a ([] 1 6 7 8)
                   assert |list-items-are-picked-and-updated $ =
-                    [] $ %:: schema/change-op :pick :a $ [] (%:: schema/change-op :assoc 1 6) (%:: schema/change-op :assoc 2 7) (%:: schema/change-op :assoc 3 8)
+                    [] $ schema/change-op :pick :a $ [] (schema/change-op :assoc 1 6) (schema/change-op :assoc 2 7) (schema/change-op :assoc 3 8)
                     diff-twig old new $ {} $ :key :id
                 assert |different-tuple-tag-replaces-value $ =
-                  [] $ %:: schema/change-op :replace $ :: :b 2 3 4
+                  [] $ schema/change-op :replace $ :: :b 2 3 4
                   diff-twig (:: :a 1 2) (:: :b 2 3 4) ({})
                 assert |tuple-position-update-is-associative $ =
-                  [] $ %:: schema/change-op :assoc 2 3
+                  [] $ schema/change-op :assoc 2 3
                   diff-twig (:: :a 1 2) (:: :a 1 3) ({})
                 assert |nested-tuple-value-keeps-update-path $ =
-                  [] $ %:: schema/change-op :update 2 $ %:: schema/change-op :assoc :a 2
+                  [] $ schema/change-op :update 2 $ schema/change-op :assoc :a 2
                   diff-twig
                     :: :a 1 $ {} $ :a 1
                     :: :a 1 $ {} $ :a 2
@@ -914,17 +914,17 @@
                     diff-twig (A fx) (B fx)
                       {} $ :key :id
                 let
-                    old $ %:: schema/change-op :assoc :name |Lily
-                    new $ %:: schema/change-op :assoc :name |Lucy
+                    old $ schema/change-op :assoc :name |Lily
+                    new $ schema/change-op :assoc :name |Lucy
                   assert |enum-records-are-compared-structurally $ not $ empty?
                     diff-twig old new $ {}
               :tags $ #{} :unit
             %{} 'TestEntry (:name |reports-record-field-updates)
               :code $ quote $ let
-                  old $ %{} recollect.test.fixture/Person (:name |Lily) (:age 10)
-                  new $ %{} recollect.test.fixture/Person (:name |Lucy) (:age 11)
+                  old $ recollect.test.fixture/Person :name |Lily :age 10
+                  new $ recollect.test.fixture/Person :name |Lucy :age 11
                 assert |record-fields-are-updated-in-stable-order $ =
-                  [] (%:: schema/change-op :assoc :age 11) (%:: schema/change-op :assoc :name |Lucy)
+                  [] (schema/change-op :assoc :age 11) (schema/change-op :assoc :name |Lucy)
                   diff-twig old new $ {}
               :tags $ #{} :unit
         'diff-twig-budgeted $ %{} 'CodeEntry
@@ -945,9 +945,7 @@
             %{} 'TestEntry (:name |zero-and-one-visited-limits)
               :code $ quote $ do
                 let
-                    zero-budget $ %{} DiffBudget
-                      :max-visited $ Option :some 0
-                      :max-emitted $ Option :none
+                    zero-budget $ DiffBudget :max-visited (Option :some 0) :max-emitted $ Option :none
                     outcome $ diff-twig-budgeted 1 1 ({}) zero-budget
                   match outcome
                     (:budget-exceeded reason stats)
@@ -957,9 +955,7 @@
                         assert |zero-budget-emits-no-operation $ &= 0 $ :emitted-ops stats
                     _ $ assert |zero-budget-must-exceed false
                 let
-                    one-budget $ %{} DiffBudget
-                      :max-visited $ Option :some 1
-                      :max-emitted $ Option :some 0
+                    one-budget $ DiffBudget :max-visited (Option :some 1) :max-emitted $ Option :some 0
                     outcome $ diff-twig-budgeted 1 1 ({}) one-budget
                   match outcome
                     (:complete changes stats)
@@ -972,9 +968,7 @@
             %{} 'TestEntry (:name |exact-emitted-limit-and-atomic-overflow)
               :code $ quote $ do
                 let
-                    exact-budget $ %{} DiffBudget
-                      :max-visited $ Option :some 1
-                      :max-emitted $ Option :some 1
+                    exact-budget $ DiffBudget :max-visited (Option :some 1) :max-emitted $ Option :some 1
                     outcome $ diff-twig-budgeted 1 2 ({}) exact-budget
                   match outcome
                     (:complete changes stats)
@@ -985,9 +979,7 @@
                         assert |exact-emitted-limit-counts-one $ &= 1 $ :emitted-ops stats
                     _ $ assert |exact-emitted-limit-must-complete false
                 let
-                    zero-emitted $ %{} DiffBudget
-                      :max-visited $ Option :some 1
-                      :max-emitted $ Option :some 0
+                    zero-emitted $ DiffBudget :max-visited (Option :some 1) :max-emitted $ Option :some 0
                     outcome $ diff-twig-budgeted 1 2 ({}) zero-emitted
                   match outcome
                     (:budget-exceeded reason stats)
@@ -1000,9 +992,7 @@
             %{} 'TestEntry (:name |low-op-high-visited-and-exact-bound)
               :code $ quote $ do
                 let
-                    limited $ %{} DiffBudget
-                      :max-visited $ Option :some 3
-                      :max-emitted $ Option :none
+                    limited $ DiffBudget :max-visited (Option :some 3) :max-emitted $ Option :none
                     outcome $ diff-twig-budgeted ([] 1 2 3) ([] 1 2 4) ({}) limited
                   match outcome
                     (:budget-exceeded reason stats)
@@ -1012,9 +1002,7 @@
                         assert |late-change-was-not-emitted $ &= 0 $ :emitted-ops stats
                     _ $ assert |low-op-high-visited-must-exceed false
                 let
-                    exact $ %{} DiffBudget
-                      :max-visited $ Option :some 4
-                      :max-emitted $ Option :some 2
+                    exact $ DiffBudget :max-visited (Option :some 4) :max-emitted $ Option :some 2
                     outcome $ diff-twig-budgeted ([] 1 2 3) ([] 1 2 4) ({}) exact
                   match outcome
                     (:complete changes stats)
@@ -1047,9 +1035,7 @@
                         assert |unlimited-budget-records-work $ &> (:visited-nodes stats) 0
                     _ $ assert |unlimited-budget-must-complete false
                 let
-                    blocked $ %{} DiffBudget
-                      :max-visited $ Option :some 0
-                      :max-emitted $ Option :none
+                    blocked $ DiffBudget :max-visited (Option :some 0) :max-emitted $ Option :none
                     first-outcome $ diff-twig-budgeted 1 2 ({}) blocked
                     second-outcome $ diff-twig-budgeted 1 2 ({}) (unlimited-diff-budget &unit)
                   match first-outcome
@@ -1065,9 +1051,7 @@
             %{} 'TestEntry (:name |deep-path-and-full-replacement)
               :code $ quote $ do
                 let
-                    budget $ %{} DiffBudget
-                      :max-visited $ Option :some 1
-                      :max-emitted $ Option :some 1
+                    budget $ DiffBudget :max-visited (Option :some 1) :max-emitted $ Option :some 1
                     outcome $ diff-twig-budgeted ([] 1 2)
                       {} $ :replaced true
                       {}
@@ -1769,7 +1753,7 @@
               patch-twig old changes
             quote $ patch-twig
               {} $ :a 1
-              [] $ %:: schema/change-op :assoc :a 2
+              [] $ schema/change-op :assoc :a 2
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] 'Dynamic $ :: 'List 'recollect.schema/change-op
           :tests $ []
@@ -1803,8 +1787,8 @@
                     changes $ recollect.diff/diff-twig old new $ {}
                   assert |nested-tuple-roundtrips $ &= new $ patch-twig old changes
                 let
-                    old $ %:: schema/change-op :assoc :name |Lily
-                    new $ %:: schema/change-op :assoc :name |Lucy
+                    old $ schema/change-op :assoc :name |Lily
+                    new $ schema/change-op :assoc :name |Lucy
                     changes $ recollect.diff/diff-twig old new $ {}
                   assert |enum-record-roundtrips $ &= new $ patch-twig old changes
               :tags $ #{} :unit
@@ -1871,12 +1855,14 @@
                 (struct? base)
                   if
                     or (tag? k) (string? k)
-                    if (contains? base k)
-                      try
-                        PatchResult :ok $ struct-with base $ k data
-                        fn (_error)
-                          PatchResult :err $ PatchError :type-mismatch next-path :field-value $ type-of data
-                      PatchResult :err $ PatchError :missing-node next-path
+                    let
+                        field $ if (tag? k) k $ if (string? k) (to-tag k) (raise "|Expected a validated String or Tag field key")
+                      if (contains-field? base field)
+                        try
+                          PatchResult :ok $ struct-with base $ k data
+                          fn (_error)
+                            PatchResult :err $ PatchError :type-mismatch next-path :field-value $ type-of data
+                        PatchResult :err $ PatchError :missing-node next-path
                     PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
@@ -1956,9 +1942,11 @@
                 (struct? base)
                   if
                     or (tag? k) (string? k)
-                    if (contains? base k)
-                      PatchResult :ok $ &map:get (&struct:to-map base) (turn-tag k)
-                      PatchResult :err $ PatchError :missing-node next-path
+                    let
+                        field $ if (tag? k) k $ if (string? k) (to-tag k) (raise "|Expected a validated String or Tag field key")
+                      if (contains-field? base field)
+                        PatchResult :ok $ &map:get (&struct:to-map base) field
+                        PatchResult :err $ PatchError :missing-node next-path
                     PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
@@ -2080,7 +2068,7 @@
                 let
                     base $ {} $ :a
                       {} $ :b 1
-                    changes $ [] $ %:: schema/change-op :update-in ([] :a :b) (%:: schema/change-op :replace 2)
+                    changes $ [] $ schema/change-op :update-in ([] :a :b) (schema/change-op :replace 2)
                     expected $ {} $ :a
                       {} $ :b 2
                   match (try-patch-twig base changes)
@@ -2089,7 +2077,7 @@
                     (:err _) (assert |applies-valid-batches false)
                 let
                     base $ {} $ :n 1
-                    changes $ [] $ %:: schema/change-op :assoc :n 2
+                    changes $ [] $ schema/change-op :assoc :n 2
                     batch $ patch-batch changes
                     expected $ {} $ :n 2
                   match (batch .apply-to base)
@@ -2101,9 +2089,9 @@
               :code $ quote $ do
                 let
                     base $ {} $ :a ([] 1)
-                    changes $ [] $ %:: schema/change-op :update-in ([] :a 3) (%:: schema/change-op :replace 2)
-                    expected $ %:: PatchError :invalid-index
-                      [] (%:: PatchPathSegment :field :a) (%:: PatchPathSegment :index 3)
+                    changes $ [] $ schema/change-op :update-in ([] :a 3) (schema/change-op :replace 2)
+                    expected $ PatchError :invalid-index
+                      [] (PatchPathSegment :field :a) (PatchPathSegment :index 3)
                       , 3 1
                   match (try-patch-twig base changes)
                     (:ok _) (assert |structured-path-errors false)
@@ -2111,8 +2099,8 @@
                       assert |structured-path-errors $ &= expected e
                 let
                     base $ {} $ :a 1
-                    changes $ [] $ %:: schema/change-op :update :missing (%:: schema/change-op :replace 2)
-                    expected $ %:: PatchError :missing-node $ [] (%:: PatchPathSegment :field :missing)
+                    changes $ [] $ schema/change-op :update :missing (schema/change-op :replace 2)
+                    expected $ PatchError :missing-node $ [] (PatchPathSegment :field :missing)
                   match (try-patch-twig base changes)
                     (:ok _) (assert |structured-path-errors false)
                     (:err e)
@@ -2121,14 +2109,14 @@
             %{} 'TestEntry (:name |rejects-batches-atomically)
               :code $ quote $ let
                   base $ {} $ :stable 1
-                  changes $ [] (%:: schema/change-op :assoc :temporary 2)
-                    %:: schema/change-op :update :missing $ %:: schema/change-op :replace 3
+                  changes $ [] (schema/change-op :assoc :temporary 2)
+                    schema/change-op :update :missing $ schema/change-op :replace 3
                   result $ try-patch-twig base changes
                 match result
                   (:ok _) (assert |rejects-atomically false)
                   (:err e)
                     assert |rejects-atomically $ &=
-                      %:: PatchError :missing-node $ [] $ %:: PatchPathSegment :field :missing
+                      PatchError :missing-node $ [] $ PatchPathSegment :field :missing
                       , e
                 assert |base-unchanged $ &=
                   {} $ :stable 1
@@ -2137,19 +2125,19 @@
             %{} 'TestEntry (:name |rejects-container-and-payload-types)
               :code $ quote $ do
                 match
-                  try-patch-one 1 $ %:: schema/change-op :vec-append $ [] 2
+                  try-patch-one 1 $ schema/change-op :vec-append $ [] 2
                   (:ok _) (assert |container-types false)
                   (:err e)
                     assert |container-types $ &=
-                      %:: PatchError :type-mismatch ([]) :list :number
+                      PatchError :type-mismatch ([]) :list :number
                       , e
                 match
                   try-patch-one ([])
-                    %:: schema/change-op :map-splice (#{} :a) ({})
+                    schema/change-op :map-splice (#{} :a) ({})
                   (:ok _) (assert |container-types false)
                   (:err e)
                     assert |container-types $ &=
-                      %:: PatchError :type-mismatch ([]) :map :list
+                      PatchError :type-mismatch ([]) :map :list
                       , e
               :tags $ #{} :unit
         'try-patch-twig-at $ %{} 'CodeEntry
@@ -2184,7 +2172,7 @@
             :pick 'Dynamic $ :: 'List 'recollect.schema/change-op
             :pick-in (:: 'List 'Dynamic) (:: 'List 'recollect.schema/change-op)
           :examples $ []
-          :schema $ :: 'Enum
+          :schema $ :: 'EnumDef
         'decode-change-op $ %{} 'CodeEntry (:doc "|按变体标签与载荷类型校验单个 change-op，嵌套操作递归解码。")
           :code $ quote $ defn decode-change-op (x)
             if (enum? x)
@@ -2277,7 +2265,7 @@
         %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct Person (:name 'String) (:age 'Number)
           :examples $ []
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.test.fixture
     'recollect.twig $ %{} 'FileEntry
