@@ -2551,9 +2551,9 @@
           :code $ quote $ defn test-empty-recur-list (xs)
             if (empty? xs) 1 $ recur $ &list:rest xs
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] $ :: 'List 'T
+            :generics $ [] 'T
         'test-empty-recur-list-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-recur-list-call ()
             test-empty-recur-list $ []
@@ -2586,9 +2586,9 @@
           :code $ quote $ defn test-list-empty-proc (a b)
             if (&list:empty? b) 1 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'A $ :: 'List 'T
+            :generics $ [] 'A 'T
         'test-list-empty-proc-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-list-empty-proc-call ()
             test-list-empty-proc 1 $ []
