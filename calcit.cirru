@@ -232,8 +232,7 @@
             :features $ #{} :js-ffi
             :return $ :: 'Map 'Tag 'Dynamic
         'next-store $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn next-store (op)
-            decode-map-as (updater @*store op) (:: 'Map 'Tag 'Dynamic)
+          :code $ quote $ defn next-store (op) (updater @*store op)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'Enum
@@ -360,32 +359,41 @@
         %{} 'CodeEntry (:doc |)
           :code $ quote $ defn updater (store op)
             match op
-              (:states cursor s) (update-states store cursor s)
+              (:states cursor s)
+                decode-map-as
+                  update-states store
+                    decode-map-as cursor $ :: 'List 'Dynamic
+                    , s
+                  :: 'Map 'Tag 'Dynamic
               (:lit-0 d) (&map:assoc store :lit-0 d)
               (:lit-1 d)
-                &map:assoc store :in-map $ &map:assoc (&map:get store :in-map) :lit-1 d
+                &map:assoc store :in-map $ &map:assoc
+                  decode-map-as (&map:get store :in-map) (:: 'Map 'Tag 'Dynamic)
+                  , :lit-1 d
               (:map-0 d)
-                &map:assoc store :map-0 $ &map:assoc (&map:get store :map-0) :y d
+                &map:assoc store :map-0 $ &map:assoc
+                  decode-map-as (&map:get store :map-0) (:: 'Map 'Tag 'Dynamic)
+                  , :y d
               (:map-0-rm)
                 &map:assoc store :map-0 $ &map:dissoc
-                  or (&map:get store :map-0) ({})
+                  decode-map-as
+                    or (&map:get store :map-0) ({})
+                    :: 'Map 'Tag 'Dynamic
                   , :y
               (:vec-0 d)
                 &map:assoc store :vec-0 $ &list:append
-                  &list:append (&map:get store :vec-0) d
+                  &list:append
+                    decode-map-as (&map:get store :vec-0) (:: 'List 'Dynamic)
+                    , d
                   , :cursor
               (:vec-0-rm)
                 &map:assoc store :vec-0 $ either
-                  &list:butlast $ &map:get store :vec-0
-                  []
-              (:vec-0 d)
-                &map:assoc store :vec-0 $ &list:prepend (&map:get store :vec-0) d
-              (:vec-0-rm)
-                &map:assoc store :vec-0 $ either
-                  &list:rest $ &map:get store :vec-0
+                  &list:butlast $ decode-map-as (&map:get store :vec-0) (:: 'List 'Dynamic)
                   []
               (:set-0 d)
-                &map:assoc store :set-0 $ &union (&map:get store :set-0) (#{} d)
+                &map:assoc store :set-0 $ &union
+                  decode-map-as (&map:get store :set-0) (:: 'Set 'Dynamic)
+                  #{} d
               (:set-0-rm)
                 &let
                   items $ &map:get store :set-0
@@ -396,18 +404,23 @@
                     raise |Expected-set-for-set-0
               (:date)
                 let
-                    date $ or (&map:get store :date) ({})
+                    date $ decode-map-as
+                      or (&map:get store :date) ({})
+                      :: 'Map 'Tag 'Dynamic
                   &map:assoc store :date $ &map:assoc date :month $ inc
-                    assert-type
+                    decode-map-as
                       or (&map:get date :month) 0
                       , 'Number
               (:types d)
-                &map:assoc store :types $ &map:assoc (&map:get store :types) d true
+                &map:assoc store :types $ &map:assoc
+                  decode-map-as (&map:get store :types) (:: 'Map 'Dynamic 'Dynamic)
+                  , d true
               _ $ do (eprintln "|Unhandled op:" op) store
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Enum
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Enum
             :features $ #{} :js-ffi
+            :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.updater
           :require $ [] respo.cursor :refer $ [] update-states
@@ -2326,7 +2339,7 @@
             :args $ [] (:: 'List 'T) (:: 'List 'T)
             :generics $ [] 'T
         'compare $ %{} 'CodeEntry
-          :doc "|Compare two values. Returns -1 if x < y, 1 if x > y, 0 if x = y."
+          :doc "|Compare two numbers. Returns -1 if x < y, 1 if x > y, otherwise 0; preserves the existing unordered-NaN behavior."
           :code $ quote $ defn compare (x y)
             cond
                 &< x y
@@ -2335,8 +2348,7 @@
               true 0
           :examples $ [] $ quote (compare 1 2)
           :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'T 'T
-            :generics $ [] 'T
+            :args $ [] 'Number 'Number
         'literal? $ %{} 'CodeEntry
           :doc "|Check if value is a literal type (string, number, boolean, nil, tag, or symbol)."
           :code $ quote $ defn literal? (x)
