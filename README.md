@@ -67,6 +67,10 @@ For record parsing http://stackoverflow.com/a/29133350/883571
 
 Workflow https://github.com/calcit-lang/respo-calcit-workflow .
 
+CLI 与 `@calcit/procs` 固定为正式 `0.29.3`，模块依赖以 `deps.cirru`
+中的正式 tag 为准。CI 使用完整 strict 检查；memo 的任意参数 spread
+保留为真实开放边界，需要人工审阅，不改为固定参数或新增编译器规则。
+
 Run definition-attached native tests, then compile and run the JS test entry:
 
 ```bash
@@ -92,7 +96,7 @@ yarn test:wasm
 yarn run:wasm:api
 ```
 
-当前固定的正式 0.29.0 工具链执行上述 eligibility check 时，明确返回
+当前固定的正式 0.29.3 工具链执行上述 eligibility check 时，明确返回
 `E_WASM_UNSUPPORTED_JS_FFI`：`js-ffi.node/path-basename` 的 JavaScript 实现不能
 lower 到 WASM；这不是 WASM codegen 被关闭。此迁移不宣称完整 WASM 支持，
 整体 CI 绿色也不能替代 WASM 验收。
@@ -100,6 +104,10 @@ Older emission attempts also encountered demo-only Respo dependencies.
 Native and JavaScript tests remain the release gates. `yarn run:wasm:api` is
 kept for its API probes until the WASM runner and entry dependency graph are
 migrated together.
+
+旧探针已按实际容器和数值收窄，native 与生成 JS 验证的 API/app 汇总为
+44/2045；旧 WASM runner 的 app 汇总期望 1 与迁移前实现也不一致。
+这些跨 native/JS 结果不是旧 WASM ABI runner 或 WASM 后端通过的证据。
 
 ### COS/CDN 配置
 
