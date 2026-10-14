@@ -71,6 +71,11 @@ CLI 与 `@calcit/procs` 固定为正式 `0.29.3`，模块依赖以 `deps.cirru`
 中的正式 tag 为准。CI 使用完整 strict 检查；memo 的任意参数 spread
 保留为真实开放边界，需要人工审阅，不改为固定参数或新增编译器规则。
 
+0.0.60 候选对齐正式 Respo `0.16.120`、UI `0.7.39`、Value `0.5.19` 与
+JS-FFI `0.2.3`，让采用当前版本图的消费者能够严格解析依赖；diff/patch/memo
+程序和原断言不变。npm 新包安装隔离期沿用已批准的一小时设置，不设逐包预批准。
+候选需完成原检查、review、最新 CI 和精确 main 验证后才能发布，不用工作分支替代正式 tag。
+
 Run definition-attached native tests, then compile and run the JS test entry:
 
 ```bash
