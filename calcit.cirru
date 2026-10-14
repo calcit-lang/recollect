@@ -2396,12 +2396,15 @@
         'probe-tag-match $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn probe-tag-match ()
             match (:: :map-splice 1 2)
-              (:map-splice a b) (&+ a b)
+              (:map-splice a b)
+                if
+                  and (number? a) (number? b)
+                  &+ a b
+                  raise "|tag probe expected numeric payloads"
               _ 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'sample-api-base $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn sample-api-base ()
             {}
@@ -2451,21 +2454,32 @@
                 target $ sample-api-target
                 changes $ diff-twig base target $ {}
                 patched $ patch-twig base changes
-                user $ &map:get patched :user
-                items $ &map:get patched :items
-                flags $ &map:get patched :flags
-                nested $ &map:get patched :nested
-              &+ (&map:count patched)
-                &+ (&map:get user :score)
-                  &+ (&list:count items)
-                    &+ (&list:nth items 2)
-                      &+
-                        if (&set:includes? flags :c) 10 0
-                        &+ (&map:get nested :count) (&map:get nested :bonus)
+              if (map? patched)
+                let
+                    user $ &map:get patched :user
+                    items $ &map:get patched :items
+                    flags $ &map:get patched :flags
+                    nested $ &map:get patched :nested
+                  if
+                    and (map? user) (list? items) (set? flags) (map? nested)
+                    let
+                        n0 $ &map:get user :score
+                        n1 $ &list:nth items 2
+                        n2 $ &map:get nested :count
+                        n3 $ &map:get nested :bonus
+                      if
+                        and (number? n0) (number? n1) (number? n2) (number? n3)
+                        &+ (&map:count patched)
+                          &+ n0 $ &+ (&list:count items)
+                            &+ n1 $ &+
+                              if (&set:includes? flags :c) 10 0
+                              &+ n2 n3
+                        raise "|roundtrip probe expected numeric fields"
+                    raise "|API roundtrip probe expected original field containers"
+                raise "|roundtrip probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-app-twig-roundtrip-summary $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-app-twig-roundtrip-summary ()
             let
@@ -2473,18 +2487,32 @@
                 new-twig $ twig-container $ sample-store-b
                 changes $ diff-twig old-twig new-twig $ {}
                 patched $ patch-twig old-twig changes
-                card $ &map:get patched :card
-                user $ &map:get card :user
-                date $ &map:get card :date
-              &+ (&map:count patched)
-                &+ (&map:count card)
-                  &+ (&map:get patched :lit-0)
-                    &+ (&map:get user :score)
-                      &+ (&map:get date :year) (&map:get date :month)
+              if (map? patched)
+                let
+                    card $ &map:get patched :card
+                  if (map? card)
+                    let
+                        user $ &map:get card :user
+                        date $ &map:get card :date
+                      if
+                        and (map? user) (map? date)
+                        let
+                            n0 $ &map:get patched :lit-0
+                            n1 $ &map:get user :score
+                            n2 $ &map:get date :year
+                            n3 $ &map:get date :month
+                          if
+                            and (number? n0) (number? n1) (number? n2) (number? n3)
+                            &+ (&map:count patched)
+                              &+ (&map:count card)
+                                &+ n0 $ &+ n1 $ &+ n2 n3
+                            raise "|roundtrip probe expected numeric fields"
+                        raise "|app roundtrip probe expected user and date Maps"
+                    raise "|app roundtrip probe expected a card Map"
+                raise "|roundtrip probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-arg-order $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-arg-order (a b)
             if (empty? b) 1 0
@@ -2734,13 +2762,17 @@
                 b $ {} $ :a (#{} 2 3 4)
                 changes $ diff-twig a b $ {}
                 patched $ patch-twig a changes
-                s $ &map:get patched :a
-              &+ (&set:count s)
-                if (&set:includes? s 4) 10 0
+              if (map? patched)
+                let
+                    s $ &map:get patched :a
+                  if (set? s)
+                    &+ (&set:count s)
+                      if (&set:includes? s 4) 10 0
+                    raise "|collection probe expected the original member container"
+                raise "|collection probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-tuple-patch $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-tuple-patch ()
             let
@@ -2748,11 +2780,14 @@
                 b $ :: :a 1 3
                 changes $ diff-twig a b $ {}
                 patched $ patch-twig a changes
-              &enum:nth patched 2
+              if (enum? patched)
+                let
+                    value $ &enum:nth patched 2
+                  if (number? value) value $ raise "|tuple probe expected a numeric payload"
+                raise "|tuple probe expected an Enum"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-vector-append-op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-vector-append-op ()
             let
@@ -2781,14 +2816,24 @@
                 b $ {} $ :a ([] 1 6 7 8)
                 changes $ diff-twig a b $ {}
                 patched $ patch-twig a changes
-                xs $ &map:get patched :a
-              &+ (&list:count xs)
-                &+ (&list:nth xs 1)
-                  &+ (&list:nth xs 2) (&list:nth xs 3)
+              if (map? patched)
+                let
+                    xs $ &map:get patched :a
+                  if (list? xs)
+                    let
+                        n0 $ &list:nth xs 1
+                        n1 $ &list:nth xs 2
+                        n2 $ &list:nth xs 3
+                      if
+                        and (number? n0) (number? n1) (number? n2)
+                        &+ (&list:count xs)
+                          &+ n0 $ &+ n1 n2
+                        raise "|vector probe expected numeric members"
+                    raise "|collection probe expected the original member container"
+                raise "|collection probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.wasm-test
           :require
