@@ -428,6 +428,7 @@
                 elapsed $ - t1 t0
                 per-iter $ / elapsed n
               println $ str label "|: " n "|x => " elapsed "|ms total, " per-iter |ms/iter
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String 'Number $ :: 'Fn
