@@ -170,11 +170,13 @@
         '*client-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *client-store schema/store
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
+          :schema $ :: 'Ref $ :: 'Map 'Tag 'Dynamic
         '*data-twig $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defref *data-twig nil
+          :code $ quote $ defref *data-twig
+            assert-type (Option :none)
+              :: 'Option $ :: 'Map 'Tag 'Dynamic
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Tag (:: 'Map 'Dynamic 'Dynamic)
+          :schema $ :: 'Ref $ :: 'Option (:: 'Map 'Tag 'Dynamic)
         '*store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *store
             &merge schema/store $ {} (:lit-0 1)
@@ -188,14 +190,15 @@
               :user $ {} $ :name |Chen
               :types $ {} (:name 1) (|name 2)
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
+          :schema $ :: 'Ref $ :: 'Map 'Tag 'Dynamic
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             when (and config/dev?)
               shared/console-log! $ str |Dispatch: op
             reset! *store $ next-store op
+            , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'Enum
             :features $ #{} :js-ffi
         'main! $ %{} 'CodeEntry (:doc |)
@@ -215,29 +218,27 @@
             :features $ #{} :js-ffi
         'next-client-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-client-store (changes)
-            decode-map-as (patch-twig @*client-store changes) (:: 'Map 'Dynamic 'Dynamic)
+            decode-map-as (patch-twig @*client-store changes) (:: 'Map 'Tag 'Dynamic)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] $ :: 'List 'recollect.schema/change-op
             :features $ #{} :js-ffi
-            :return $ :: 'Map 'Dynamic 'Dynamic
+            :return $ :: 'Map 'Tag 'Dynamic
         'next-data-twig $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn next-data-twig ()
-            assert-type (twig-container @*store)
-              :: 'Map 'Tag $ :: 'Map 'Dynamic 'Dynamic
+          :code $ quote $ defn next-data-twig () (twig-container @*store)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ []
             :features $ #{} :js-ffi
-            :return $ :: 'Map 'Tag $ :: 'Map 'Dynamic 'Dynamic
+            :return $ :: 'Map 'Tag 'Dynamic
         'next-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-store (op)
-            assert-type (updater @*store op) (:: 'Map 'Dynamic 'Dynamic)
+            decode-map-as (updater @*store op) (:: 'Map 'Tag 'Dynamic)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'Enum
             :features $ #{} :js-ffi
-            :return $ :: 'Map 'Dynamic 'Dynamic
+            :return $ :: 'Map 'Tag 'Dynamic
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
@@ -257,10 +258,15 @@
           :code $ quote $ defn render-app! (renderer)
             renderer
               option:unwrap $ browser/query-selector |.app
-              comp-container @*data-twig @*client-store
+              comp-container
+                match @*data-twig
+                  (:some twig) twig
+                  (:none) nil
+                , @*client-store
               , dispatch!
+            , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'Dynamic
             :features $ #{} :js-ffi
         'render-data-twig! $ %{} 'CodeEntry (:doc |)
@@ -268,13 +274,18 @@
             let
                 data-twig $ twig-container @*store
                 options $ {} $ :key :id
-                changes $ diff-twig @*data-twig data-twig options
+                changes $ diff-twig
+                  match @*data-twig
+                    (:some twig) twig
+                    (:none) nil
+                  , data-twig options
               shared/console-log! $ str |Changes changes
               ; println "|Data twig:" data-twig
-              reset! *data-twig $ next-data-twig
+              reset! *data-twig $ Option :some $ next-data-twig
               reset! *client-store $ next-client-store changes
+            , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
             :features $ #{} :js-ffi
         'test! $ %{} 'CodeEntry (:doc |)
@@ -337,9 +348,10 @@
             &merge store $ {} $ :card
               memo-twig-by :card twig-card (&map:get store :user) (&map:get store :date)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] $ :: 'Map 'Tag 'Dynamic
             :features $ #{} :js-ffi
+            :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.twig.container
           :require $ recollect.memo :refer $ memo-twig-by
@@ -411,7 +423,7 @@
           :code $ quote $ defn bench-fn (label n f)
             let
                 t0 $ monotonic-time-ms
-                _ $ reduce (range n) nil $ fn (acc i) (f)
+                _ $ reduce (range n) &unit $ fn (acc i) (f) &unit
                 t1 $ monotonic-time-ms
                 elapsed $ - t1 t0
                 per-iter $ / elapsed n
@@ -525,7 +537,7 @@
           :examples $ [] $ quote
             by-key (:: :a 1) (:: :b 2)
           :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Dynamic 'Dynamic
+            :args $ [] 'Enum 'Enum
         'checked-triples $ %{} 'CodeEntry (:doc "|校验 &map:diff-triple 的公共项列表。")
           :code $ quote $ defn checked-triples (value)
             if (list? value)
@@ -1259,7 +1271,7 @@
               set-difference-iter (&list:rest xs) a $ if (&set:includes? a x) acc $ &list:append acc x
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'Dynamic) 'Dynamic $ :: 'List 'Dynamic
+            :args $ [] (:: 'List 'Dynamic) (:: 'Set 'Dynamic) (:: 'List 'Dynamic)
             :return $ :: 'List 'Dynamic
         'unlimited-diff-budget $ %{} 'CodeEntry
           :doc "|Construct an unlimited budget for compatibility entry points."
@@ -1333,9 +1345,11 @@
           :code $ quote $ defn assoc-in-map (m path v)
             &map:assoc m (&list:first path)
               &map:assoc
-                or
-                  &map:get m $ &list:first path
-                  {}
+                decode-map-as
+                  or
+                    &map:get m $ &list:first path
+                    {}
+                  :: 'Map 'Dynamic 'Dynamic
                 &list:nth path 1
                 , v
           :examples $ []
@@ -1375,23 +1389,25 @@
                     :: 'Option 'Dynamic
                 match cached-pair-option
                   (:some cached-pair)
-                    if
-                      &= args $ &list:first cached-pair
-                      if @*twig-frame-active?
-                        &let
-                          ret $ &list:last cached-pair
-                          swap! *twig-frame-cache assoc-in-map ([] f key) cached-pair
-                          , ret
-                        &list:last cached-pair
-                      &let
-                        ret $ f & args
+                    let
+                        cached-pair $ decode-map-as cached-pair $ :: 'List 'Dynamic
+                      if
+                        &= args $ &list:first cached-pair
                         if @*twig-frame-active?
-                          &let (result ret)
-                            swap! *twig-frame-cache assoc-in-map ([] f key) ([] args ret)
+                          &let
+                            ret $ &list:last cached-pair
+                            swap! *twig-frame-cache assoc-in-map ([] f key) cached-pair
                             , ret
-                          &let (result ret)
-                            swap! *twig-call-cache assoc-in-map ([] f key) ([] args ret)
-                            , ret
+                          &list:last cached-pair
+                        &let
+                          ret $ f & args
+                          if @*twig-frame-active?
+                            &let (result ret)
+                              swap! *twig-frame-cache assoc-in-map ([] f key) ([] args ret)
+                              , ret
+                            &let (result ret)
+                              swap! *twig-call-cache assoc-in-map ([] f key) ([] args ret)
+                              , ret
                   (:none)
                     &let
                       ret $ f & args
@@ -1508,7 +1524,7 @@
                       pair $ &list:nth xs i
                     recur (inc i)
                       + total $ &list:count $ &map:to-list
-                        assert-type (&list:last pair) (:: 'Map 'Dynamic 'Dynamic)
+                        decode-map-as (&list:last pair) (:: 'Map 'Dynamic 'Dynamic)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
@@ -2257,7 +2273,7 @@
           :code $ quote $ def store
             {} $ :states $ {}
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.schema
     'recollect.test.fixture $ %{} 'FileEntry
