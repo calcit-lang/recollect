@@ -2637,11 +2637,17 @@
             let
                 base $ {} $ :a 1
                 patched $ patch-map-set base :b 4
-              &+ (&map:count patched) (&map:get patched :b)
+              if (map? patched)
+                let
+                    value0 $ &map:get patched :b
+                  if
+                    and $ number? value0
+                    &+ (&map:count patched) value0
+                    raise "|patch probe expected numeric map values"
+                raise "|patch probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-map-patch $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-map-patch ()
             let
@@ -2649,12 +2655,18 @@
                 b $ {} (:a 1) (:b 3) (:c 4)
                 changes $ diff-twig a b $ {}
                 patched $ patch-twig a changes
-              &+ (&map:count patched)
-                &+ (&map:get patched :b) (&map:get patched :c)
+              if (map? patched)
+                let
+                    value0 $ &map:get patched :b
+                    value1 $ &map:get patched :c
+                  if
+                    and (number? value0) (number? value1)
+                    &+ (&map:count patched) (&+ value0 value1)
+                    raise "|patch probe expected numeric map values"
+                raise "|patch probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-map-patch2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-map-patch2 ()
             let
@@ -2662,11 +2674,10 @@
                 b $ {} (:a 1) (:b 3) (:c 4)
                 changes $ diff-twig a b $ {}
                 patched $ patch-twig a changes
-              &map:count patched
+              if (map? patched) (&map:count patched) (raise "|patch probe expected a Map")
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-num-order $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-num-order (a b) (if true b 0)
           :examples $ []
@@ -2691,11 +2702,17 @@
             let
                 base $ {} $ :a 1
                 patched $ patch-one base $ schema/change-op :assoc :b 4
-              &+ (&map:count patched) (&map:get patched :b)
+              if (map? patched)
+                let
+                    value0 $ &map:get patched :b
+                  if
+                    and $ number? value0
+                    &+ (&map:count patched) value0
+                    raise "|patch probe expected numeric map values"
+                raise "|patch probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-scalar-change $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-scalar-change ()
             patch-twig 1 $ diff-twig 1 2 $ {}
