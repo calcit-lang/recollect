@@ -88,8 +88,9 @@ with the current public Calcit CLI:
 calcit wasm calcit.cirru --entry test --check-only
 ```
 
-The following experimental Node runners still use the retired `cr-wasm`
-command and need a separate migration before they can run against the pinned CLI:
+The experimental Node runners now invoke the public `calcit wasm` command
+with the probe initialization function. Compilation must succeed before the
+Node runner reads `js-out/program.wasm`:
 
 ```bash
 yarn test:wasm
@@ -102,8 +103,8 @@ lower 到 WASM；这不是 WASM codegen 被关闭。此迁移不宣称完整 WAS
 整体 CI 绿色也不能替代 WASM 验收。
 Older emission attempts also encountered demo-only Respo dependencies.
 Native and JavaScript tests remain the release gates. `yarn run:wasm:api` is
-kept for its API probes until the WASM runner and entry dependency graph are
-migrated together.
+kept for its API probes; the entry dependency graph and its legacy export/ABI
+assumptions still need WASM-specific acceptance.
 
 旧探针已按实际容器和数值收窄，native 与生成 JS 验证的 API/app 汇总为
 44/2045；旧 WASM runner 的 app 汇总期望 1 与迁移前实现也不一致。
