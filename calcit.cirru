@@ -126,8 +126,8 @@
               if
                 .includes? (#{} :map-0-rm :vec-0-rm :set-0-rm :date) op
                 dispatch! $ :: op
-                dispatch! op $ js/Math.round $ * 100
-                  unsafe-coerce (js/Math.random) Number
+                dispatch! $ :: op $ round
+                  * 100 $ js-ffi.contract/expect-number |Math.random $ js/Math.random
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] 'Tag
@@ -170,11 +170,13 @@
         '*client-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *client-store schema/store
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
+          :schema $ :: 'Ref $ :: 'Map 'Tag 'Dynamic
         '*data-twig $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defref *data-twig nil
+          :code $ quote $ defref *data-twig
+            assert-type (Option :none)
+              :: 'Option $ :: 'Map 'Tag 'Dynamic
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Tag (:: 'Map 'Dynamic 'Dynamic)
+          :schema $ :: 'Ref $ :: 'Option (:: 'Map 'Tag 'Dynamic)
         '*store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *store
             &merge schema/store $ {} (:lit-0 1)
@@ -188,14 +190,15 @@
               :user $ {} $ :name |Chen
               :types $ {} (:name 1) (|name 2)
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
+          :schema $ :: 'Ref $ :: 'Map 'Tag 'Dynamic
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             when (and config/dev?)
               shared/console-log! $ str |Dispatch: op
             reset! *store $ next-store op
+            , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'Enum
             :features $ #{} :js-ffi
         'main! $ %{} 'CodeEntry (:doc |)
@@ -215,29 +218,26 @@
             :features $ #{} :js-ffi
         'next-client-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-client-store (changes)
-            assert-type (patch-twig @*client-store changes) (:: 'Map 'Dynamic 'Dynamic)
+            decode-map-as (patch-twig @*client-store changes) (:: 'Map 'Tag 'Dynamic)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] $ :: 'List 'recollect.schema/change-op
             :features $ #{} :js-ffi
-            :return $ :: 'Map 'Dynamic 'Dynamic
+            :return $ :: 'Map 'Tag 'Dynamic
         'next-data-twig $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn next-data-twig ()
-            assert-type (twig-container @*store)
-              :: 'Map 'Tag $ :: 'Map 'Dynamic 'Dynamic
+          :code $ quote $ defn next-data-twig () (twig-container @*store)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ []
             :features $ #{} :js-ffi
-            :return $ :: 'Map 'Tag $ :: 'Map 'Dynamic 'Dynamic
+            :return $ :: 'Map 'Tag 'Dynamic
         'next-store $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn next-store (op)
-            assert-type (updater @*store op) (:: 'Map 'Dynamic 'Dynamic)
+          :code $ quote $ defn next-store (op) (updater @*store op)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'Enum
             :features $ #{} :js-ffi
-            :return $ :: 'Map 'Dynamic 'Dynamic
+            :return $ :: 'Map 'Tag 'Dynamic
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
@@ -257,10 +257,15 @@
           :code $ quote $ defn render-app! (renderer)
             renderer
               option:unwrap $ browser/query-selector |.app
-              comp-container @*data-twig @*client-store
+              comp-container
+                match @*data-twig
+                  (:some twig) twig
+                  (:none) nil
+                , @*client-store
               , dispatch!
+            , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'Dynamic
             :features $ #{} :js-ffi
         'render-data-twig! $ %{} 'CodeEntry (:doc |)
@@ -268,13 +273,18 @@
             let
                 data-twig $ twig-container @*store
                 options $ {} $ :key :id
-                changes $ diff-twig @*data-twig data-twig options
+                changes $ diff-twig
+                  match @*data-twig
+                    (:some twig) twig
+                    (:none) nil
+                  , data-twig options
               shared/console-log! $ str |Changes changes
               ; println "|Data twig:" data-twig
-              reset! *data-twig $ next-data-twig
+              reset! *data-twig $ Option :some $ next-data-twig
               reset! *client-store $ next-client-store changes
+            , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
             :features $ #{} :js-ffi
         'test! $ %{} 'CodeEntry (:doc |)
@@ -337,9 +347,10 @@
             &merge store $ {} $ :card
               memo-twig-by :card twig-card (&map:get store :user) (&map:get store :date)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] $ :: 'Map 'Tag 'Dynamic
             :features $ #{} :js-ffi
+            :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.twig.container
           :require $ recollect.memo :refer $ memo-twig-by
@@ -348,32 +359,41 @@
         %{} 'CodeEntry (:doc |)
           :code $ quote $ defn updater (store op)
             match op
-              (:states cursor s) (update-states store cursor s)
+              (:states cursor s)
+                decode-map-as
+                  update-states store
+                    decode-map-as cursor $ :: 'List 'Dynamic
+                    , s
+                  :: 'Map 'Tag 'Dynamic
               (:lit-0 d) (&map:assoc store :lit-0 d)
               (:lit-1 d)
-                &map:assoc store :in-map $ &map:assoc (&map:get store :in-map) :lit-1 d
+                &map:assoc store :in-map $ &map:assoc
+                  decode-map-as (&map:get store :in-map) (:: 'Map 'Tag 'Dynamic)
+                  , :lit-1 d
               (:map-0 d)
-                &map:assoc store :map-0 $ &map:assoc (&map:get store :map-0) :y d
+                &map:assoc store :map-0 $ &map:assoc
+                  decode-map-as (&map:get store :map-0) (:: 'Map 'Tag 'Dynamic)
+                  , :y d
               (:map-0-rm)
                 &map:assoc store :map-0 $ &map:dissoc
-                  or (&map:get store :map-0) ({})
+                  decode-map-as
+                    or (&map:get store :map-0) ({})
+                    :: 'Map 'Tag 'Dynamic
                   , :y
               (:vec-0 d)
                 &map:assoc store :vec-0 $ &list:append
-                  &list:append (&map:get store :vec-0) d
+                  &list:append
+                    decode-map-as (&map:get store :vec-0) (:: 'List 'Dynamic)
+                    , d
                   , :cursor
               (:vec-0-rm)
                 &map:assoc store :vec-0 $ either
-                  &list:butlast $ &map:get store :vec-0
-                  []
-              (:vec-0 d)
-                &map:assoc store :vec-0 $ &list:prepend (&map:get store :vec-0) d
-              (:vec-0-rm)
-                &map:assoc store :vec-0 $ either
-                  &list:rest $ &map:get store :vec-0
+                  &list:butlast $ decode-map-as (&map:get store :vec-0) (:: 'List 'Dynamic)
                   []
               (:set-0 d)
-                &map:assoc store :set-0 $ &union (&map:get store :set-0) (#{} d)
+                &map:assoc store :set-0 $ &union
+                  decode-map-as (&map:get store :set-0) (:: 'Set 'Dynamic)
+                  #{} d
               (:set-0-rm)
                 &let
                   items $ &map:get store :set-0
@@ -384,18 +404,23 @@
                     raise |Expected-set-for-set-0
               (:date)
                 let
-                    date $ or (&map:get store :date) ({})
+                    date $ decode-map-as
+                      or (&map:get store :date) ({})
+                      :: 'Map 'Tag 'Dynamic
                   &map:assoc store :date $ &map:assoc date :month $ inc
-                    assert-type
+                    decode-map-as
                       or (&map:get date :month) 0
                       , 'Number
               (:types d)
-                &map:assoc store :types $ &map:assoc (&map:get store :types) d true
+                &map:assoc store :types $ &map:assoc
+                  decode-map-as (&map:get store :types) (:: 'Map 'Dynamic 'Dynamic)
+                  , d true
               _ $ do (eprintln "|Unhandled op:" op) store
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Enum
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Enum
             :features $ #{} :js-ffi
+            :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.updater
           :require $ [] respo.cursor :refer $ [] update-states
@@ -411,11 +436,12 @@
           :code $ quote $ defn bench-fn (label n f)
             let
                 t0 $ monotonic-time-ms
-                _ $ reduce (range n) nil $ fn (acc i) (f)
+                _ $ reduce (range n) &unit $ fn (acc i) (f) &unit
                 t1 $ monotonic-time-ms
                 elapsed $ - t1 t0
                 per-iter $ / elapsed n
               println $ str label "|: " n "|x => " elapsed "|ms total, " per-iter |ms/iter
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String 'Number $ :: 'Fn
@@ -525,7 +551,7 @@
           :examples $ [] $ quote
             by-key (:: :a 1) (:: :b 2)
           :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Dynamic 'Dynamic
+            :args $ [] 'Enum 'Enum
         'checked-triples $ %{} 'CodeEntry (:doc "|校验 &map:diff-triple 的公共项列表。")
           :code $ quote $ defn checked-triples (value)
             if (list? value)
@@ -850,13 +876,13 @@
                     old $ {} (:id 1) (:data 1)
                     new $ {} (:id 2) (:data 1)
                   assert |changed-key-replaces-map $ =
-                    [] $ %:: schema/change-op :replace new
+                    [] $ schema/change-op :replace new
                     diff-twig old new $ {} $ :key :id
                 let
                     old $ {} (:id 1) (:data 1)
                     new $ {} (:id 1) (:data 2)
                   assert |same-key-updates-field $ =
-                    [] $ %:: schema/change-op :assoc :data 2
+                    [] $ schema/change-op :assoc :data 2
                     diff-twig old new $ {} $ :key :id
                 let
                     old $ {} $ :a
@@ -864,14 +890,14 @@
                     new $ {} $ :a
                       {} $ :c 2
                   assert |nested-map-splice-has-removed-and-added-values $ =
-                    [] $ %:: schema/change-op :update :a $ %:: schema/change-op :map-splice (#{} :b)
+                    [] $ schema/change-op :update :a $ schema/change-op :map-splice (#{} :b)
                       {} $ :c 2
                     diff-twig old new $ {} $ :key :id
                 let
                     old $ {} $ :a (#{} 1 2 3)
                     new $ {} $ :a (#{} 2 3 4)
                   assert |set-splice-reports-removed-and-added-members $ =
-                    [] $ %:: schema/change-op :update :a $ %:: schema/change-op :set-splice (#{} 1) (#{} 4)
+                    [] $ schema/change-op :update :a $ schema/change-op :set-splice (#{} 1) (#{} 4)
                     diff-twig old new $ {} $ :key :id
                 assert |equal-sets-have-no-diff $ &= ([])
                   diff-twig
@@ -885,16 +911,16 @@
                     old $ {} $ :a ([] 1 2 3 4)
                     new $ {} $ :a ([] 1 6 7 8)
                   assert |list-items-are-picked-and-updated $ =
-                    [] $ %:: schema/change-op :pick :a $ [] (%:: schema/change-op :assoc 1 6) (%:: schema/change-op :assoc 2 7) (%:: schema/change-op :assoc 3 8)
+                    [] $ schema/change-op :pick :a $ [] (schema/change-op :assoc 1 6) (schema/change-op :assoc 2 7) (schema/change-op :assoc 3 8)
                     diff-twig old new $ {} $ :key :id
                 assert |different-tuple-tag-replaces-value $ =
-                  [] $ %:: schema/change-op :replace $ :: :b 2 3 4
+                  [] $ schema/change-op :replace $ :: :b 2 3 4
                   diff-twig (:: :a 1 2) (:: :b 2 3 4) ({})
                 assert |tuple-position-update-is-associative $ =
-                  [] $ %:: schema/change-op :assoc 2 3
+                  [] $ schema/change-op :assoc 2 3
                   diff-twig (:: :a 1 2) (:: :a 1 3) ({})
                 assert |nested-tuple-value-keeps-update-path $ =
-                  [] $ %:: schema/change-op :update 2 $ %:: schema/change-op :assoc :a 2
+                  [] $ schema/change-op :update 2 $ schema/change-op :assoc :a 2
                   diff-twig
                     :: :a 1 $ {} $ :a 1
                     :: :a 1 $ {} $ :a 2
@@ -914,17 +940,17 @@
                     diff-twig (A fx) (B fx)
                       {} $ :key :id
                 let
-                    old $ %:: schema/change-op :assoc :name |Lily
-                    new $ %:: schema/change-op :assoc :name |Lucy
+                    old $ schema/change-op :assoc :name |Lily
+                    new $ schema/change-op :assoc :name |Lucy
                   assert |enum-records-are-compared-structurally $ not $ empty?
                     diff-twig old new $ {}
               :tags $ #{} :unit
             %{} 'TestEntry (:name |reports-record-field-updates)
               :code $ quote $ let
-                  old $ %{} recollect.test.fixture/Person (:name |Lily) (:age 10)
-                  new $ %{} recollect.test.fixture/Person (:name |Lucy) (:age 11)
+                  old $ recollect.test.fixture/Person :name |Lily :age 10
+                  new $ recollect.test.fixture/Person :name |Lucy :age 11
                 assert |record-fields-are-updated-in-stable-order $ =
-                  [] (%:: schema/change-op :assoc :age 11) (%:: schema/change-op :assoc :name |Lucy)
+                  [] (schema/change-op :assoc :age 11) (schema/change-op :assoc :name |Lucy)
                   diff-twig old new $ {}
               :tags $ #{} :unit
         'diff-twig-budgeted $ %{} 'CodeEntry
@@ -945,9 +971,7 @@
             %{} 'TestEntry (:name |zero-and-one-visited-limits)
               :code $ quote $ do
                 let
-                    zero-budget $ %{} DiffBudget
-                      :max-visited $ Option :some 0
-                      :max-emitted $ Option :none
+                    zero-budget $ DiffBudget :max-visited (Option :some 0) :max-emitted $ Option :none
                     outcome $ diff-twig-budgeted 1 1 ({}) zero-budget
                   match outcome
                     (:budget-exceeded reason stats)
@@ -957,9 +981,7 @@
                         assert |zero-budget-emits-no-operation $ &= 0 $ :emitted-ops stats
                     _ $ assert |zero-budget-must-exceed false
                 let
-                    one-budget $ %{} DiffBudget
-                      :max-visited $ Option :some 1
-                      :max-emitted $ Option :some 0
+                    one-budget $ DiffBudget :max-visited (Option :some 1) :max-emitted $ Option :some 0
                     outcome $ diff-twig-budgeted 1 1 ({}) one-budget
                   match outcome
                     (:complete changes stats)
@@ -972,9 +994,7 @@
             %{} 'TestEntry (:name |exact-emitted-limit-and-atomic-overflow)
               :code $ quote $ do
                 let
-                    exact-budget $ %{} DiffBudget
-                      :max-visited $ Option :some 1
-                      :max-emitted $ Option :some 1
+                    exact-budget $ DiffBudget :max-visited (Option :some 1) :max-emitted $ Option :some 1
                     outcome $ diff-twig-budgeted 1 2 ({}) exact-budget
                   match outcome
                     (:complete changes stats)
@@ -985,9 +1005,7 @@
                         assert |exact-emitted-limit-counts-one $ &= 1 $ :emitted-ops stats
                     _ $ assert |exact-emitted-limit-must-complete false
                 let
-                    zero-emitted $ %{} DiffBudget
-                      :max-visited $ Option :some 1
-                      :max-emitted $ Option :some 0
+                    zero-emitted $ DiffBudget :max-visited (Option :some 1) :max-emitted $ Option :some 0
                     outcome $ diff-twig-budgeted 1 2 ({}) zero-emitted
                   match outcome
                     (:budget-exceeded reason stats)
@@ -1000,9 +1018,7 @@
             %{} 'TestEntry (:name |low-op-high-visited-and-exact-bound)
               :code $ quote $ do
                 let
-                    limited $ %{} DiffBudget
-                      :max-visited $ Option :some 3
-                      :max-emitted $ Option :none
+                    limited $ DiffBudget :max-visited (Option :some 3) :max-emitted $ Option :none
                     outcome $ diff-twig-budgeted ([] 1 2 3) ([] 1 2 4) ({}) limited
                   match outcome
                     (:budget-exceeded reason stats)
@@ -1012,9 +1028,7 @@
                         assert |late-change-was-not-emitted $ &= 0 $ :emitted-ops stats
                     _ $ assert |low-op-high-visited-must-exceed false
                 let
-                    exact $ %{} DiffBudget
-                      :max-visited $ Option :some 4
-                      :max-emitted $ Option :some 2
+                    exact $ DiffBudget :max-visited (Option :some 4) :max-emitted $ Option :some 2
                     outcome $ diff-twig-budgeted ([] 1 2 3) ([] 1 2 4) ({}) exact
                   match outcome
                     (:complete changes stats)
@@ -1047,9 +1061,7 @@
                         assert |unlimited-budget-records-work $ &> (:visited-nodes stats) 0
                     _ $ assert |unlimited-budget-must-complete false
                 let
-                    blocked $ %{} DiffBudget
-                      :max-visited $ Option :some 0
-                      :max-emitted $ Option :none
+                    blocked $ DiffBudget :max-visited (Option :some 0) :max-emitted $ Option :none
                     first-outcome $ diff-twig-budgeted 1 2 ({}) blocked
                     second-outcome $ diff-twig-budgeted 1 2 ({}) (unlimited-diff-budget &unit)
                   match first-outcome
@@ -1065,9 +1077,7 @@
             %{} 'TestEntry (:name |deep-path-and-full-replacement)
               :code $ quote $ do
                 let
-                    budget $ %{} DiffBudget
-                      :max-visited $ Option :some 1
-                      :max-emitted $ Option :some 1
+                    budget $ DiffBudget :max-visited (Option :some 1) :max-emitted $ Option :some 1
                     outcome $ diff-twig-budgeted ([] 1 2)
                       {} $ :replaced true
                       {}
@@ -1275,7 +1285,7 @@
               set-difference-iter (&list:rest xs) a $ if (&set:includes? a x) acc $ &list:append acc x
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'Dynamic) 'Dynamic $ :: 'List 'Dynamic
+            :args $ [] (:: 'List 'Dynamic) (:: 'Set 'Dynamic) (:: 'List 'Dynamic)
             :return $ :: 'List 'Dynamic
         'unlimited-diff-budget $ %{} 'CodeEntry
           :doc "|Construct an unlimited budget for compatibility entry points."
@@ -1349,9 +1359,11 @@
           :code $ quote $ defn assoc-in-map (m path v)
             &map:assoc m (&list:first path)
               &map:assoc
-                or
-                  &map:get m $ &list:first path
-                  {}
+                decode-map-as
+                  or
+                    &map:get m $ &list:first path
+                    {}
+                  :: 'Map 'Dynamic 'Dynamic
                 &list:nth path 1
                 , v
           :examples $ []
@@ -1391,23 +1403,25 @@
                     :: 'Option 'Dynamic
                 match cached-pair-option
                   (:some cached-pair)
-                    if
-                      &= args $ &list:first cached-pair
-                      if @*twig-frame-active?
-                        &let
-                          ret $ &list:last cached-pair
-                          swap! *twig-frame-cache assoc-in-map ([] f key) cached-pair
-                          , ret
-                        &list:last cached-pair
-                      &let
-                        ret $ f & args
+                    let
+                        cached-pair $ decode-map-as cached-pair $ :: 'List 'Dynamic
+                      if
+                        &= args $ &list:first cached-pair
                         if @*twig-frame-active?
-                          &let (result ret)
-                            swap! *twig-frame-cache assoc-in-map ([] f key) ([] args ret)
+                          &let
+                            ret $ &list:last cached-pair
+                            swap! *twig-frame-cache assoc-in-map ([] f key) cached-pair
                             , ret
-                          &let (result ret)
-                            swap! *twig-call-cache assoc-in-map ([] f key) ([] args ret)
-                            , ret
+                          &list:last cached-pair
+                        &let
+                          ret $ f & args
+                          if @*twig-frame-active?
+                            &let (result ret)
+                              swap! *twig-frame-cache assoc-in-map ([] f key) ([] args ret)
+                              , ret
+                            &let (result ret)
+                              swap! *twig-call-cache assoc-in-map ([] f key) ([] args ret)
+                              , ret
                   (:none)
                     &let
                       ret $ f & args
@@ -1524,7 +1538,7 @@
                       pair $ &list:nth xs i
                     recur (inc i)
                       + total $ &list:count $ &map:to-list
-                        assert-type (&list:last pair) (:: 'Map 'Dynamic 'Dynamic)
+                        decode-map-as (&list:last pair) (:: 'Map 'Dynamic 'Dynamic)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
@@ -1769,7 +1783,7 @@
               patch-twig old changes
             quote $ patch-twig
               {} $ :a 1
-              [] $ %:: schema/change-op :assoc :a 2
+              [] $ schema/change-op :assoc :a 2
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] 'Dynamic $ :: 'List 'recollect.schema/change-op
           :tests $ []
@@ -1803,8 +1817,8 @@
                     changes $ recollect.diff/diff-twig old new $ {}
                   assert |nested-tuple-roundtrips $ &= new $ patch-twig old changes
                 let
-                    old $ %:: schema/change-op :assoc :name |Lily
-                    new $ %:: schema/change-op :assoc :name |Lucy
+                    old $ schema/change-op :assoc :name |Lily
+                    new $ schema/change-op :assoc :name |Lucy
                     changes $ recollect.diff/diff-twig old new $ {}
                   assert |enum-record-roundtrips $ &= new $ patch-twig old changes
               :tags $ #{} :unit
@@ -1871,12 +1885,14 @@
                 (struct? base)
                   if
                     or (tag? k) (string? k)
-                    if (contains? base k)
-                      try
-                        PatchResult :ok $ struct-with base $ k data
-                        fn (_error)
-                          PatchResult :err $ PatchError :type-mismatch next-path :field-value $ type-of data
-                      PatchResult :err $ PatchError :missing-node next-path
+                    let
+                        field $ if (tag? k) k $ if (string? k) (to-tag k) (raise "|Expected a validated String or Tag field key")
+                      if (contains-field? base field)
+                        try
+                          PatchResult :ok $ struct-with base $ k data
+                          fn (_error)
+                            PatchResult :err $ PatchError :type-mismatch next-path :field-value $ type-of data
+                        PatchResult :err $ PatchError :missing-node next-path
                     PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
@@ -1956,9 +1972,11 @@
                 (struct? base)
                   if
                     or (tag? k) (string? k)
-                    if (contains? base k)
-                      PatchResult :ok $ &map:get (&struct:to-map base) (turn-tag k)
-                      PatchResult :err $ PatchError :missing-node next-path
+                    let
+                        field $ if (tag? k) k $ if (string? k) (to-tag k) (raise "|Expected a validated String or Tag field key")
+                      if (contains-field? base field)
+                        PatchResult :ok $ &map:get (&struct:to-map base) field
+                        PatchResult :err $ PatchError :missing-node next-path
                     PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
@@ -2080,7 +2098,7 @@
                 let
                     base $ {} $ :a
                       {} $ :b 1
-                    changes $ [] $ %:: schema/change-op :update-in ([] :a :b) (%:: schema/change-op :replace 2)
+                    changes $ [] $ schema/change-op :update-in ([] :a :b) (schema/change-op :replace 2)
                     expected $ {} $ :a
                       {} $ :b 2
                   match (try-patch-twig base changes)
@@ -2089,7 +2107,7 @@
                     (:err _) (assert |applies-valid-batches false)
                 let
                     base $ {} $ :n 1
-                    changes $ [] $ %:: schema/change-op :assoc :n 2
+                    changes $ [] $ schema/change-op :assoc :n 2
                     batch $ patch-batch changes
                     expected $ {} $ :n 2
                   match (batch .apply-to base)
@@ -2101,9 +2119,9 @@
               :code $ quote $ do
                 let
                     base $ {} $ :a ([] 1)
-                    changes $ [] $ %:: schema/change-op :update-in ([] :a 3) (%:: schema/change-op :replace 2)
-                    expected $ %:: PatchError :invalid-index
-                      [] (%:: PatchPathSegment :field :a) (%:: PatchPathSegment :index 3)
+                    changes $ [] $ schema/change-op :update-in ([] :a 3) (schema/change-op :replace 2)
+                    expected $ PatchError :invalid-index
+                      [] (PatchPathSegment :field :a) (PatchPathSegment :index 3)
                       , 3 1
                   match (try-patch-twig base changes)
                     (:ok _) (assert |structured-path-errors false)
@@ -2111,8 +2129,8 @@
                       assert |structured-path-errors $ &= expected e
                 let
                     base $ {} $ :a 1
-                    changes $ [] $ %:: schema/change-op :update :missing (%:: schema/change-op :replace 2)
-                    expected $ %:: PatchError :missing-node $ [] (%:: PatchPathSegment :field :missing)
+                    changes $ [] $ schema/change-op :update :missing (schema/change-op :replace 2)
+                    expected $ PatchError :missing-node $ [] (PatchPathSegment :field :missing)
                   match (try-patch-twig base changes)
                     (:ok _) (assert |structured-path-errors false)
                     (:err e)
@@ -2121,14 +2139,14 @@
             %{} 'TestEntry (:name |rejects-batches-atomically)
               :code $ quote $ let
                   base $ {} $ :stable 1
-                  changes $ [] (%:: schema/change-op :assoc :temporary 2)
-                    %:: schema/change-op :update :missing $ %:: schema/change-op :replace 3
+                  changes $ [] (schema/change-op :assoc :temporary 2)
+                    schema/change-op :update :missing $ schema/change-op :replace 3
                   result $ try-patch-twig base changes
                 match result
                   (:ok _) (assert |rejects-atomically false)
                   (:err e)
                     assert |rejects-atomically $ &=
-                      %:: PatchError :missing-node $ [] $ %:: PatchPathSegment :field :missing
+                      PatchError :missing-node $ [] $ PatchPathSegment :field :missing
                       , e
                 assert |base-unchanged $ &=
                   {} $ :stable 1
@@ -2137,19 +2155,19 @@
             %{} 'TestEntry (:name |rejects-container-and-payload-types)
               :code $ quote $ do
                 match
-                  try-patch-one 1 $ %:: schema/change-op :vec-append $ [] 2
+                  try-patch-one 1 $ schema/change-op :vec-append $ [] 2
                   (:ok _) (assert |container-types false)
                   (:err e)
                     assert |container-types $ &=
-                      %:: PatchError :type-mismatch ([]) :list :number
+                      PatchError :type-mismatch ([]) :list :number
                       , e
                 match
                   try-patch-one ([])
-                    %:: schema/change-op :map-splice (#{} :a) ({})
+                    schema/change-op :map-splice (#{} :a) ({})
                   (:ok _) (assert |container-types false)
                   (:err e)
                     assert |container-types $ &=
-                      %:: PatchError :type-mismatch ([]) :map :list
+                      PatchError :type-mismatch ([]) :map :list
                       , e
               :tags $ #{} :unit
         'try-patch-twig-at $ %{} 'CodeEntry
@@ -2184,7 +2202,7 @@
             :pick 'Dynamic $ :: 'List 'recollect.schema/change-op
             :pick-in (:: 'List 'Dynamic) (:: 'List 'recollect.schema/change-op)
           :examples $ []
-          :schema $ :: 'Enum
+          :schema $ :: 'EnumDef
         'decode-change-op $ %{} 'CodeEntry (:doc "|按变体标签与载荷类型校验单个 change-op，嵌套操作递归解码。")
           :code $ quote $ defn decode-change-op (x)
             if (enum? x)
@@ -2269,7 +2287,7 @@
           :code $ quote $ def store
             {} $ :states $ {}
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.schema
     'recollect.test.fixture $ %{} 'FileEntry
@@ -2277,7 +2295,7 @@
         %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct Person (:name 'String) (:age 'Number)
           :examples $ []
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.test.fixture
     'recollect.twig $ %{} 'FileEntry
@@ -2321,7 +2339,7 @@
             :args $ [] (:: 'List 'T) (:: 'List 'T)
             :generics $ [] 'T
         'compare $ %{} 'CodeEntry
-          :doc "|Compare two values. Returns -1 if x < y, 1 if x > y, 0 if x = y."
+          :doc "|Compare two numbers. Returns -1 if x < y, 1 if x > y, otherwise 0; preserves the existing unordered-NaN behavior."
           :code $ quote $ defn compare (x y)
             cond
                 &< x y
@@ -2330,8 +2348,7 @@
               true 0
           :examples $ [] $ quote (compare 1 2)
           :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'T 'T
-            :generics $ [] 'T
+            :args $ [] 'Number 'Number
         'literal? $ %{} 'CodeEntry
           :doc "|Check if value is a literal type (string, number, boolean, nil, tag, or symbol)."
           :code $ quote $ defn literal? (x)
@@ -2379,12 +2396,15 @@
         'probe-tag-match $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn probe-tag-match ()
             match (:: :map-splice 1 2)
-              (:map-splice a b) (&+ a b)
+              (:map-splice a b)
+                if
+                  and (number? a) (number? b)
+                  &+ a b
+                  raise "|tag probe expected numeric payloads"
               _ 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'sample-api-base $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn sample-api-base ()
             {}
@@ -2434,21 +2454,32 @@
                 target $ sample-api-target
                 changes $ diff-twig base target $ {}
                 patched $ patch-twig base changes
-                user $ &map:get patched :user
-                items $ &map:get patched :items
-                flags $ &map:get patched :flags
-                nested $ &map:get patched :nested
-              &+ (&map:count patched)
-                &+ (&map:get user :score)
-                  &+ (&list:count items)
-                    &+ (&list:nth items 2)
-                      &+
-                        if (&set:includes? flags :c) 10 0
-                        &+ (&map:get nested :count) (&map:get nested :bonus)
+              if (map? patched)
+                let
+                    user $ &map:get patched :user
+                    items $ &map:get patched :items
+                    flags $ &map:get patched :flags
+                    nested $ &map:get patched :nested
+                  if
+                    and (map? user) (list? items) (set? flags) (map? nested)
+                    let
+                        n0 $ &map:get user :score
+                        n1 $ &list:nth items 2
+                        n2 $ &map:get nested :count
+                        n3 $ &map:get nested :bonus
+                      if
+                        and (number? n0) (number? n1) (number? n2) (number? n3)
+                        &+ (&map:count patched)
+                          &+ n0 $ &+ (&list:count items)
+                            &+ n1 $ &+
+                              if (&set:includes? flags :c) 10 0
+                              &+ n2 n3
+                        raise "|roundtrip probe expected numeric fields"
+                    raise "|API roundtrip probe expected original field containers"
+                raise "|roundtrip probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-app-twig-roundtrip-summary $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-app-twig-roundtrip-summary ()
             let
@@ -2456,18 +2487,32 @@
                 new-twig $ twig-container $ sample-store-b
                 changes $ diff-twig old-twig new-twig $ {}
                 patched $ patch-twig old-twig changes
-                card $ &map:get patched :card
-                user $ &map:get card :user
-                date $ &map:get card :date
-              &+ (&map:count patched)
-                &+ (&map:count card)
-                  &+ (&map:get patched :lit-0)
-                    &+ (&map:get user :score)
-                      &+ (&map:get date :year) (&map:get date :month)
+              if (map? patched)
+                let
+                    card $ &map:get patched :card
+                  if (map? card)
+                    let
+                        user $ &map:get card :user
+                        date $ &map:get card :date
+                      if
+                        and (map? user) (map? date)
+                        let
+                            n0 $ &map:get patched :lit-0
+                            n1 $ &map:get user :score
+                            n2 $ &map:get date :year
+                            n3 $ &map:get date :month
+                          if
+                            and (number? n0) (number? n1) (number? n2) (number? n3)
+                            &+ (&map:count patched)
+                              &+ (&map:count card)
+                                &+ n0 $ &+ n1 $ &+ n2 n3
+                            raise "|roundtrip probe expected numeric fields"
+                        raise "|app roundtrip probe expected user and date Maps"
+                    raise "|app roundtrip probe expected a card Map"
+                raise "|roundtrip probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-arg-order $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-arg-order (a b)
             if (empty? b) 1 0
@@ -2534,9 +2579,9 @@
           :code $ quote $ defn test-empty-recur-list (xs)
             if (empty? xs) 1 $ recur $ &list:rest xs
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] $ :: 'List 'T
+            :generics $ [] 'T
         'test-empty-recur-list-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-recur-list-call ()
             test-empty-recur-list $ []
@@ -2569,9 +2614,9 @@
           :code $ quote $ defn test-list-empty-proc (a b)
             if (&list:empty? b) 1 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'A $ :: 'List 'T
+            :generics $ [] 'A 'T
         'test-list-empty-proc-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-list-empty-proc-call ()
             test-list-empty-proc 1 $ []
@@ -2620,11 +2665,17 @@
             let
                 base $ {} $ :a 1
                 patched $ patch-map-set base :b 4
-              &+ (&map:count patched) (&map:get patched :b)
+              if (map? patched)
+                let
+                    value0 $ &map:get patched :b
+                  if
+                    and $ number? value0
+                    &+ (&map:count patched) value0
+                    raise "|patch probe expected numeric map values"
+                raise "|patch probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-map-patch $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-map-patch ()
             let
@@ -2632,12 +2683,18 @@
                 b $ {} (:a 1) (:b 3) (:c 4)
                 changes $ diff-twig a b $ {}
                 patched $ patch-twig a changes
-              &+ (&map:count patched)
-                &+ (&map:get patched :b) (&map:get patched :c)
+              if (map? patched)
+                let
+                    value0 $ &map:get patched :b
+                    value1 $ &map:get patched :c
+                  if
+                    and (number? value0) (number? value1)
+                    &+ (&map:count patched) (&+ value0 value1)
+                    raise "|patch probe expected numeric map values"
+                raise "|patch probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-map-patch2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-map-patch2 ()
             let
@@ -2645,11 +2702,10 @@
                 b $ {} (:a 1) (:b 3) (:c 4)
                 changes $ diff-twig a b $ {}
                 patched $ patch-twig a changes
-              &map:count patched
+              if (map? patched) (&map:count patched) (raise "|patch probe expected a Map")
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-num-order $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-num-order (a b) (if true b 0)
           :examples $ []
@@ -2674,11 +2730,17 @@
             let
                 base $ {} $ :a 1
                 patched $ patch-one base $ schema/change-op :assoc :b 4
-              &+ (&map:count patched) (&map:get patched :b)
+              if (map? patched)
+                let
+                    value0 $ &map:get patched :b
+                  if
+                    and $ number? value0
+                    &+ (&map:count patched) value0
+                    raise "|patch probe expected numeric map values"
+                raise "|patch probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-scalar-change $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-scalar-change ()
             patch-twig 1 $ diff-twig 1 2 $ {}
@@ -2700,13 +2762,17 @@
                 b $ {} $ :a (#{} 2 3 4)
                 changes $ diff-twig a b $ {}
                 patched $ patch-twig a changes
-                s $ &map:get patched :a
-              &+ (&set:count s)
-                if (&set:includes? s 4) 10 0
+              if (map? patched)
+                let
+                    s $ &map:get patched :a
+                  if (set? s)
+                    &+ (&set:count s)
+                      if (&set:includes? s 4) 10 0
+                    raise "|collection probe expected the original member container"
+                raise "|collection probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-tuple-patch $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-tuple-patch ()
             let
@@ -2714,11 +2780,14 @@
                 b $ :: :a 1 3
                 changes $ diff-twig a b $ {}
                 patched $ patch-twig a changes
-              &enum:nth patched 2
+              if (enum? patched)
+                let
+                    value $ &enum:nth patched 2
+                  if (number? value) value $ raise "|tuple probe expected a numeric payload"
+                raise "|tuple probe expected an Enum"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
         'test-vector-append-op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-vector-append-op ()
             let
@@ -2747,14 +2816,24 @@
                 b $ {} $ :a ([] 1 6 7 8)
                 changes $ diff-twig a b $ {}
                 patched $ patch-twig a changes
-                xs $ &map:get patched :a
-              &+ (&list:count xs)
-                &+ (&list:nth xs 1)
-                  &+ (&list:nth xs 2) (&list:nth xs 3)
+              if (map? patched)
+                let
+                    xs $ &map:get patched :a
+                  if (list? xs)
+                    let
+                        n0 $ &list:nth xs 1
+                        n1 $ &list:nth xs 2
+                        n2 $ &list:nth xs 3
+                      if
+                        and (number? n0) (number? n1) (number? n2)
+                        &+ (&list:count xs)
+                          &+ n0 $ &+ n1 n2
+                        raise "|vector probe expected numeric members"
+                    raise "|collection probe expected the original member container"
+                raise "|collection probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
-            :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.wasm-test
           :require

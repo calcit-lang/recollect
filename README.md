@@ -67,6 +67,10 @@ For record parsing http://stackoverflow.com/a/29133350/883571
 
 Workflow https://github.com/calcit-lang/respo-calcit-workflow .
 
+CLI 与 `@calcit/procs` 固定为正式 `0.29.3`，模块依赖以 `deps.cirru`
+中的正式 tag 为准。CI 使用完整 strict 检查；memo 的任意参数 spread
+保留为真实开放边界，需要人工审阅，不改为固定参数或新增编译器规则。
+
 Run definition-attached native tests, then compile and run the JS test entry:
 
 ```bash
@@ -84,22 +88,27 @@ with the current public Calcit CLI:
 calcit wasm calcit.cirru --entry test --check-only
 ```
 
-The following experimental Node runners still use the retired `cr-wasm`
-command and need a separate migration before they can run against the pinned CLI:
+The experimental Node runners now invoke the public `calcit wasm` command
+with the probe initialization function. Compilation must succeed before the
+Node runner reads `js-out/program.wasm`:
 
 ```bash
 yarn test:wasm
 yarn run:wasm:api
 ```
 
-当前固定的正式 0.29.0 工具链执行上述 eligibility check 时，明确返回
+当前固定的正式 0.29.3 工具链执行上述 eligibility check 时，明确返回
 `E_WASM_UNSUPPORTED_JS_FFI`：`js-ffi.node/path-basename` 的 JavaScript 实现不能
 lower 到 WASM；这不是 WASM codegen 被关闭。此迁移不宣称完整 WASM 支持，
 整体 CI 绿色也不能替代 WASM 验收。
 Older emission attempts also encountered demo-only Respo dependencies.
 Native and JavaScript tests remain the release gates. `yarn run:wasm:api` is
-kept for its API probes until the WASM runner and entry dependency graph are
-migrated together.
+kept for its API probes; the entry dependency graph and its legacy export/ABI
+assumptions still need WASM-specific acceptance.
+
+旧探针已按实际容器和数值收窄，native 与生成 JS 验证的 API/app 汇总为
+44/2045；旧 WASM runner 的 app 汇总期望 1 与迁移前实现也不一致。
+这些跨 native/JS 结果不是旧 WASM ABI runner 或 WASM 后端通过的证据。
 
 ### COS/CDN 配置
 
@@ -111,9 +120,8 @@ main 前缀保持 `calcit-lang/recollect/`，`wasm-support` 保持
 互相隔离。每个 PR、main 和分支分别排队，保留等待任务，不取消活跃上传。
 原服务器部署的源、目标与仅 main push 部署条件不变。
 
-当前源码固定正式 Calcit/procs `0.29.0`、Respo `0.16.114`、
-UI `0.7.32`、Value `0.5.16` 和 JS-FFI `0.2.1`，包括传递依赖的
-精确版本以 `deps.cirru` 和严格 Caps 解析结果为准。
+工具链版本见上文；模块及传递依赖的精确正式版本以 `deps.cirru`
+和严格 Caps 解析结果为准，不在部署说明中重复维护版本清单。
 保留原 native/JS 测试，并检查完整公开命名空间和现有示例。
 旧质量预算在通过后退役，使用当前 CLI 的严格类型检查和弱类型诊断；
 仍存在的开放异构数据边界不会被表述为已全部强类型化。

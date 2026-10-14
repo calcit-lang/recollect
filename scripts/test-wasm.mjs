@@ -99,7 +99,7 @@ probe("test-map-patch2()", 3, e["test-map-patch2"]);
 
 probe(
   "test-app-twig-roundtrip-summary()",
-  1,
+  2045,
   e["test-app-twig-roundtrip-summary"],
 );
 probe("test-diff-identical()", 0, e["test-diff-identical"]); // returns heap ptr (complex value); tracked for future
