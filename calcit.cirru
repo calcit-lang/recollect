@@ -17,7 +17,7 @@
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (data-twig client-store)
             let
-                states $ &map:get client-store :states
+                states $ .unwrap-or (get client-store :states) nil
               div
                 {} $ :style $ &merge ui/global ui/fullscreen
                 div
@@ -345,7 +345,9 @@
         'twig-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn twig-container (store)
             &merge store $ {} $ :card
-              memo-twig-by :card twig-card (&map:get store :user) (&map:get store :date)
+              memo-twig-by :card twig-card
+                .unwrap-or (get store :user) nil
+                .unwrap-or (get store :date) nil
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] $ :: 'Map 'Tag 'Dynamic
@@ -368,35 +370,47 @@
               (:lit-0 d) (&map:assoc store :lit-0 d)
               (:lit-1 d)
                 &map:assoc store :in-map $ &map:assoc
-                  decode-map-as (&map:get store :in-map) (:: 'Map 'Tag 'Dynamic)
+                  decode-map-as
+                    .unwrap-or (get store :in-map) nil
+                    :: 'Map 'Tag 'Dynamic
                   , :lit-1 d
               (:map-0 d)
                 &map:assoc store :map-0 $ &map:assoc
-                  decode-map-as (&map:get store :map-0) (:: 'Map 'Tag 'Dynamic)
+                  decode-map-as
+                    .unwrap-or (get store :map-0) nil
+                    :: 'Map 'Tag 'Dynamic
                   , :y d
               (:map-0-rm)
                 &map:assoc store :map-0 $ &map:dissoc
                   decode-map-as
-                    or (&map:get store :map-0) ({})
+                    or
+                      .unwrap-or (get store :map-0) nil
+                      {}
                     :: 'Map 'Tag 'Dynamic
                   , :y
               (:vec-0 d)
                 &map:assoc store :vec-0 $ &list:append
                   &list:append
-                    decode-map-as (&map:get store :vec-0) (:: 'List 'Dynamic)
+                    decode-map-as
+                      .unwrap-or (get store :vec-0) nil
+                      :: 'List 'Dynamic
                     , d
                   , :cursor
               (:vec-0-rm)
                 &map:assoc store :vec-0 $ either
-                  &list:butlast $ decode-map-as (&map:get store :vec-0) (:: 'List 'Dynamic)
+                  &list:butlast $ decode-map-as
+                    .unwrap-or (get store :vec-0) nil
+                    :: 'List 'Dynamic
                   []
               (:set-0 d)
                 &map:assoc store :set-0 $ &union
-                  decode-map-as (&map:get store :set-0) (:: 'Set 'Dynamic)
+                  decode-map-as
+                    .unwrap-or (get store :set-0) nil
+                    :: 'Set 'Dynamic
                   #{} d
               (:set-0-rm)
                 &let
-                  items $ &map:get store :set-0
+                  items $ .unwrap-or (get store :set-0) nil
                   if (set? items)
                     &map:assoc store :set-0 $ match (.destruct items)
                       (:some _item rest) rest
@@ -405,15 +419,21 @@
               (:date)
                 let
                     date $ decode-map-as
-                      or (&map:get store :date) ({})
+                      or
+                        .unwrap-or (get store :date) nil
+                        {}
                       :: 'Map 'Tag 'Dynamic
                   &map:assoc store :date $ &map:assoc date :month $ inc
                     decode-map-as
-                      or (&map:get date :month) 0
+                      or
+                        .unwrap-or (get date :month) nil
+                        , 0
                       , 'Number
               (:types d)
                 &map:assoc store :types $ &map:assoc
-                  decode-map-as (&map:get store :types) (:: 'Map 'Dynamic 'Dynamic)
+                  decode-map-as
+                    .unwrap-or (get store :types) nil
+                    :: 'Map 'Dynamic 'Dynamic
                   , d true
               _ $ do (eprintln "|Unhandled op:" op) store
           :examples $ []
@@ -627,9 +647,11 @@
           :doc "|Internal function to compute diff between two maps. Collects :map-splice operations for removed and added entries."
           :code $ quote $ defn diff-map (a b options)
             let
-                id-k $ if (nil? options) :id $ &map:get options :key
-                ka $ &map:get a id-k
-                kb $ &map:get b id-k
+                id-k $ if (nil? options) :id $ match (get options :key)
+                  (:some key) key
+                  (:none) nil
+                ka $ .unwrap-or (get a id-k) nil
+                kb $ .unwrap-or (get b id-k) nil
               if
                 and (non-nil? ka)
                   not $ &= ka kb
@@ -649,9 +671,11 @@
         'diff-map-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware map diff.")
           :code $ quote $ defn diff-map-budgeted (state a b options)
             let
-                id-k $ if (nil? options) :id $ &map:get options :key
-                ka $ &map:get a id-k
-                kb $ &map:get b id-k
+                id-k $ if (nil? options) :id $ match (get options :key)
+                  (:some key) key
+                  (:none) nil
+                ka $ .unwrap-or (get a id-k) nil
+                kb $ .unwrap-or (get b id-k) nil
               if
                 and (non-nil? ka)
                   not $ &= ka kb
@@ -740,8 +764,12 @@
           :code $ quote $ defn diff-record-step (acc idx n a b options)
             if (&>= idx n) acc $ let
                 k $ &struct:field-tag a idx
-                va $ &map:get (&struct:to-map a) (&struct:field-tag a idx)
-                vb $ &map:get (&struct:to-map b) (&struct:field-tag b idx)
+                va $ .unwrap-or
+                  get (&struct:to-map a) (&struct:field-tag a idx)
+                  , nil
+                vb $ .unwrap-or
+                  get (&struct:to-map b) (&struct:field-tag b idx)
+                  , nil
               if (identical? va vb)
                 diff-record-step acc (&+ idx 1) n a b options
                 let
@@ -758,8 +786,12 @@
               or (diff-state-exceeded? state) (&>= idx n)
               , acc $ let
                   k $ &struct:field-tag a idx
-                  va $ &map:get (&struct:to-map a) (&struct:field-tag a idx)
-                  vb $ &map:get (&struct:to-map b) (&struct:field-tag b idx)
+                  va $ .unwrap-or
+                    get (&struct:to-map a) (&struct:field-tag a idx)
+                    , nil
+                  vb $ .unwrap-or
+                    get (&struct:to-map b) (&struct:field-tag b idx)
+                    , nil
                 if (identical? va vb)
                   diff-record-step-budgeted state acc (&+ idx 1) n a b options
                   let
@@ -874,31 +906,31 @@
               :code $ quote $ do
                 let
                     old $ {} (:id 1) (:data 1)
-                    new $ {} (:id 2) (:data 1)
+                    updated $ {} (:id 2) (:data 1)
                   assert |changed-key-replaces-map $ =
-                    [] $ schema/change-op :replace new
-                    diff-twig old new $ {} $ :key :id
+                    [] $ schema/change-op :replace updated
+                    diff-twig old updated $ {} $ :key :id
                 let
                     old $ {} (:id 1) (:data 1)
-                    new $ {} (:id 1) (:data 2)
+                    updated $ {} (:id 1) (:data 2)
                   assert |same-key-updates-field $ =
                     [] $ schema/change-op :assoc :data 2
-                    diff-twig old new $ {} $ :key :id
+                    diff-twig old updated $ {} $ :key :id
                 let
                     old $ {} $ :a
                       {} $ :b 1
-                    new $ {} $ :a
+                    updated $ {} $ :a
                       {} $ :c 2
                   assert |nested-map-splice-has-removed-and-added-values $ =
                     [] $ schema/change-op :update :a $ schema/change-op :map-splice (#{} :b)
                       {} $ :c 2
-                    diff-twig old new $ {} $ :key :id
+                    diff-twig old updated $ {} $ :key :id
                 let
                     old $ {} $ :a (#{} 1 2 3)
-                    new $ {} $ :a (#{} 2 3 4)
+                    updated $ {} $ :a (#{} 2 3 4)
                   assert |set-splice-reports-removed-and-added-members $ =
                     [] $ schema/change-op :update :a $ schema/change-op :set-splice (#{} 1) (#{} 4)
-                    diff-twig old new $ {} $ :key :id
+                    diff-twig old updated $ {} $ :key :id
                 assert |equal-sets-have-no-diff $ &= ([])
                   diff-twig
                     {} $ :a $ #{} 1 2 3
@@ -909,10 +941,10 @@
               :code $ quote $ do
                 let
                     old $ {} $ :a ([] 1 2 3 4)
-                    new $ {} $ :a ([] 1 6 7 8)
+                    updated $ {} $ :a ([] 1 6 7 8)
                   assert |list-items-are-picked-and-updated $ =
                     [] $ schema/change-op :pick :a $ [] (schema/change-op :assoc 1 6) (schema/change-op :assoc 2 7) (schema/change-op :assoc 3 8)
-                    diff-twig old new $ {} $ :key :id
+                    diff-twig old updated $ {} $ :key :id
                 assert |different-tuple-tag-replaces-value $ =
                   [] $ schema/change-op :replace $ :: :b 2 3 4
                   diff-twig (:: :a 1 2) (:: :b 2 3 4) ({})
@@ -941,17 +973,17 @@
                       {} $ :key :id
                 let
                     old $ schema/change-op :assoc :name |Lily
-                    new $ schema/change-op :assoc :name |Lucy
+                    updated $ schema/change-op :assoc :name |Lucy
                   assert |enum-records-are-compared-structurally $ not $ empty?
-                    diff-twig old new $ {}
+                    diff-twig old updated $ {}
               :tags $ #{} :unit
             %{} 'TestEntry (:name |reports-record-field-updates)
               :code $ quote $ let
                   old $ recollect.test.fixture/Person :name |Lily :age 10
-                  new $ recollect.test.fixture/Person :name |Lucy :age 11
+                  updated $ recollect.test.fixture/Person :name |Lucy :age 11
                 assert |record-fields-are-updated-in-stable-order $ =
                   [] (schema/change-op :assoc :age 11) (schema/change-op :assoc :name |Lucy)
-                  diff-twig old new $ {}
+                  diff-twig old updated $ {}
               :tags $ #{} :unit
         'diff-twig-budgeted $ %{} 'CodeEntry
           :doc "|Compute an atomic bounded diff outcome with deterministic work statistics."
@@ -1047,13 +1079,13 @@
                       :account $ {} (:name |Ada)
                         :roles $ #{} :reader
                       :items $ [] 1 2 3
-                    new $ {}
+                    updated $ {}
                       :account $ {} (:name |Grace)
                         :roles $ #{} :reader :writer
                       :items $ [] 1 4 3 5
                     options $ {}
-                    expected $ diff-twig old new options
-                    outcome $ diff-twig-budgeted old new options $ unlimited-diff-budget &unit
+                    expected $ diff-twig old updated options
+                    outcome $ diff-twig-budgeted old updated options $ unlimited-diff-budget &unit
                   match outcome
                     (:complete changes stats)
                       do
@@ -1093,14 +1125,14 @@
                 let
                     old $ {} $ :a
                       {} $ :b $ {} (:c 1)
-                    new $ {} $ :a
+                    updated $ {} $ :a
                       {} $ :b $ {} (:c 2)
-                    outcome $ diff-twig-budgeted old new ({}) (unlimited-diff-budget &unit)
+                    outcome $ diff-twig-budgeted old updated ({}) (unlimited-diff-budget &unit)
                   match outcome
                     (:complete changes stats)
                       do
                         assert |deep-path-matches-legacy $ =
-                          diff-twig old new $ {}
+                          diff-twig old updated $ {}
                           , changes
                         assert |deep-path-visits-every-level $ &= 4 $ :visited-nodes stats
                     _ $ assert |deep-path-must-complete false
@@ -1197,7 +1229,10 @@
               (empty? a-items)
                 &list:concat acc $ [] $ schema/change-op :vec-append b-items
               true $ let
-                  child-changes $ diff-twig-iterate (&list:first a-items) (&list:first b-items) options
+                  child-changes $ diff-twig-iterate
+                    .unwrap $ first a-items
+                    .unwrap $ first b-items
+                    , options
                   wrapped $ wrap-pick idx child-changes
                 find-vector-changes (&list:concat acc wrapped) (&+ idx 1) (&list:rest a-items) (&list:rest b-items) options
           :examples $ []
@@ -1214,7 +1249,10 @@
               (empty? a-items)
                 &list:concat acc $ emit-change state $ schema/change-op :vec-append b-items
               true $ let
-                  child-changes $ diff-twig-iterate-budgeted state (&list:first a-items) (&list:first b-items) options
+                  child-changes $ diff-twig-iterate-budgeted state
+                    .unwrap $ first a-items
+                    .unwrap $ first b-items
+                    , options
                 if (diff-state-exceeded? state) acc $ let
                     wrapped $ wrap-pick-budgeted state idx child-changes
                   find-vector-changes-budgeted state (&list:concat acc wrapped) (&+ idx 1) (&list:rest a-items) (&list:rest b-items) options
@@ -1281,7 +1319,7 @@
         'set-difference-iter $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn set-difference-iter (xs a acc)
             if (empty? xs) acc $ let
-                x $ &list:first xs
+                x $ .unwrap $ first xs
               set-difference-iter (&list:rest xs) a $ if (&set:includes? a x) acc $ &list:append acc x
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -1357,11 +1395,14 @@
           :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
         'assoc-in-map $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn assoc-in-map (m path v)
-            &map:assoc m (&list:first path)
+            &map:assoc m
+              .unwrap-or (first path) nil
               &map:assoc
                 decode-map-as
                   or
-                    &map:get m $ &list:first path
+                    .unwrap-or
+                      get m $ .unwrap-or (first path) nil
+                      , nil
                     {}
                   :: 'Map 'Dynamic 'Dynamic
                 &list:nth path 1
@@ -1406,13 +1447,13 @@
                     let
                         cached-pair $ decode-map-as cached-pair $ :: 'List 'Dynamic
                       if
-                        &= args $ &list:first cached-pair
+                        &= args $ .unwrap-or (first cached-pair) nil
                         if @*twig-frame-active?
                           &let
-                            ret $ &list:last cached-pair
+                            ret $ .unwrap-or (last cached-pair) nil
                             swap! *twig-frame-cache assoc-in-map ([] f key) cached-pair
                             , ret
-                          &list:last cached-pair
+                          .unwrap-or (last cached-pair) nil
                         &let
                           ret $ f & args
                           if @*twig-frame-active?
@@ -1538,7 +1579,9 @@
                       pair $ &list:nth xs i
                     recur (inc i)
                       + total $ &list:count $ &map:to-list
-                        decode-map-as (&list:last pair) (:: 'Map 'Dynamic 'Dynamic)
+                        decode-map-as
+                          .unwrap-or (last pair) nil
+                          :: 'Map 'Dynamic 'Dynamic
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
@@ -1642,7 +1685,8 @@
           :tags $ #{} :scaffold
         'patch-get $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn patch-get (base k)
-            if (map? base) (&map:get base k)
+            if (map? base)
+              .unwrap-or (get base k) nil
               if (list? base)
                 if (number? k) (&list:nth base k)
                   raise $ str "|patch-get expected a Number index for list, got: " k
@@ -1650,7 +1694,11 @@
                   if (number? k) (&enum:nth base k)
                     raise $ str "|patch-get expected a Number index for enum, got: " k
                   if (struct? base)
-                    &map:get (&struct:to-map base) k
+                    if (tag? k)
+                      .unwrap-or
+                        get (&struct:to-map base) k
+                        , nil
+                      , nil
                     raise $ str "|Unsupported-patch-container-type: " $ type-of base
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
@@ -1791,49 +1839,49 @@
               :code $ quote $ do
                 let
                     old $ {} (:id 1) (:data 1)
-                    new $ {} (:id 2) (:data 1)
-                    changes $ recollect.diff/diff-twig old new $ {} (:key :id)
-                  assert |map-key-replacement-roundtrips $ &= new $ patch-twig old changes
+                    updated $ {} (:id 2) (:data 1)
+                    changes $ recollect.diff/diff-twig old updated $ {} (:key :id)
+                  assert |map-key-replacement-roundtrips $ &= updated $ patch-twig old changes
                 let
                     old $ {} $ :a
                       {} $ :b 1
-                    new $ {} $ :a
+                    updated $ {} $ :a
                       {} $ :c 2
-                    changes $ recollect.diff/diff-twig old new $ {} (:key :id)
-                  assert |nested-map-splice-roundtrips $ &= new $ patch-twig old changes
+                    changes $ recollect.diff/diff-twig old updated $ {} (:key :id)
+                  assert |nested-map-splice-roundtrips $ &= updated $ patch-twig old changes
                 let
                     old $ {} $ :a (#{} 1 2 3)
-                    new $ {} $ :a (#{} 2 3 4)
-                    changes $ recollect.diff/diff-twig old new $ {} (:key :id)
-                  assert |set-splice-roundtrips $ &= new $ patch-twig old changes
+                    updated $ {} $ :a (#{} 2 3 4)
+                    changes $ recollect.diff/diff-twig old updated $ {} (:key :id)
+                  assert |set-splice-roundtrips $ &= updated $ patch-twig old changes
                 let
                     old $ {} $ :a ([] 1 2 3 4)
-                    new $ {} $ :a ([] 1 6 7 8)
-                    changes $ recollect.diff/diff-twig old new $ {} (:key :id)
-                  assert |list-pick-roundtrips $ &= new $ patch-twig old changes
+                    updated $ {} $ :a ([] 1 6 7 8)
+                    changes $ recollect.diff/diff-twig old updated $ {} (:key :id)
+                  assert |list-pick-roundtrips $ &= updated $ patch-twig old changes
                 let
                     old $ :: :a 1 $ {} (:a 1)
-                    new $ :: :a 1 $ {} (:a 2)
-                    changes $ recollect.diff/diff-twig old new $ {}
-                  assert |nested-tuple-roundtrips $ &= new $ patch-twig old changes
+                    updated $ :: :a 1 $ {} (:a 2)
+                    changes $ recollect.diff/diff-twig old updated $ {}
+                  assert |nested-tuple-roundtrips $ &= updated $ patch-twig old changes
                 let
                     old $ schema/change-op :assoc :name |Lily
-                    new $ schema/change-op :assoc :name |Lucy
-                    changes $ recollect.diff/diff-twig old new $ {}
-                  assert |enum-record-roundtrips $ &= new $ patch-twig old changes
+                    updated $ schema/change-op :assoc :name |Lucy
+                    changes $ recollect.diff/diff-twig old updated $ {}
+                  assert |enum-record-roundtrips $ &= updated $ patch-twig old changes
               :tags $ #{} :unit
             %{} 'TestEntry (:name |budgeted-complete-roundtrip)
               :code $ quote $ let
                   old $ {}
                     :account $ {} $ :name |Ada
                     :items $ [] 1 2 3
-                  new $ {}
+                  updated $ {}
                     :account $ {} $ :name |Grace
                     :items $ [] 1 4 3 5
-                  outcome $ diff-twig-budgeted old new ({}) (unlimited-diff-budget &unit)
+                  outcome $ diff-twig-budgeted old updated ({}) (unlimited-diff-budget &unit)
                 match outcome
                   (:complete changes _)
-                    assert |budgeted-complete-roundtrips $ &= new $ patch-twig old changes
+                    assert |budgeted-complete-roundtrips $ &= updated $ patch-twig old changes
                   _ $ assert |budgeted-roundtrip-must-complete false
               :tags $ #{} :unit
         'patch-vector-append $ %{} 'CodeEntry
@@ -1947,7 +1995,7 @@
               cond
                   map? base
                   if (contains? base k)
-                    PatchResult :ok $ &map:get base k
+                    PatchResult :ok $ .unwrap $ get base k
                     PatchResult :err $ PatchError :missing-node next-path
                 (list? base)
                   if (number? k)
@@ -1975,7 +2023,7 @@
                     let
                         field $ if (tag? k) k $ if (string? k) (to-tag k) (raise "|Expected a validated String or Tag field key")
                       if (contains-field? base field)
-                        PatchResult :ok $ &map:get (&struct:to-map base) field
+                        PatchResult :ok $ .unwrap $ get (&struct:to-map base) field
                         PatchResult :err $ PatchError :missing-node next-path
                     PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
@@ -2456,17 +2504,17 @@
                 patched $ patch-twig base changes
               if (map? patched)
                 let
-                    user $ &map:get patched :user
-                    items $ &map:get patched :items
-                    flags $ &map:get patched :flags
-                    nested $ &map:get patched :nested
+                    user $ .unwrap-or (get patched :user) nil
+                    items $ .unwrap-or (get patched :items) nil
+                    flags $ .unwrap-or (get patched :flags) nil
+                    nested $ .unwrap-or (get patched :nested) nil
                   if
                     and (map? user) (list? items) (set? flags) (map? nested)
                     let
-                        n0 $ &map:get user :score
+                        n0 $ .unwrap-or (get user :score) nil
                         n1 $ &list:nth items 2
-                        n2 $ &map:get nested :count
-                        n3 $ &map:get nested :bonus
+                        n2 $ .unwrap-or (get nested :count) nil
+                        n3 $ .unwrap-or (get nested :bonus) nil
                       if
                         and (number? n0) (number? n1) (number? n2) (number? n3)
                         &+ (&map:count patched)
@@ -2489,18 +2537,18 @@
                 patched $ patch-twig old-twig changes
               if (map? patched)
                 let
-                    card $ &map:get patched :card
+                    card $ .unwrap-or (get patched :card) nil
                   if (map? card)
                     let
-                        user $ &map:get card :user
-                        date $ &map:get card :date
+                        user $ .unwrap-or (get card :user) nil
+                        date $ .unwrap-or (get card :date) nil
                       if
                         and (map? user) (map? date)
                         let
-                            n0 $ &map:get patched :lit-0
-                            n1 $ &map:get user :score
-                            n2 $ &map:get date :year
-                            n3 $ &map:get date :month
+                            n0 $ .unwrap-or (get patched :lit-0) nil
+                            n1 $ .unwrap-or (get user :score) nil
+                            n2 $ .unwrap-or (get date :year) nil
+                            n3 $ .unwrap-or (get date :month) nil
                           if
                             and (number? n0) (number? n1) (number? n2) (number? n3)
                             &+ (&map:count patched)
@@ -2667,7 +2715,7 @@
                 patched $ patch-map-set base :b 4
               if (map? patched)
                 let
-                    value0 $ &map:get patched :b
+                    value0 $ .unwrap-or (get patched :b) nil
                   if
                     and $ number? value0
                     &+ (&map:count patched) value0
@@ -2685,8 +2733,8 @@
                 patched $ patch-twig a changes
               if (map? patched)
                 let
-                    value0 $ &map:get patched :b
-                    value1 $ &map:get patched :c
+                    value0 $ .unwrap-or (get patched :b) nil
+                    value1 $ .unwrap-or (get patched :c) nil
                   if
                     and (number? value0) (number? value1)
                     &+ (&map:count patched) (&+ value0 value1)
@@ -2732,7 +2780,7 @@
                 patched $ patch-one base $ schema/change-op :assoc :b 4
               if (map? patched)
                 let
-                    value0 $ &map:get patched :b
+                    value0 $ .unwrap-or (get patched :b) nil
                   if
                     and $ number? value0
                     &+ (&map:count patched) value0
@@ -2764,7 +2812,7 @@
                 patched $ patch-twig a changes
               if (map? patched)
                 let
-                    s $ &map:get patched :a
+                    s $ .unwrap-or (get patched :a) nil
                   if (set? s)
                     &+ (&set:count s)
                       if (&set:includes? s 4) 10 0
@@ -2818,7 +2866,7 @@
                 patched $ patch-twig a changes
               if (map? patched)
                 let
-                    xs $ &map:get patched :a
+                    xs $ .unwrap-or (get patched :a) nil
                   if (list? xs)
                     let
                         n0 $ &list:nth xs 1
