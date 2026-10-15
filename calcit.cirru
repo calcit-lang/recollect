@@ -148,10 +148,10 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.comp.panel
           :require
-            [] hsl.core :refer $ [] hsl
-            [] respo-ui.core :as ui
-            [] respo.core :refer $ [] defcomp <> span div
-            [] respo.comp.space :refer $ [] =<
+            hsl.core :refer $ hsl
+            respo-ui.core :as ui
+            respo.core :refer $ defcomp <> span div
+            respo.comp.space :refer $ =<
     'recollect.app.config $ %{} 'FileEntry
       :defs $ {}
         'dev? $ %{} 'CodeEntry (:doc |)
@@ -423,7 +423,7 @@
             :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.updater
-          :require $ [] respo.cursor :refer $ [] update-states
+          :require $ respo.cursor :refer $ update-states
     'recollect.bench $ %{} 'FileEntry
       :defs $ {}
         'bench! $ %{} 'CodeEntry (:doc |)
