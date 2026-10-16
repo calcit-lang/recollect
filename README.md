@@ -67,7 +67,7 @@ For record parsing http://stackoverflow.com/a/29133350/883571
 
 Workflow https://github.com/calcit-lang/respo-calcit-workflow .
 
-CLI 与 `@calcit/procs` 固定为正式 `0.29.3`，模块依赖以 `deps.cirru`
+CLI 与 `@calcit/procs` 固定为正式 `0.30.0`，模块依赖以 `deps.cirru`
 中的正式 tag 为准。CI 使用完整 strict 检查；memo 的任意参数 spread
 保留为真实开放边界，需要人工审阅，不改为固定参数或新增编译器规则。
 
@@ -80,13 +80,15 @@ Option 查询，保留 nil、false、0、空串、惰性业务 fallback 与 memo
 原附带测试中 `new` 的局部绑定改名为 `updated`，避免旧 JS 生成器输出保留字；
 测试名、标签、断言和预期值不变。核心问题见 calcit-lang/calcit#2092，
 完整回放使用主仓库既有工具，不复制 runner 到本项目。
-这是旧正式配对上的准备分支；0.30.1 正式配对与上游依赖图未验收前不合并、
-不发版，也不将现有 native/JS 结果当作新版本或完整 WASM 验收。
+0.0.61 候选对已合并的迁移源码补做正式 0.30.0 配对验收；本轮不修改
+Snapshot、diff/patch/memo 算法或测试，候选需完成严格检查、原目标回放、
+真实消费者、review、精确 main CI 后才能发版。0.30.1 正式配对和整图验收
+仍单独跟进，不将 0.30.0 的通过当作 0.30.1 或完整 WASM 验收。
 
-0.0.60 候选对齐正式 Respo `0.16.120`、UI `0.7.39`、Value `0.5.19` 与
+依赖图保持正式 Respo `0.16.120`、UI `0.7.39`、Value `0.5.19` 与
 JS-FFI `0.2.3`，让采用当前版本图的消费者能够严格解析依赖；diff/patch/memo
 程序和原断言不变。npm 新包安装隔离期沿用已批准的一小时设置，不设逐包预批准。
-候选需完成原检查、review、最新 CI 和精确 main 验证后才能发布，不用工作分支替代正式 tag。
+不用工作分支或 commit hash 替代经过验证的正式 tag。
 
 Run definition-attached native tests, then compile and run the JS test entry:
 
@@ -114,10 +116,13 @@ yarn test:wasm
 yarn run:wasm:api
 ```
 
-当前固定的正式 0.29.3 工具链执行上述 eligibility check 时，明确返回
+原正式 0.29.3 工具链执行上述 eligibility check 时，明确返回
 `E_WASM_UNSUPPORTED_JS_FFI`：`js-ffi.node/path-basename` 的 JavaScript 实现不能
 lower 到 WASM；这不是 WASM codegen 被关闭。此迁移不宣称完整 WASM 支持，
 整体 CI 绿色也不能替代 WASM 验收。
+0.30.0 下该 `--check-only` 命令成功，但实际 emit 仍在 test entry 未加载的
+Respo 演示定义处失败（例如 `respo.core/clear-cache!` / `respo.cursor/update-states`）。
+静态命令的通过不等于 WASM 产物生成或实际运行通过；原非阻断步骤不升级为发布依据。
 Older emission attempts also encountered demo-only Respo dependencies.
 Native and JavaScript tests remain the release gates. `yarn run:wasm:api` is
 kept for its API probes; the entry dependency graph and its legacy export/ABI
