@@ -1,7 +1,7 @@
 {
   "packageManager": "yarn@4.18.0",
   "scripts": {
-    "test:calcit": "calcit calcit.cirru test --tag unit --require-match",
+    "test:calcit": "calcit calcit.cirru test --require-match",
     "test:js": "calcit calcit.cirru --entry test js && node test.mjs",
     "test:wasm": "bash scripts/test-wasm.sh",
     "run:wasm:api": "bash scripts/run-wasm-api.sh",
@@ -10,11 +10,11 @@
     "test": "yarn test:calcit && yarn test:js"
   },
   "dependencies": {
-    "@calcit/procs": "0.30.0"
+    "@calcit/procs": "0.30.1-alpha.4"
   },
   "devDependencies": {
     "bottom-tip": "^0.1.5",
     "vite": "^8.2.2"
   },
-  "version": "0.0.61"
+  "version": "0.0.62"
 }

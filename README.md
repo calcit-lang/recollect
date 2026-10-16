@@ -67,8 +67,9 @@ For record parsing http://stackoverflow.com/a/29133350/883571
 
 Workflow https://github.com/calcit-lang/respo-calcit-workflow .
 
-CLI 与 `@calcit/procs` 固定为正式 `0.30.0`，模块依赖以 `deps.cirru`
-中的正式 tag 为准。CI 使用完整 strict 检查；memo 的任意参数 spread
+CLI 与 `@calcit/procs` 成对固定为已发布的 `0.30.1-alpha.4`，模块依赖以 `deps.cirru`
+中的发布 tag 为准。编译器仍为预发布版本，不表示 Calcit stable 已发布。
+CI 使用完整 strict 检查；memo 的任意参数 spread
 保留为真实开放边界，需要人工审阅，不改为固定参数或新增编译器规则。
 
 本轮为 0.30.1 准备迁移：59 处底层 Map/List 缺失值读取改用现有公开
@@ -77,17 +78,20 @@ Option 查询，保留 nil、false、0、空串、惰性业务 fallback 与 memo
 返回。Struct 的旧 `patch-get` 仍仅以 Tag 匹配字段，其他键返回 nil，
 不把它改成 `try-patch-get` 的 String 字段兼容行为。
 不新增 cast、helper、验证脚本或编译器规则，不修改原测试预期与部署路径。
-原附带测试中 `new` 的局部绑定改名为 `updated`，避免旧 JS 生成器输出保留字；
-测试名、标签、断言和预期值不变。核心问题见 calcit-lang/calcit#2092，
-完整回放使用主仓库既有工具，不复制 runner 到本项目。
-0.0.61 候选对已合并的迁移源码补做正式 0.30.0 配对验收；本轮不修改
-Snapshot、diff/patch/memo 算法或测试，候选需完成严格检查、原目标回放、
-真实消费者、review、精确 main CI 后才能发版。0.30.1 正式配对和整图验收
-仍单独跟进，不将 0.30.0 的通过当作 0.30.1 或完整 WASM 验收。
+`0.0.62` 候选使用已发布的 Respo `0.16.122`、UI `0.7.41`、Value `0.5.20`、
+JS-FFI `0.2.3` 与传递 Router `0.8.36`，让消费者严格解析一致的完整依赖图。
+本次 Snapshot、diff/patch/memo 算法、测试名、标签、断言和预期值逐字节不变；
+`yarn test:calcit` 改为执行全部 23 项附带测试，包含此前未带 `unit` tag 的 Struct 字段断言，
+不以 tag 筛选漏掉它。完整跨后端回放复用 Calcit 主仓库既有工具，不复制 runner 到本项目。
 
-依赖图保持正式 Respo `0.16.120`、UI `0.7.39`、Value `0.5.19` 与
-JS-FFI `0.2.3`，让采用当前版本图的消费者能够严格解析依赖；diff/patch/memo
-程序和原断言不变。npm 新包安装隔离期沿用已批准的一小时设置，不设逐包预批准。
+正常 Caps strict 安装、工具链精确配对、不可变 Yarn 安装与完整 strict 通过；
+项目全部 162 个定义、338 项可达定义检查和 89 个公开定义检查均通过，
+原 23 项附带测试在 native / 生成 JS 同源回放且零排除，原 entry/JS suite、17 个示例和构建保留。
+浏览器实际验证全部 demo 控件、集合增删、空 Set 再删除、日期与混合 key，控制台无 warning/error。
+absence 迁移预览无建议，未新增 Option→nil 回流、Dynamic 或 unsafe；既有开放异构载荷仍需后续收窄。
+最新 HEAD review / CI 与精确 main 部署成功后才发布候选；其他应用与稳定版本验收不由本模块替代。
+
+npm 新包安装隔离期沿用已批准的一小时设置，不设逐包预批准。
 不用工作分支或 commit hash 替代经过验证的正式 tag。
 
 Run definition-attached native tests, then compile and run the JS test entry:
@@ -116,11 +120,14 @@ yarn test:wasm
 yarn run:wasm:api
 ```
 
-原正式 0.29.3 工具链执行上述 eligibility check 时，明确返回
+先确认所安装 CLI 已启用 `wasm` feature。提示 code generation disabled 只说明当前
+binary 的构建选项，不能据此判断项目的 WASM eligibility 或后端支持范围。
+
+历史 0.29.3 工具链执行上述 eligibility check 时，明确返回
 `E_WASM_UNSUPPORTED_JS_FFI`：`js-ffi.node/path-basename` 的 JavaScript 实现不能
 lower 到 WASM；这不是 WASM codegen 被关闭。此迁移不宣称完整 WASM 支持，
 整体 CI 绿色也不能替代 WASM 验收。
-0.30.0 下该 `--check-only` 命令成功，但实际 emit 仍在 test entry 未加载的
+历史 0.30.0 下该 `--check-only` 命令成功，但实际 emit 仍在 test entry 未加载的
 Respo 演示定义处失败（例如 `respo.core/clear-cache!` / `respo.cursor/update-states`）。
 静态命令的通过不等于 WASM 产物生成或实际运行通过；原非阻断步骤不升级为发布依据。
 Older emission attempts also encountered demo-only Respo dependencies.
