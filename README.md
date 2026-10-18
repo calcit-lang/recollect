@@ -67,7 +67,7 @@ For record parsing http://stackoverflow.com/a/29133350/883571
 
 Workflow https://github.com/calcit-lang/respo-calcit-workflow .
 
-CLI 与 `@calcit/procs` 成对固定为已发布的 `0.30.1-alpha.4`，模块依赖以 `deps.cirru`
+CLI 与 `@calcit/procs` 成对固定为已发布的 `0.30.1-alpha.5`，模块依赖以 `deps.cirru`
 中的发布 tag 为准。编译器仍为预发布版本，不表示 Calcit stable 已发布。
 CI 使用完整 strict 检查；memo 的任意参数 spread
 保留为真实开放边界，需要人工审阅，不改为固定参数或新增编译器规则。
@@ -78,7 +78,7 @@ Option 查询，保留 nil、false、0、空串、惰性业务 fallback 与 memo
 返回。Struct 的旧 `patch-get` 仍仅以 Tag 匹配字段，其他键返回 nil，
 不把它改成 `try-patch-get` 的 String 字段兼容行为。
 不新增 cast、helper、验证脚本或编译器规则，不修改原测试预期与部署路径。
-`0.0.62` 候选使用已发布的 Respo `0.16.122`、UI `0.7.41`、Value `0.5.20`、
+`0.0.63` 候选使用已发布的 Respo `0.16.122`、UI `0.7.41`、Value `0.5.20`、
 JS-FFI `0.2.3` 与传递 Router `0.8.36`，让消费者严格解析一致的完整依赖图。
 本次 Snapshot、diff/patch/memo 算法、测试名、标签、断言和预期值逐字节不变；
 `yarn test:calcit` 改为执行全部 23 项附带测试，包含此前未带 `unit` tag 的 Struct 字段断言，
