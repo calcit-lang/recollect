@@ -17,7 +17,7 @@
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (data-twig client-store)
             let
-                states $ .unwrap-or (get client-store :states) nil
+                states $ .unwrap-or (get client-store :states) ({})
               div
                 {} $ :style $ &merge ui/global ui/fullscreen
                 div
@@ -647,13 +647,12 @@
           :doc "|Internal function to compute diff between two maps. Collects :map-splice operations for removed and added entries."
           :code $ quote $ defn diff-map (a b options)
             let
-                id-k $ if (nil? options) :id $ match (get options :key)
-                  (:some key) key
-                  (:none) nil
-                ka $ .unwrap-or (get a id-k) nil
-                kb $ .unwrap-or (get b id-k) nil
+                id-k $ if (nil? options) (%some :id) (get options :key)
+                ka $ .and-then id-k $ fn (k) (get a k)
+                kb $ .and-then id-k $ fn (k) (get b k)
               if
-                and (non-nil? ka)
+                and (.some? ka)
+                  non-nil? $ .unwrap ka
                   not $ &= ka kb
                 [] $ schema/change-op :replace b
                 let
@@ -671,13 +670,12 @@
         'diff-map-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware map diff.")
           :code $ quote $ defn diff-map-budgeted (state a b options)
             let
-                id-k $ if (nil? options) :id $ match (get options :key)
-                  (:some key) key
-                  (:none) nil
-                ka $ .unwrap-or (get a id-k) nil
-                kb $ .unwrap-or (get b id-k) nil
+                id-k $ if (nil? options) (%some :id) (get options :key)
+                ka $ .and-then id-k $ fn (k) (get a k)
+                kb $ .and-then id-k $ fn (k) (get b k)
               if
-                and (non-nil? ka)
+                and (.some? ka)
+                  non-nil? $ .unwrap ka
                   not $ &= ka kb
                 emit-change state $ schema/change-op :replace b
                 let
@@ -764,12 +762,8 @@
           :code $ quote $ defn diff-record-step (acc idx n a b options)
             if (&>= idx n) acc $ let
                 k $ &struct:field-tag a idx
-                va $ .unwrap-or
-                  get (&struct:to-map a) (&struct:field-tag a idx)
-                  , nil
-                vb $ .unwrap-or
-                  get (&struct:to-map b) (&struct:field-tag b idx)
-                  , nil
+                va $ .unwrap $ get (&struct:to-map a) (&struct:field-tag a idx)
+                vb $ .unwrap $ get (&struct:to-map b) (&struct:field-tag b idx)
               if (identical? va vb)
                 diff-record-step acc (&+ idx 1) n a b options
                 let
@@ -786,12 +780,8 @@
               or (diff-state-exceeded? state) (&>= idx n)
               , acc $ let
                   k $ &struct:field-tag a idx
-                  va $ .unwrap-or
-                    get (&struct:to-map a) (&struct:field-tag a idx)
-                    , nil
-                  vb $ .unwrap-or
-                    get (&struct:to-map b) (&struct:field-tag b idx)
-                    , nil
+                  va $ .unwrap $ get (&struct:to-map a) (&struct:field-tag a idx)
+                  vb $ .unwrap $ get (&struct:to-map b) (&struct:field-tag b idx)
                 if (identical? va vb)
                   diff-record-step-budgeted state acc (&+ idx 1) n a b options
                   let
@@ -1395,14 +1385,11 @@
           :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
         'assoc-in-map $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn assoc-in-map (m path v)
-            &map:assoc m
-              .unwrap-or (first path) nil
+            &map:assoc m (&list:nth path 0)
               &map:assoc
                 decode-map-as
-                  or
-                    .unwrap-or
-                      get m $ .unwrap-or (first path) nil
-                      , nil
+                  .unwrap-or
+                    get m $ &list:nth path 0
                     {}
                   :: 'Map 'Dynamic 'Dynamic
                 &list:nth path 1
@@ -1447,13 +1434,13 @@
                     let
                         cached-pair $ decode-map-as cached-pair $ :: 'List 'Dynamic
                       if
-                        &= args $ .unwrap-or (first cached-pair) nil
+                        &= args $ &list:nth cached-pair 0
                         if @*twig-frame-active?
                           &let
-                            ret $ .unwrap-or (last cached-pair) nil
+                            ret $ &list:nth cached-pair 1
                             swap! *twig-frame-cache assoc-in-map ([] f key) cached-pair
                             , ret
-                          .unwrap-or (last cached-pair) nil
+                          &list:nth cached-pair 1
                         &let
                           ret $ f & args
                           if @*twig-frame-active?
@@ -1579,9 +1566,7 @@
                       pair $ &list:nth xs i
                     recur (inc i)
                       + total $ &list:count $ &map:to-list
-                        decode-map-as
-                          .unwrap-or (last pair) nil
-                          :: 'Map 'Dynamic 'Dynamic
+                        decode-map-as (&list:nth pair 1) (:: 'Map 'Dynamic 'Dynamic)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
@@ -2504,17 +2489,17 @@
                 patched $ patch-twig base changes
               if (map? patched)
                 let
-                    user $ .unwrap-or (get patched :user) nil
-                    items $ .unwrap-or (get patched :items) nil
-                    flags $ .unwrap-or (get patched :flags) nil
-                    nested $ .unwrap-or (get patched :nested) nil
+                    user $ .unwrap $ get patched :user
+                    items $ .unwrap $ get patched :items
+                    flags $ .unwrap $ get patched :flags
+                    nested $ .unwrap $ get patched :nested
                   if
                     and (map? user) (list? items) (set? flags) (map? nested)
                     let
-                        n0 $ .unwrap-or (get user :score) nil
+                        n0 $ .unwrap $ get user :score
                         n1 $ &list:nth items 2
-                        n2 $ .unwrap-or (get nested :count) nil
-                        n3 $ .unwrap-or (get nested :bonus) nil
+                        n2 $ .unwrap $ get nested :count
+                        n3 $ .unwrap $ get nested :bonus
                       if
                         and (number? n0) (number? n1) (number? n2) (number? n3)
                         &+ (&map:count patched)
@@ -2537,18 +2522,18 @@
                 patched $ patch-twig old-twig changes
               if (map? patched)
                 let
-                    card $ .unwrap-or (get patched :card) nil
+                    card $ .unwrap $ get patched :card
                   if (map? card)
                     let
-                        user $ .unwrap-or (get card :user) nil
-                        date $ .unwrap-or (get card :date) nil
+                        user $ .unwrap $ get card :user
+                        date $ .unwrap $ get card :date
                       if
                         and (map? user) (map? date)
                         let
-                            n0 $ .unwrap-or (get patched :lit-0) nil
-                            n1 $ .unwrap-or (get user :score) nil
-                            n2 $ .unwrap-or (get date :year) nil
-                            n3 $ .unwrap-or (get date :month) nil
+                            n0 $ .unwrap $ get patched :lit-0
+                            n1 $ .unwrap $ get user :score
+                            n2 $ .unwrap $ get date :year
+                            n3 $ .unwrap $ get date :month
                           if
                             and (number? n0) (number? n1) (number? n2) (number? n3)
                             &+ (&map:count patched)
@@ -2715,7 +2700,7 @@
                 patched $ patch-map-set base :b 4
               if (map? patched)
                 let
-                    value0 $ .unwrap-or (get patched :b) nil
+                    value0 $ .unwrap $ get patched :b
                   if
                     and $ number? value0
                     &+ (&map:count patched) value0
@@ -2733,8 +2718,8 @@
                 patched $ patch-twig a changes
               if (map? patched)
                 let
-                    value0 $ .unwrap-or (get patched :b) nil
-                    value1 $ .unwrap-or (get patched :c) nil
+                    value0 $ .unwrap $ get patched :b
+                    value1 $ .unwrap $ get patched :c
                   if
                     and (number? value0) (number? value1)
                     &+ (&map:count patched) (&+ value0 value1)
@@ -2780,7 +2765,7 @@
                 patched $ patch-one base $ schema/change-op :assoc :b 4
               if (map? patched)
                 let
-                    value0 $ .unwrap-or (get patched :b) nil
+                    value0 $ .unwrap $ get patched :b
                   if
                     and $ number? value0
                     &+ (&map:count patched) value0
@@ -2812,7 +2797,7 @@
                 patched $ patch-twig a changes
               if (map? patched)
                 let
-                    s $ .unwrap-or (get patched :a) nil
+                    s $ .unwrap $ get patched :a
                   if (set? s)
                     &+ (&set:count s)
                       if (&set:includes? s 4) 10 0
@@ -2866,7 +2851,7 @@
                 patched $ patch-twig a changes
               if (map? patched)
                 let
-                    xs $ .unwrap-or (get patched :a) nil
+                    xs $ .unwrap $ get patched :a
                   if (list? xs)
                     let
                         n0 $ &list:nth xs 1
