@@ -58,3 +58,16 @@ exceeded call cannot affect a later invocation.
 首版是可重复验证的工作预算，不是硬墙钟 deadline。类型判断、Map diff
 materialization、key 比较、Set difference、大叶子替换、snapshot 编码、传输队列
 与背压仍有各自成本，消费者必须继续独立限制 snapshot 大小与 transport admission。
+
+## 缺省 identity key 的兼容语义
+
+普通与 budgeted diff 保留 0.0.63 的操作序列：options 没有 `:key` 时，继续查询
+数据本身的 nil key，而不是跳过 identity 判断。若旧值在该 key 上是非 nil 的
+Number、false 或空串，且新值不同，结果仍是整 Map 的 `:replace`；旧 payload
+为 nil 或实际不存在时，不触发 identity replace。显式 `:key :id` 只检查该字段，
+不受其他 nil key 干扰。
+
+配置和数据查询都保留 Option，以 match 显式处理配置缺失；这里的 nil 是兼容的
+数据 key，不是把 Option 结果重新擦成 nil。此区别也影响预算：直接 replace 只
+访问根并构造一个操作，不能先递归生成 assoc 再声称输出和消耗相同。回归覆盖
+单节点/单操作的精确边界、unlimited parity 与实际 patch roundtrip。

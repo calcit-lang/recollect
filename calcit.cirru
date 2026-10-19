@@ -648,8 +648,12 @@
           :code $ quote $ defn diff-map (a b options)
             let
                 id-k $ if (nil? options) (%some :id) (get options :key)
-                ka $ .and-then id-k $ fn (k) (get a k)
-                kb $ .and-then id-k $ fn (k) (get b k)
+                ka $ match id-k
+                  (:some k) (get a k)
+                  (:none) (get a nil)
+                kb $ match id-k
+                  (:some k) (get b k)
+                  (:none) (get b nil)
               if
                 and (.some? ka)
                   non-nil? $ .unwrap ka
@@ -671,8 +675,12 @@
           :code $ quote $ defn diff-map-budgeted (state a b options)
             let
                 id-k $ if (nil? options) (%some :id) (get options :key)
-                ka $ .and-then id-k $ fn (k) (get a k)
-                kb $ .and-then id-k $ fn (k) (get b k)
+                ka $ match id-k
+                  (:some k) (get a k)
+                  (:none) (get a nil)
+                kb $ match id-k
+                  (:some k) (get b k)
+                  (:none) (get b nil)
               if
                 and (.some? ka)
                   non-nil? $ .unwrap ka
@@ -975,6 +983,44 @@
                   [] (schema/change-op :assoc :age 11) (schema/change-op :assoc :name |Lucy)
                   diff-twig old updated $ {}
               :tags $ #{} :unit
+            %{} 'TestEntry (:name |absent-key-preserves-nil-key-identity)
+              :code $ quote $ let
+                  verify $ fn (identity-value)
+                    hint-fn $ {}
+                      :args $ [] 'Dynamic
+                      :return 'Unit
+                    let
+                        old $ {} (nil identity-value) (:x 1)
+                        updated $ {} (nil 2) (:x 1)
+                      assert=
+                        [] $ schema/change-op :replace updated
+                        diff-twig old updated $ {}
+                    , &unit
+                verify 1
+                verify false
+                verify 0
+                verify |
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |configured-and-empty-identities-do-not-replace)
+              :code $ quote $ let
+                  old $ {} (nil 1) (:x 1)
+                  updated $ {} (nil 2) (:x 1)
+                assert=
+                  [] $ schema/change-op :assoc nil 2
+                  diff-twig old updated $ {} $ :key :id
+                assert=
+                  [] $ schema/change-op :assoc nil 2
+                  diff-twig
+                    {} (nil nil) (:x 1)
+                    , updated $ {}
+                assert= ([])
+                  diff-twig
+                    {} $ :x 1
+                    {} $ :x 1
+                    {}
+                assert= ([])
+                  diff-twig old old $ {}
+              :tags $ #{} :unit
         'diff-twig-budgeted $ %{} 'CodeEntry
           :doc "|Compute an atomic bounded diff outcome with deterministic work statistics."
           :code $ quote $ defn diff-twig-budgeted (a b options budget)
@@ -1126,6 +1172,39 @@
                           , changes
                         assert |deep-path-visits-every-level $ &= 4 $ :visited-nodes stats
                     _ $ assert |deep-path-must-complete false
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |nil-key-identity-replaces-at-root-budget)
+              :code $ quote $ let
+                  verify $ fn (identity-value)
+                    hint-fn $ {}
+                      :args $ [] 'Dynamic
+                      :return 'Unit
+                    let
+                        old $ {} (nil identity-value) (:x 1)
+                        updated $ {} (nil 2) (:x 1)
+                        budget $ DiffBudget :max-visited (Option :some 1) :max-emitted $ Option :some 1
+                      match
+                        diff-twig-budgeted old updated ({}) budget
+                        (:complete changes stats)
+                          do
+                            assert=
+                              [] $ schema/change-op :replace updated
+                              , changes
+                            assert= 1 $ :visited-nodes stats
+                            assert= 1 $ :emitted-ops stats
+                        _ $ assert |nil-key-identity-must-complete-at-root false
+                      match
+                        diff-twig-budgeted old updated ({}) (unlimited-diff-budget &unit)
+                        (:complete changes _)
+                          assert=
+                            diff-twig old updated $ {}
+                            , changes
+                        _ $ assert |unlimited-nil-key-identity-must-complete false
+                    , &unit
+                verify 1
+                verify false
+                verify 0
+                verify |
               :tags $ #{} :unit
         'diff-twig-iterate $ %{} 'CodeEntry
           :doc "|Internal recursive iterator for diff computation. Dispatches to appropriate diff function based on data type."
@@ -1998,6 +2077,18 @@
                   (:complete changes _)
                     assert |budgeted-complete-roundtrips $ &= updated $ patch-twig old changes
                   _ $ assert |budgeted-roundtrip-must-complete false
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |nil-key-identity-roundtrip)
+              :code $ quote $ let
+                  old $ {} (nil false) (:x 1)
+                  updated $ {} (nil 2) (:x 1)
+                assert |nil-key-replace-roundtrip $ &= updated $ patch-twig old
+                  recollect.diff/diff-twig old updated $ {}
+                match
+                  diff-twig-budgeted old updated ({}) (unlimited-diff-budget &unit)
+                  (:complete changes _)
+                    assert |nil-key-budgeted-replace-roundtrip $ &= updated $ patch-twig old changes
+                  _ $ assert |nil-key-budgeted-roundtrip-must-complete false
               :tags $ #{} :unit
         'patch-vector-append $ %{} 'CodeEntry
           :doc "|Append elements to a vector. Used for :vec-append operations."
