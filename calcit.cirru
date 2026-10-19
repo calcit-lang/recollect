@@ -1372,32 +1372,66 @@
     'recollect.memo $ %{} 'FileEntry
       :defs $ {}
         '*twig-call-cache $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defref *twig-call-cache ({})
+          :code $ quote $ defref *twig-call-cache
+            assert-type ({})
+              :: 'Map 'Dynamic $ :: 'Map 'Dynamic 'MemoEntry
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
+          :schema $ :: 'Ref $ :: 'Map 'Dynamic (:: 'Map 'Dynamic 'recollect.memo/MemoEntry)
         '*twig-frame-active? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *twig-frame-active? false
           :examples $ []
           :schema $ :: 'Ref 'Bool
         '*twig-frame-cache $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defref *twig-frame-cache ({})
+          :code $ quote $ defref *twig-frame-cache
+            assert-type ({})
+              :: 'Map 'Dynamic $ :: 'Map 'Dynamic 'MemoEntry
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
-        'assoc-in-map $ %{} 'CodeEntry (:doc |)
+          :schema $ :: 'Ref $ :: 'Map 'Dynamic (:: 'Map 'Dynamic 'recollect.memo/MemoEntry)
+        'MemoEntry $ %{} 'CodeEntry
+          :doc "|内部 memo 条目：参数列表与结果分字段保存；异构值只保留在原 variadic 合同中，不再用动态二元 List 表达固定结构。"
+          :code $ quote $ defstruct MemoEntry
+            :args $ :: 'List 'Dynamic
+            :value 'Dynamic
+          :examples $ []
+          :schema $ :: 'StructDef
+        'assoc-in-map $ %{} 'CodeEntry
+          :doc "|两层 Map 更新保留值类型 V。内部调用始终传入函数与业务 key 构成的二项 path；不把未知缓存值 decode 成 Map。"
           :code $ quote $ defn assoc-in-map (m path v)
-            &map:assoc m (&list:nth path 0)
-              &map:assoc
-                decode-map-as
-                  .unwrap-or
-                    get m $ &list:nth path 0
-                    {}
-                  :: 'Map 'Dynamic 'Dynamic
+            .assoc m (&list:nth path 0)
+              .assoc
+                .unwrap-or
+                  get m $ &list:nth path 0
+                  {}
                 &list:nth path 1
                 , v
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Dynamic 'Dynamic) (:: 'List 'Dynamic) 'Dynamic
-            :return $ :: 'Map 'Dynamic 'Dynamic
+            :args $ []
+              :: 'Map 'Dynamic $ :: 'Map 'Dynamic 'V
+              :: 'List 'Dynamic
+              , 'V
+            :generics $ [] 'V
+            :return $ :: 'Map 'Dynamic $ :: 'Map 'Dynamic 'V
+          :tests $ [] $ %{} 'TestEntry (:name |preserves-nested-value-type-and-other-keys)
+            :code $ quote $ let
+                initial $ {} $ :f
+                  {} (:a 1) (:b 2)
+                next $ assoc-in-map initial ([] :f :a) 3
+                added $ assoc-in-map next ([] :g :a) 4
+              assert= 1 $ .unwrap $ get
+                .unwrap $ get initial :f
+                , :a
+              assert= 3 $ .unwrap $ get
+                .unwrap $ get next :f
+                , :a
+              assert= 2 $ .unwrap $ get
+                .unwrap $ get next :f
+                , :b
+              assert= 4 $ .unwrap $ get
+                .unwrap $ get added :g
+                , :a
+              assert= 2 $ .len added
+            :tags $ #{} :unit
         'begin-twig-frame! $ %{} 'CodeEntry
           :doc "|Start collecting the twig memo entries used by the current render or sync frame."
           :code $ quote $ defn begin-twig-frame! ()
@@ -1410,7 +1444,7 @@
         'finish-twig-frame! $ %{} 'CodeEntry
           :doc "|Finish the current twig memo frame, retaining only entries touched during that frame."
           :code $ quote $ defn finish-twig-frame! ()
-            if @*twig-frame-active? $ reset! *twig-call-cache $ assert-type @*twig-frame-cache (:: 'Map 'Dynamic 'Dynamic)
+            if @*twig-frame-active? $ reset! *twig-call-cache @*twig-frame-cache
             reset! *twig-frame-active? false
             reset! *twig-frame-cache $ {}
             , &unit
@@ -1423,46 +1457,152 @@
             if (nil? key) (f & args)
               &let
                 cached-pair-option $ .or-else
-                  assert-type
-                    get-in @*twig-frame-cache $ [] f key
-                    :: 'Option 'Dynamic
-                  fn () $ assert-type
-                    get-in @*twig-call-cache $ [] f key
-                    :: 'Option 'Dynamic
+                  .and-then (get @*twig-frame-cache f)
+                    fn (bucket) (get bucket key)
+                  fn () $ .and-then (get @*twig-call-cache f)
+                    fn (bucket) (get bucket key)
                 match cached-pair-option
                   (:some cached-pair)
-                    let
-                        cached-pair $ decode-map-as cached-pair $ :: 'List 'Dynamic
-                      if
-                        &= args $ &list:nth cached-pair 0
-                        if @*twig-frame-active?
-                          &let
-                            ret $ &list:nth cached-pair 1
-                            swap! *twig-frame-cache assoc-in-map ([] f key) cached-pair
-                            , ret
-                          &list:nth cached-pair 1
+                    if
+                      &= args $ :args cached-pair
+                      if @*twig-frame-active?
                         &let
-                          ret $ f & args
-                          if @*twig-frame-active?
-                            &let (result ret)
-                              swap! *twig-frame-cache assoc-in-map ([] f key) ([] args ret)
-                              , ret
-                            &let (result ret)
-                              swap! *twig-call-cache assoc-in-map ([] f key) ([] args ret)
-                              , ret
+                          ret $ :value cached-pair
+                          swap! *twig-frame-cache assoc-in-map ([] f key) cached-pair
+                          , ret
+                        :value cached-pair
+                      &let
+                        ret $ f & args
+                        if @*twig-frame-active?
+                          &let (result ret)
+                            swap! *twig-frame-cache assoc-in-map ([] f key) (MemoEntry :args args :value ret)
+                            , ret
+                          &let (result ret)
+                            swap! *twig-call-cache assoc-in-map ([] f key) (MemoEntry :args args :value ret)
+                            , ret
                   (:none)
                     &let
                       ret $ f & args
                       if @*twig-frame-active?
                         &let (result ret)
-                          swap! *twig-frame-cache assoc-in-map ([] f key) ([] args ret)
+                          swap! *twig-frame-cache assoc-in-map ([] f key) (MemoEntry :args args :value ret)
                           , ret
                         &let (result ret)
-                          swap! *twig-call-cache assoc-in-map ([] f key) ([] args ret)
+                          swap! *twig-call-cache assoc-in-map ([] f key) (MemoEntry :args args :value ret)
                           , ret
           :examples $ []
           :schema $ :: 'Fn $ {} (:rest 'Dynamic) (:return 'Dynamic)
             :args $ [] 'Dynamic 'Fn
+          :tests $ []
+            %{} 'TestEntry (:name |caches-nil-false-zero-empty-string)
+              :code $ quote $ let
+                  calls $ ref 0
+                  build $ fn (value)
+                    hint-fn $ {}
+                      :args $ [] 'Dynamic
+                      :return 'Dynamic
+                    swap! calls inc
+                    , value
+                reset-twig-memo!
+                assert= true $ nil? $ memo-twig-by :nil build nil
+                assert= true $ nil? $ memo-twig-by :nil build nil
+                assert= false $ decode-map-as (memo-twig-by :false build false) 'Bool
+                assert= false $ decode-map-as (memo-twig-by :false build false) 'Bool
+                assert= 0 $ decode-map-as (memo-twig-by :zero build 0) 'Number
+                assert= 0 $ decode-map-as (memo-twig-by :zero build 0) 'Number
+                assert= | $ decode-map-as (memo-twig-by :empty build |) 'String
+                assert= | $ decode-map-as (memo-twig-by :empty build |) 'String
+                assert= 4 @calls
+                assert= 4 $ twig-memo-size
+                reset-twig-memo!
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |frame-entry-precedes-old-call-and-prunes)
+              :code $ quote $ let
+                  calls $ ref 0
+                  build $ fn (value)
+                    hint-fn $ {}
+                      :args $ [] 'Number
+                      :return 'Number
+                    swap! calls inc
+                    , value
+                reset-twig-memo!
+                memo-twig-by :same build 1
+                begin-twig-frame!
+                memo-twig-by :same build 2
+                memo-twig-by :same build 1
+                memo-twig-by :same build 1
+                assert= 3 @calls
+                finish-twig-frame!
+                assert= 1 $ twig-memo-size
+                memo-twig-by :same build 1
+                assert= 3 @calls
+                begin-twig-frame!
+                finish-twig-frame!
+                assert= 0 $ twig-memo-size
+                memo-twig-by :same build 1
+                assert= 4 @calls
+                reset-twig-memo!
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |separates-functions-and-key-kinds)
+              :code $ quote $ let
+                  calls $ ref 0
+                  build-a $ fn ()
+                    hint-fn $ {}
+                      :args $ []
+                      :return 'Number
+                    swap! calls inc
+                    , 10
+                  build-b $ fn ()
+                    hint-fn $ {}
+                      :args $ []
+                      :return 'Number
+                    swap! calls inc
+                    , 20
+                reset-twig-memo!
+                assert= 10 $ memo-twig-by0 :same build-a
+                assert= 20 $ memo-twig-by0 :same build-b
+                assert= 10 $ memo-twig-by0 |same build-a
+                assert= 10 $ memo-twig-by0 0 build-a
+                assert= 10 $ memo-twig-by0 false build-a
+                assert= 10 $ memo-twig-by0 | build-a
+                assert= 6 @calls
+                memo-twig-by0 :same build-a
+                memo-twig-by0 :same build-b
+                memo-twig-by0 |same build-a
+                memo-twig-by0 0 build-a
+                memo-twig-by0 false build-a
+                memo-twig-by0 | build-a
+                assert= 6 @calls
+                assert= 6 $ twig-memo-size
+                reset-twig-memo!
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |variadic-builder-errors-never-populate-cache)
+              :code $ quote $ let
+                  calls $ ref 0
+                  build $ fn (a b c d)
+                    hint-fn $ {}
+                      :args $ [] 'Number 'Number 'Number 'Number
+                      :return 'Number
+                    swap! calls inc
+                    + a b c d
+                  fail $ fn ()
+                    hint-fn $ {}
+                      :args $ []
+                      :return 'Number
+                    swap! calls inc
+                    raise |builder-failed
+                reset-twig-memo!
+                assert= 10 $ decode-map-as (memo-twig-by :four build 1 2 3 4) 'Number
+                assert= 10 $ decode-map-as (memo-twig-by :four build 1 2 3 4) 'Number
+                assert= 1 @calls
+                assert= |builder-failed $ try (memo-twig-by :failed fail)
+                  fn (error) error
+                assert= |builder-failed $ try (memo-twig-by :failed fail)
+                  fn (error) error
+                assert= 3 @calls
+                assert= 1 $ twig-memo-size
+                reset-twig-memo!
+              :tags $ #{} :unit
         'memo-twig-by0 $ %{} 'CodeEntry
           :doc "|Typed zero-argument twig memoization keyed by function and stable application key."
           :code $ quote $ defn memo-twig-by0 (key f) (memo-twig-by key f)
@@ -1555,18 +1695,8 @@
         'twig-memo-size $ %{} 'CodeEntry
           :doc "|Return the number of retained keyed twig memo entries."
           :code $ quote $ defn twig-memo-size ()
-            let
-                xs $ &map:to-list @*twig-call-cache
-              loop
-                  i 0
-                  total 0
-                if
-                  >= i $ &list:count xs
-                  , total $ let
-                      pair $ &list:nth xs i
-                    recur (inc i)
-                      + total $ &list:count $ &map:to-list
-                        decode-map-as (&list:nth pair 1) (:: 'Map 'Dynamic 'Dynamic)
+            .fold (map-entries @*twig-call-cache) 0 $ fn (total entry)
+              + total $ .len $ :value entry
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []

@@ -71,6 +71,29 @@ jobs:
       run: >
         calcit calcit.cirru --entry test js && env=ci node test.mjs
 
+    - name: Load released definition-test runner
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.0
+      with:
+        repository: calcit-lang/calcit
+        ref: 0.30.1-alpha.5
+        path: .calcit/core-test-tools
+        persist-credentials: false
+        sparse-checkout-cone-mode: false
+        sparse-checkout: |
+          /scripts/run-core-tests.mjs
+          /scripts/core-test-protocol.mjs
+          /scripts/core-tests-exclusions.cirru
+          /docs/installation/wasm-support.md
+
+    - name: Replay all attached contracts on native and JavaScript
+      run: |
+        CALCIT_BIN="$(command -v calcit)"
+        export CALCIT_BIN
+        node .calcit/core-test-tools/scripts/run-core-tests.mjs \
+          --snapshot calcit.cirru --entry default --backend native,js \
+          --exclusions .calcit/core-test-tools/scripts/core-tests-exclusions.cirru \
+          --support-matrix .calcit/core-test-tools/docs/installation/wasm-support.md
+
     - name: "WASM eligibility check"
       continue-on-error: true
       run: calcit wasm calcit.cirru --entry test --check-only
