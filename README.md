@@ -98,6 +98,11 @@ npm 新包安装隔离期沿用已批准的一小时设置，不设逐包预批�
 具名 Struct，缺失保持 Option，嵌套 Map 保留值类型；原 variadic 边界仍明确开放。
 CI 复用已发布的共享 runner 回放全部附带测试的 native / JS 语义，不按 tag 漏测，不增加统计门禁。
 
+演示内部 Option 与兼容读取的后续审阅见 [Option 边界](docs/option-boundaries.md)：
+已知 card Map 和二参数 memo 保留类型，nil 仅在原 wire/显示边界编码；
+updater 与旧 patch-get 的保留合同逐项说明。共享测试执行 native/JS，新增组件显示测试
+按 `app-js` 执行 JS；这不是对原测试的排除或对其他消费者的豁免。
+
 Run definition-attached native tests, then compile and run the JS test entry:
 
 ```bash

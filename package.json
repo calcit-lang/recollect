@@ -1,7 +1,7 @@
 {
   "packageManager": "yarn@4.18.0",
   "scripts": {
-    "test:calcit": "calcit calcit.cirru test --require-match",
+    "test:calcit": "calcit calcit.cirru test --exclude-tag app-js --require-match",
     "test:js": "calcit calcit.cirru --entry test js && node test.mjs",
     "test:wasm": "bash scripts/test-wasm.sh",
     "run:wasm:api": "bash scripts/run-wasm-api.sh",
@@ -16,5 +16,5 @@
     "bottom-tip": "^0.1.5",
     "vite": "^8.2.2"
   },
-  "version": "0.0.64"
+  "version": "0.0.65"
 }
