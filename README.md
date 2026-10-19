@@ -96,7 +96,7 @@ npm 新包安装隔离期沿用已批准的一小时设置，不设逐包预批�
 
 后续缓存类型收敛见 [memo 缓存的类型边界](docs/typed-memo-cache.md)：固定缓存条目改用
 具名 Struct，缺失保持 Option，嵌套 Map 保留值类型；原 variadic 边界仍明确开放。
-CI 复用已发布的共享 runner 回放全部 28 项附带测试的 native / JS 语义，不增加统计门禁。
+CI 复用已发布的共享 runner 回放全部附带测试的 native / JS 语义，不按 tag 漏测，不增加统计门禁。
 
 Run definition-attached native tests, then compile and run the JS test entry:
 
