@@ -28,7 +28,10 @@
                     div
                       {} $ :style $ &map:assoc ui/row :padding |8px
                       pre $ {} (:class-name css-code-block)
-                        :inner-text $ trim $ format-cirru-edn data-twig
+                        :inner-text $ trim $ format-cirru-edn
+                          match data-twig
+                            (:some twig) twig
+                            (:none) nil
                       =< 8 nil
                       pre $ {} (:class-name css-code-block)
                         :inner-text $ trim $ format-cirru-edn client-store
@@ -42,8 +45,34 @@
                       :inner-text $ format-cirru-edn changes
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'T $ :: 'Map 'Tag 'Dynamic
-            :generics $ [] 'T
+            :args $ []
+              :: 'Option $ :: 'Map 'Tag 'Dynamic
+              :: 'Map 'Tag 'Dynamic
+          :tests $ [] $ %{} 'TestEntry (:name |option-display-keeps-original-nil-and-map-text)
+            :code $ quote $ let
+                verify $ fn (input expected)
+                  hint-fn $ {}
+                    :args $ []
+                      :: 'Option $ :: 'Map 'Tag 'Dynamic
+                      , 'Dynamic
+                    :return 'Unit
+                    :features $ #{} :js-ffi
+                  let
+                      html $ respo.render.html/make-string $ comp-container input
+                        {}
+                          :states $ {}
+                          :client-proof 3
+                      text $ trim $ format-cirru-edn expected
+                      first-section $ .unwrap $ .get (split html |</pre>) 0
+                    assert |first-pre-contains-original-encoded-value $ ends-with? first-section $ str |> text
+              verify (Option :none) nil
+              verify
+                Option :some $ {} $ :display-proof 7
+                {} $ :display-proof 7
+              verify
+                Option :some $ {}
+                {}
+            :tags $ #{} :app-js
         'css-code-block $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-code-block
             {} $ |$0 $ {} (:line-height |20px) (:margin 0) (:padding |8px) (:border-radius |4px)
@@ -222,14 +251,12 @@
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] $ :: 'List 'recollect.schema/change-op
-            :features $ #{} :js-ffi
             :return $ :: 'Map 'Tag 'Dynamic
         'next-data-twig $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-data-twig () (twig-container @*store)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ []
-            :features $ #{} :js-ffi
             :return $ :: 'Map 'Tag 'Dynamic
         'next-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-store (op) (updater @*store op)
@@ -257,11 +284,7 @@
           :code $ quote $ defn render-app! (renderer)
             renderer
               option:unwrap $ browser/query-selector |.app
-              comp-container
-                match @*data-twig
-                  (:some twig) twig
-                  (:none) nil
-                , @*client-store
+              comp-container @*data-twig @*client-store
               , dispatch!
             , &unit
           :examples $ []
@@ -273,11 +296,10 @@
             let
                 data-twig $ twig-container @*store
                 options $ {} $ :key :id
-                changes $ diff-twig
-                  match @*data-twig
-                    (:some twig) twig
-                    (:none) nil
-                  , data-twig options
+                changes $ match @*data-twig
+                  (:some previous) (diff-twig previous data-twig options)
+                  (:none)
+                    [] $ schema/change-op :replace data-twig
               shared/console-log! $ str |Changes changes
               ; println "|Data twig:" data-twig
               reset! *data-twig $ Option :some $ next-data-twig
@@ -328,34 +350,114 @@
             recollect.schema :as schema
             recollect.app.config :as config
             recollect.twig :refer $ clear-twig-caches!
-            |./calcit.build-errors :default build-errors
+            |./calcit.build-errors.mjs :default build-errors
             |bottom-tip :default hud!
             js-ffi.browser :as browser
             js-ffi.shared :as shared
             recollect.memo :as memo
     'recollect.app.twig.container $ %{} 'FileEntry
       :defs $ {}
-        'twig-card $ %{} 'CodeEntry (:doc |)
+        'twig-card $ %{} 'CodeEntry
+          :doc "|演示 wire Map 的构造边界。内部使用 Option，只有在既有 :user/:date 数据字段编码处将 none 写成原来的 nil；Map 的外层类型不再擦成 Dynamic。"
           :code $ quote $ defn twig-card (user date)
-            {} (:user user) (:date date)
+            {}
+              :user $ .unwrap-or user nil
+              :date $ .unwrap-or date nil
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Dynamic
-            :features $ #{} :js-ffi
-        'twig-container $ %{} 'CodeEntry (:doc |)
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'Option 'Dynamic) (:: 'Option 'Dynamic)
+            :return $ :: 'Map 'Tag 'Dynamic
+          :tests $ [] $ %{} 'TestEntry (:name |encodes-options-only-at-wire-map)
+            :code $ quote $ let
+                absent $ twig-card (Option :none) (Option :none)
+                explicit-nil $ twig-card (Option :some nil) (Option :some nil)
+                values $ twig-card (Option :some false) (Option :some 0)
+                empty-value $ twig-card (Option :some |) (Option :none)
+              assert= true $ .contains-key? absent :user
+              assert= true $ .contains-key? absent :date
+              assert |none-encodes-original-wire-nil $ &=
+                {} (:user nil) (:date nil)
+                , absent
+              assert |explicit-nil-keeps-original-wire-value $ &= absent explicit-nil
+              assert |false-and-zero-are-not-absent $ &=
+                {} (:user false) (:date 0)
+                , values
+              assert |empty-string-is-not-absent $ &=
+                {} (:user |) (:date nil)
+                , empty-value
+            :tags $ #{} :unit
+        'twig-container $ %{} 'CodeEntry
+          :doc "|使用类型化二参数 memo 保留 Map 返回合同。缺失与显式 nil 在 memo 前规范为同一 none，以保留旧缓存命中和 identity；false/0/空串保留为 some。其他 store 字段原样保留。"
           :code $ quote $ defn twig-container (store)
-            &merge store $ {} $ :card
-              memo-twig-by :card twig-card
-                .unwrap-or (get store :user) nil
-                .unwrap-or (get store :date) nil
+            let
+                normalize-field $ fn (field)
+                  hint-fn $ {}
+                    :args $ [] $ :: 'Option 'Dynamic
+                    :return $ :: 'Option 'Dynamic
+                  match field
+                    (:none) (Option :none)
+                    (:some value)
+                      if (nil? value) (Option :none) (Option :some value)
+              merge store $ {} $ :card
+                memo-twig-by2 :card twig-card
+                  normalize-field $ get store :user
+                  normalize-field $ get store :date
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] $ :: 'Map 'Tag 'Dynamic
-            :features $ #{} :js-ffi
             :return $ :: 'Map 'Tag 'Dynamic
+          :tests $ []
+            %{} 'TestEntry (:name |missing-and-nil-keep-card-cache-identity)
+              :code $ quote $ do (recollect.memo/reset-twig-memo!)
+                let
+                    absent $ twig-container $ {} (:extra 7)
+                    explicit-nil $ twig-container $ {} (:extra 8) (:user nil) (:date nil)
+                    absent-card $ .unwrap $ get absent :card
+                    nil-card $ .unwrap $ get explicit-nil :card
+                  assert |same-card-cache-entry $ identical? absent-card nil-card
+                  assert |absent-wire-fields $ &=
+                    {} (:user nil) (:date nil)
+                    , absent-card
+                  assert= 7 $ decode-map-as
+                    .unwrap $ get absent :extra
+                    , 'Number
+                  assert= 8 $ decode-map-as
+                    .unwrap $ get explicit-nil :extra
+                    , 'Number
+                  assert= false $ .contains-key? absent :user
+                  assert= true $ .contains-key? explicit-nil :user
+                recollect.memo/reset-twig-memo!
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |false-zero-and-empty-keep-values-and-cache)
+              :code $ quote $ let
+                  verify $ fn (value)
+                    hint-fn $ {}
+                      :args $ [] 'Dynamic
+                      :return 'Unit
+                    recollect.memo/reset-twig-memo!
+                    let
+                        store $ {} (:user value) (:date value) (:extra 9)
+                        first-twig $ twig-container store
+                        again $ twig-container store
+                        empty-twig $ twig-container $ {}
+                        first-card $ .unwrap $ get first-twig :card
+                      assert |payload-preserved $ &=
+                        {} (:user value) (:date value)
+                        , first-card
+                      assert |same-payload-keeps-card-identity $ identical? first-card $ .unwrap (get again :card)
+                      assert |nil-is-distinct-from-present-value $ not $ identical? first-card
+                        .unwrap $ get empty-twig :card
+                      assert= 9 $ decode-map-as
+                        .unwrap $ get first-twig :extra
+                        , 'Number
+                    recollect.memo/reset-twig-memo!
+                verify false
+                verify 0
+                verify |
+              :tags $ #{} :unit
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.twig.container
-          :require $ recollect.memo :refer $ memo-twig-by
+          :require $ recollect.memo :refer $ memo-twig-by2
     'recollect.app.updater $ %{} 'FileEntry
       :defs $ {} $ 'updater
         %{} 'CodeEntry (:doc |)
@@ -439,8 +541,140 @@
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Map 'Tag 'Dynamic) 'Enum
-            :features $ #{} :js-ffi
             :return $ :: 'Map 'Tag 'Dynamic
+          :tests $ []
+            %{} 'TestEntry (:name |required-fields-reject-missing-and-nil)
+              :code $ quote $ let
+                  verify $ fn (key op expected)
+                    hint-fn $ {}
+                      :args $ [] 'Tag 'Enum 'String
+                      :return 'Unit
+                    assert= expected $ try
+                      do
+                        updater ({}) op
+                        raise |unexpected-success
+                      fn (error) error
+                    assert= expected $ try
+                      do
+                        updater
+                          {} $ key nil
+                          , op
+                        raise |unexpected-success
+                      fn (error) error
+                verify :in-map (:: :lit-1 1) "|decode-map-as failed at $: expected map, got nil"
+                verify :map-0 (:: :map-0 1) "|decode-map-as failed at $: expected map, got nil"
+                verify :vec-0 (:: :vec-0 1) "|decode-map-as failed at $: expected list, got nil"
+                verify :vec-0 (:: :vec-0-rm) "|decode-map-as failed at $: expected list, got nil"
+                verify :set-0 (:: :set-0 1) "|decode-map-as failed at $: expected set, got nil"
+                verify :types (:: :types :x) "|decode-map-as failed at $: expected map, got nil"
+              :tags $ #{} :unit
+            %{} 'TestEntry
+              :name |existing-truthy-defaults-and-errors-are-preserved
+              :code $ quote $ let
+                  verify $ fn (value)
+                    hint-fn $ {}
+                      :args $ [] 'Dynamic
+                      :return 'Unit
+                    assert |map-removal-fallback $ &=
+                      {} $ :map-0 $ {}
+                      updater
+                        {} $ :map-0 value
+                        :: :map-0-rm
+                    assert |date-fallback $ &=
+                      {} $ :date $ {} (:month 1)
+                      updater
+                        {} $ :date value
+                        :: :date
+                    assert |month-fallback $ &=
+                      {} $ :date $ {} (:month 1)
+                      updater
+                        {} $ :date $ {} (:month value)
+                        :: :date
+                verify nil
+                verify false
+                assert |missing-map-removal $ &=
+                  {} $ :map-0 $ {}
+                  updater ({}) (:: :map-0-rm)
+                assert |missing-date $ &=
+                  {} $ :date $ {} (:month 1)
+                  updater ({}) (:: :date)
+                assert |missing-month-and-other-fields $ &=
+                  {} (:extra 4)
+                    :date $ {} (:year 2026) (:month 1)
+                  updater
+                    {} (:extra 4)
+                      :date $ {} $ :year 2026
+                    :: :date
+                assert |zero-month-is-a-number $ &=
+                  {} $ :date $ {} (:month 1)
+                  updater
+                    {} $ :date $ {} (:month 0)
+                    :: :date
+                assert |normal-month-increments $ &=
+                  {} $ :date $ {} (:month 3)
+                  updater
+                    {} $ :date $ {} (:month 2)
+                    :: :date
+                assert= "|decode-map-as failed at $: expected map, got number" $ try
+                  do
+                    updater
+                      {} $ :date 0
+                      :: :date
+                    raise |unexpected-success
+                  fn (error) error
+                assert= "|decode-map-as failed at $: expected map, got string" $ try
+                  do
+                    updater
+                      {} $ :map-0 |
+                      :: :map-0-rm
+                    raise |unexpected-success
+                  fn (error) error
+                assert= "|decode-map-as failed at $: expected number, got string" $ try
+                  do
+                    updater
+                      {} $ :date $ {} (:month |)
+                      :: :date
+                    raise |unexpected-success
+                  fn (error) error
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |set-removal-distinguishes-empty-and-invalid)
+              :code $ quote $ let
+                  verify $ fn (value)
+                    hint-fn $ {}
+                      :args $ [] 'Dynamic
+                      :return 'Unit
+                    assert= |Expected-set-for-set-0 $ try
+                      do
+                        updater
+                          {} $ :set-0 value
+                          :: :set-0-rm
+                        raise |unexpected-success
+                      fn (error) error
+                verify nil
+                verify false
+                verify 0
+                verify |
+                assert= |Expected-set-for-set-0 $ try
+                  do
+                    updater ({}) (:: :set-0-rm)
+                    raise |unexpected-success
+                  fn (error) error
+                assert |empty-set-stays-empty $ &=
+                  {} $ :set-0 $ #{}
+                  updater
+                    {} $ :set-0 $ #{}
+                    :: :set-0-rm
+                assert |nil-element-is-present $ &=
+                  {} $ :set-0 $ #{}
+                  updater
+                    {} $ :set-0 $ #{} nil
+                    :: :set-0-rm
+                assert |false-element-is-present $ &=
+                  {} $ :set-0 $ #{}
+                  updater
+                    {} $ :set-0 $ #{} false
+                    :: :set-0-rm
+              :tags $ #{} :unit
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.updater
           :require $ respo.cursor :refer $ update-states
@@ -1897,7 +2131,6 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] 'Dynamic 'Dynamic
-            :features $ #{} :js-ffi
           :tests $ []
             %{} 'TestEntry (:name |rejects-unsupported-containers)
               :code $ quote $ let
@@ -1911,6 +2144,27 @@
                   Person $ defstruct Person $ :name (quote String)
                   person $ %{} Person $ :name |Ada
                 assert= |Ada $ patch-get person :name
+            %{} 'TestEntry (:name |legacy-map-read-keeps-nil-and-falsey-values)
+              :code $ quote $ let
+                  source $ {} (:nil nil) (:false false) (:zero 0) (:empty |) (nil |nil-key)
+                assert= true $ nil? $ patch-get source :missing
+                assert= true $ nil? $ patch-get source :nil
+                assert= false $ decode-map-as (patch-get source :false) 'Bool
+                assert= 0 $ decode-map-as (patch-get source :zero) 'Number
+                assert= | $ decode-map-as (patch-get source :empty) 'String
+                assert= |nil-key $ decode-map-as (patch-get source nil) 'String
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |legacy-struct-read-is-tag-only-and-keeps-nil)
+              :code $ quote $ let
+                  Sample $ defstruct Sample $ :field 'Dynamic
+                  sample $ Sample :field false
+                  nil-sample $ Sample :field nil
+                assert= false $ decode-map-as (patch-get sample :field) 'Bool
+                assert= true $ nil? $ patch-get nil-sample :field
+                assert= true $ nil? $ patch-get sample :unknown
+                assert= true $ nil? $ patch-get sample |field
+                assert= true $ nil? $ patch-get sample 'field
+              :tags $ #{} :unit
         'patch-map $ %{} 'CodeEntry
           :doc "|Apply map-splice patch by removing specified keys and merging in new entries."
           :code $ quote $ defn patch-map (base removed added)

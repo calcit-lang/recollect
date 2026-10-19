@@ -85,12 +85,16 @@ jobs:
           /scripts/core-tests-exclusions.cirru
           /docs/installation/wasm-support.md
 
-    - name: Replay all attached contracts on native and JavaScript
+    - name: Replay shared contracts and JavaScript-only display contracts
       run: |
         CALCIT_BIN="$(command -v calcit)"
         export CALCIT_BIN
         node .calcit/core-test-tools/scripts/run-core-tests.mjs \
-          --snapshot calcit.cirru --entry default --backend native,js \
+          --snapshot calcit.cirru --entry default --backend native,js --exclude-tag app-js \
+          --exclusions .calcit/core-test-tools/scripts/core-tests-exclusions.cirru \
+          --support-matrix .calcit/core-test-tools/docs/installation/wasm-support.md
+        node .calcit/core-test-tools/scripts/run-core-tests.mjs \
+          --snapshot calcit.cirru --entry default --backend js --tag app-js \
           --exclusions .calcit/core-test-tools/scripts/core-tests-exclusions.cirru \
           --support-matrix .calcit/core-test-tools/docs/installation/wasm-support.md
 
