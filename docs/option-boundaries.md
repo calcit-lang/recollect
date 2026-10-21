@@ -68,4 +68,4 @@ variadic builder、异构 patch payload 和历史 nil 返回仍明确开放，�
   应用入口的 bottom-tip 依赖浏览器打包器，不使用 Node resolver 补丁或伪造 DOM；
   `build-errors` 引用补齐编译器实际输出的 `.mjs` 后缀。
 
-本模块的证据不替代其他八消费者的源码与目标后端验收，也不代表 Calcit 0.30.1 stable 已发布。
+上述 alpha.5 阶段证据不替代其他消费者的源码与目标后端验收，也不代表本轮正式 0.30.1 配对已验收。
