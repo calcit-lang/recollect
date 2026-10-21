@@ -6,6 +6,17 @@ Demo http://repo.calcit-lang.org/recollect/ .
 
 Diff/patch library designed for Cumulo project.
 
+### 0.0.66 候选：使用者影响
+
+CLI 与 `@calcit/procs` 成对迁到正式 `0.30.1`，模块声明准备 `0.0.66`；
+发布状态以 GitHub Releases 为准，不使用候选分支/hash 代替正式依赖。
+本轮 Snapshot 与已发布 0.0.65 相同，diff/patch/memo、Option 与旧 nil wire 合同、
+缓存身份、测试预期、Demo 控件和原部署路径均不变。升级后按既有要求完整刷新，
+热替换时继续调用 `clear-twig-caches!`，不兼容保存旧内部缓存形状。
+CI 继续复用上游共享 runner，版本同步正式 0.30.1；保留原 native/JS 断言和 JS 专属显示测试，
+不复制 runner、不增加统计门禁。WASM 原非阻断检查不升级为发布依据。
+本 PR 不合并或部署业务应用；Recollect Demo 部署/正式 tag 须在验收后另获明确授权。
+
 ### API and guides
 
 The public API, examples, and current Calcit/Respo usage are maintained in the
@@ -67,28 +78,30 @@ For record parsing http://stackoverflow.com/a/29133350/883571
 
 Workflow https://github.com/calcit-lang/respo-calcit-workflow .
 
-CLI 与 `@calcit/procs` 成对固定为已发布的 `0.30.1-alpha.5`，模块依赖以 `deps.cirru`
-中的发布 tag 为准。编译器仍为预发布版本，不表示 Calcit stable 已发布。
+CLI 与 `@calcit/procs` 成对固定为正式 `0.30.1`，模块依赖以 `deps.cirru`
+中的发布 tag 为准；此前 alpha.5 的验收仅是历史证据，不能冒称本轮正式验收。
 CI 使用完整 strict 检查；memo 的任意参数 spread
 保留为真实开放边界，需要人工审阅，不改为固定参数或新增编译器规则。
 
-本轮为 0.30.1 准备迁移：59 处底层 Map/List 缺失值读取改用现有公开
+此前为 0.30.1 准备迁移：59 处底层 Map/List 缺失值读取改用现有公开
 Option 查询，保留 nil、false、0、空串、惰性业务 fallback 与 memo 缓存行为。
 只有原代码已检查非空或键/字段存在的分支直接解包；开放读取继续保留原 nil
 返回。Struct 的旧 `patch-get` 仍仅以 Tag 匹配字段，其他键返回 nil，
 不把它改成 `try-patch-get` 的 String 字段兼容行为。
 不新增 cast、helper、验证脚本或编译器规则，不修改原测试预期与部署路径。
-`0.0.63` 候选使用已发布的 Respo `0.16.122`、UI `0.7.41`、Value `0.5.20`、
+自 `0.0.63` 起使用已发布的 Respo `0.16.122`、UI `0.7.41`、Value `0.5.20`、
 JS-FFI `0.2.3` 与传递 Router `0.8.36`，让消费者严格解析一致的完整依赖图。
 本次 Snapshot、diff/patch/memo 算法、测试名、标签、断言和预期值逐字节不变；
 `yarn test:calcit` 改为执行全部 23 项附带测试，包含此前未带 `unit` tag 的 Struct 字段断言，
 不以 tag 筛选漏掉它。完整跨后端回放复用 Calcit 主仓库既有工具，不复制 runner 到本项目。
 
-正常 Caps strict 安装、工具链精确配对、不可变 Yarn 安装与完整 strict 通过；
+此前 alpha.5 迁移的正常 Caps strict 安装、工具链精确配对、不可变 Yarn 安装与完整 strict 通过；
 项目全部 162 个定义、338 项可达定义检查和 89 个公开定义检查均通过，
 原 23 项附带测试在 native / 生成 JS 同源回放且零排除，原 entry/JS suite、17 个示例和构建保留。
 浏览器实际验证全部 demo 控件、集合增删、空 Set 再删除、日期与混合 key，控制台无 warning/error。
 absence 迁移预览无建议，未新增 Option→nil 回流、Dynamic 或 unsafe；既有开放异构载荷仍需后续收窄。
+上述定义/测试计数和浏览器结果是此前迁移记录；本轮正式工具链结果以 PR 的精确提交为准，
+不把历史 23 项、32 项或已合并新增套件的计数混作同一次验收。
 最新 HEAD review / CI 与精确 main 部署成功后才发布候选；其他应用与稳定版本验收不由本模块替代。
 
 npm 新包安装隔离期沿用已批准的一小时设置，不设逐包预批准。
