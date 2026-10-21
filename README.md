@@ -92,12 +92,13 @@ Option 查询，保留 nil、false、0、空串、惰性业务 fallback 与 memo
 自 `0.0.63` 起使用已发布的 Respo `0.16.122`、UI `0.7.41`、Value `0.5.20`、
 JS-FFI `0.2.3` 与传递 Router `0.8.36`，让消费者严格解析一致的完整依赖图。
 本次 Snapshot、diff/patch/memo 算法、测试名、标签、断言和预期值逐字节不变；
-`yarn test:calcit` 改为执行全部 23 项附带测试，包含此前未带 `unit` tag 的 Struct 字段断言，
-不以 tag 筛选漏掉它。完整跨后端回放复用 Calcit 主仓库既有工具，不复制 runner 到本项目。
+`yarn test:calcit` 执行当前 40 项共享附带测试，包含此前未带 `unit` tag 的 Struct 字段断言，
+不以 `unit` tag 筛选漏测。共享测试在 native / JS 各回放 40 项，另有 1 项 `app-js` 显示测试
+只在 JS 回放；均为原有分组。跨后端回放复用 Calcit 主仓库既有工具，不复制 runner 到本项目。
 
-此前 alpha.5 迁移的正常 Caps strict 安装、工具链精确配对、不可变 Yarn 安装与完整 strict 通过；
+早期 alpha.5 阶段（尚未合并后续新增测试时）的正常 Caps strict 安装、工具链精确配对、不可变 Yarn 安装与完整 strict 通过；
 项目全部 162 个定义、338 项可达定义检查和 89 个公开定义检查均通过，
-原 23 项附带测试在 native / 生成 JS 同源回放且零排除，原 entry/JS suite、17 个示例和构建保留。
+当时的 23 项附带测试在 native / 生成 JS 同源回放且零排除，原 entry/JS suite、17 个示例和构建保留。
 浏览器实际验证全部 demo 控件、集合增删、空 Set 再删除、日期与混合 key，控制台无 warning/error。
 absence 迁移预览无建议，未新增 Option→nil 回流、Dynamic 或 unsafe；既有开放异构载荷仍需后续收窄。
 上述定义/测试计数和浏览器结果是此前迁移记录；本轮正式工具链结果以 PR 的精确提交为准，
