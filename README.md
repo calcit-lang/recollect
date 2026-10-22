@@ -94,6 +94,10 @@ Option 查询，保留 nil、false、0、空串、惰性业务 fallback 与 memo
 不新增 cast、helper、验证脚本或编译器规则，不修改原测试预期与部署路径。
 此前 `0.0.63` 至 `0.0.66` 使用已发布的 Respo `0.16.122`、UI `0.7.41`、Value `0.5.20`、
 JS-FFI `0.2.3` 与传递 Router `0.8.36`，让消费者严格解析一致的完整依赖图。
+其中 `0.0.66` 的 CLI 与 `@calcit/procs` 也已配对正式 `0.30.1`，
+分别见该 tag 的 [deps.cirru](https://github.com/calcit-lang/recollect/blob/0.0.66/deps.cirru)
+和 [package.json](https://github.com/calcit-lang/recollect/blob/0.0.66/package.json)；
+本轮补齐的是模块依赖图，而不是首次采用正式 CLI/runtime。
 本次 Snapshot、diff/patch/memo 算法、测试名、标签、断言和预期值逐字节不变；
 `yarn test:calcit` 执行当前 40 项共享附带测试，包含此前未带 `unit` tag 的 Struct 字段断言，
 不以 `unit` tag 筛选漏测。共享测试在 native / JS 各回放 40 项，另有 1 项 `app-js` 显示测试
