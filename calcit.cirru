@@ -19,7 +19,7 @@
             let
                 states $ .unwrap-or (get client-store :states) ({})
               div
-                {} $ :style $ &merge ui/global ui/fullscreen
+                {} $ :style $ merge ui/global ui/fullscreen
                 div
                   {} $ :style ui/row
                   memo-comp-by :panel comp-panel
@@ -152,21 +152,31 @@
         'on-click $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn on-click (op)
             fn (e dispatch!)
+              hint-fn $ {} (:return 'Unit)
+                :args $ [] (:: 'Map 'Tag 'Dynamic)
+                  :: 'Fn $ {} (:return 'Unit)
+                    :args $ [] 'Dynamic
+                :features $ #{} :js-ffi
               if
                 .includes? (#{} :map-0-rm :vec-0-rm :set-0-rm :date) op
                 dispatch! $ :: op
                 dispatch! $ :: op $ round
                   * 100 $ js-ffi.contract/expect-number |Math.random $ js/Math.random
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {}
             :args $ [] 'Tag
             :features $ #{} :js-ffi
+            :return $ :: 'Fn $ {} (:return 'Unit)
+              :args $ [] (:: 'Map 'Tag 'Dynamic)
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'Dynamic
+              :features $ #{} :js-ffi
         'render-button $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-button (title op)
             div $ {} (:style ui/button) (:inner-text title)
               :on-click $ on-click op
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'respo.schema/Element)
             :args $ [] 'String 'Tag
             :features $ #{} :js-ffi
         'style-line $ %{} 'CodeEntry (:doc |)
@@ -208,7 +218,7 @@
           :schema $ :: 'Ref $ :: 'Option (:: 'Map 'Tag 'Dynamic)
         '*store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *store
-            &merge schema/store $ {} (:lit-0 1)
+            merge schema/store $ {} (:lit-0 1)
               :vec-0 $ [] $ {} (:a 1)
               :vec-0 $ [] $ {} (:a 1)
               :set-0 $ #{} 1 :a
@@ -234,7 +244,7 @@
           :code $ quote $ defn main! () (load-console-formatter!)
             println "|Running mode:" $ if config/dev? |dev |release
             if
-              option:some? $ browser/query-selector |meta.respo-ssr
+              .some? $ browser/query-selector |meta.respo-ssr
               render-app! realize-ssr!
             render-app! render!
             add-watch! *store :changes $ fn (store prev) (render-data-twig!)
@@ -242,7 +252,7 @@
             ; render-data-twig!
             println "|app started!"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
             :features $ #{} :js-ffi
         'next-client-store $ %{} 'CodeEntry (:doc |)
@@ -283,13 +293,22 @@
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! (renderer)
             renderer
-              option:unwrap $ browser/query-selector |.app
+              .unwrap $ dom/query-selector |.app
               comp-container @*data-twig @*client-store
-              , dispatch!
+              fn (op)
+                hint-fn $ {}
+                  :args $ [] 'Dynamic
+                  :return 'Unit
+                dispatch! $ decode-op op
             , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Dynamic
+            :args $ [] $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] 'respo.dom/DomElement 'respo.schema/Component $ :: 'Fn
+                  {} (:return 'Unit)
+                    :args $ [] 'Dynamic
+                :features $ #{} :js-ffi
             :features $ #{} :js-ffi
         'render-data-twig! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-data-twig! ()
@@ -346,7 +365,7 @@
             recollect.app.twig.container :refer $ twig-container
             recollect.diff :refer $ diff-twig diff-twig-budgeted
             recollect.patch :refer $ patch-twig
-            recollect.app.updater :refer $ updater
+            recollect.app.updater :refer $ updater decode-op
             recollect.schema :as schema
             recollect.app.config :as config
             recollect.twig :refer $ clear-twig-caches!
@@ -355,6 +374,7 @@
             js-ffi.browser :as browser
             js-ffi.shared :as shared
             recollect.memo :as memo
+            respo.ffi.browser :as dom
     'recollect.app.twig.container $ %{} 'FileEntry
       :defs $ {}
         'twig-card $ %{} 'CodeEntry
@@ -459,8 +479,22 @@
         :code $ quote $ ns recollect.app.twig.container
           :require $ recollect.memo :refer $ memo-twig-by2
     'recollect.app.updater $ %{} 'FileEntry
-      :defs $ {} $ 'updater
-        %{} 'CodeEntry (:doc |)
+      :defs $ {}
+        'decode-op $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn decode-op (op)
+            if (enum? op) op $ raise "|[Recollect] expected an Enum operation"
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Enum)
+            :args $ [] 'Dynamic
+          :tests $ [] $ %{} 'TestEntry (:name |checks-render-dispatch-boundary)
+            :code $ quote $ let
+                op $ :: :states ([] :value |branch 7) nil
+              assert= true $ identical? op $ decode-op op
+              assert= "|[Recollect] expected an Enum operation" $ try
+                do (decode-op :states) |unexpected-success
+                fn (message) message
+            :tags $ #{} :unit
+        'updater $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn updater (store op)
             match op
               (:states cursor s)
@@ -690,7 +724,7 @@
           :code $ quote $ defn bench-fn (label n f)
             let
                 t0 $ monotonic-time-ms
-                _ $ reduce (range n) &unit $ fn (acc i) (f) &unit
+                _ $ fold (range n) &unit $ fn (acc i) (f) &unit
                 t1 $ monotonic-time-ms
                 elapsed $ - t1 t0
                 per-iter $ / elapsed n
@@ -948,7 +982,7 @@
                     let
                         child-changes $ diff-twig-iterate va vb options
                         wrapped $ wrap-pick k child-changes
-                      diff-map-step (&list:concat acc wrapped) rest-triples options
+                      diff-map-step (concat acc wrapped) rest-triples options
                     diff-map-step acc rest-triples options
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -971,7 +1005,7 @@
                         child-changes $ diff-twig-iterate-budgeted state va vb options
                       if (diff-state-exceeded? state) acc $ let
                           wrapped $ wrap-pick-budgeted state k child-changes
-                        diff-map-step-budgeted state (&list:concat acc wrapped) rest-triples options
+                        diff-map-step-budgeted state (concat acc wrapped) rest-triples options
                     diff-map-step-budgeted state acc rest-triples options
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -1011,7 +1045,7 @@
                 let
                     child-changes $ diff-twig-iterate va vb options
                     wrapped $ wrap-pick k child-changes
-                  diff-record-step (&list:concat acc wrapped) (&+ idx 1) n a b options
+                  diff-record-step (concat acc wrapped) (&+ idx 1) n a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Struct 'Struct $ :: 'Map 'Tag 'Tag
@@ -1030,7 +1064,7 @@
                       child-changes $ diff-twig-iterate-budgeted state va vb options
                     if (diff-state-exceeded? state) acc $ let
                         wrapped $ wrap-pick-budgeted state k child-changes
-                      diff-record-step-budgeted state (&list:concat acc wrapped) (&+ idx 1) n a b options
+                      diff-record-step-budgeted state (concat acc wrapped) (&+ idx 1) n a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Struct 'Struct $ :: 'Map 'Tag 'Tag
@@ -1099,7 +1133,7 @@
             if (&> idx max-idx) acc $ let
                 child-changes $ diff-twig-iterate (&enum:nth a idx) (&enum:nth b idx) options
                 wrapped $ wrap-pick idx child-changes
-              diff-tuple-step (&list:concat acc wrapped) (&+ idx 1) max-idx a b options
+              diff-tuple-step (concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Enum 'Enum $ :: 'Map 'Tag 'Tag
@@ -1112,7 +1146,7 @@
                   child-changes $ diff-twig-iterate-budgeted state (&enum:nth a idx) (&enum:nth b idx) options
                 if (diff-state-exceeded? state) acc $ let
                     wrapped $ wrap-pick-budgeted state idx child-changes
-                  diff-tuple-step-budgeted state (&list:concat acc wrapped) (&+ idx 1) max-idx a b options
+                  diff-tuple-step-budgeted state (concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Enum 'Enum $ :: 'Map 'Tag 'Tag
@@ -1528,16 +1562,16 @@
                 and (empty? a-items) (empty? b-items)
                 , acc
               (empty? b-items)
-                &list:concat acc $ [] $ schema/change-op :vec-drop idx
+                concat acc $ [] $ schema/change-op :vec-drop idx
               (empty? a-items)
-                &list:concat acc $ [] $ schema/change-op :vec-append b-items
+                concat acc $ [] $ schema/change-op :vec-append b-items
               true $ let
                   child-changes $ diff-twig-iterate
                     .unwrap $ first a-items
                     .unwrap $ first b-items
                     , options
                   wrapped $ wrap-pick idx child-changes
-                find-vector-changes (&list:concat acc wrapped) (&+ idx 1) (&list:rest a-items) (&list:rest b-items) options
+                find-vector-changes (concat acc wrapped) (&+ idx 1) (&list:rest a-items) (&list:rest b-items) options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'List 'recollect.schema/change-op) 'Number (:: 'List 'Dynamic) (:: 'List 'Dynamic) (:: 'Map 'Tag 'Tag)
@@ -1548,9 +1582,9 @@
                 and (empty? a-items) (empty? b-items)
                 , acc
               (empty? b-items)
-                &list:concat acc $ emit-change state $ schema/change-op :vec-drop idx
+                concat acc $ emit-change state $ schema/change-op :vec-drop idx
               (empty? a-items)
-                &list:concat acc $ emit-change state $ schema/change-op :vec-append b-items
+                concat acc $ emit-change state $ schema/change-op :vec-append b-items
               true $ let
                   child-changes $ diff-twig-iterate-budgeted state
                     .unwrap $ first a-items
@@ -1558,7 +1592,7 @@
                     , options
                 if (diff-state-exceeded? state) acc $ let
                     wrapped $ wrap-pick-budgeted state idx child-changes
-                  find-vector-changes-budgeted state (&list:concat acc wrapped) (&+ idx 1) (&list:rest a-items) (&list:rest b-items) options
+                  find-vector-changes-budgeted state (concat acc wrapped) (&+ idx 1) (&list:rest a-items) (&list:rest b-items) options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'List 'recollect.schema/change-op) 'Number (:: 'List 'Dynamic) (:: 'List 'Dynamic) (:: 'Map 'Tag 'Tag)
@@ -2079,8 +2113,7 @@
             :features $ #{} :js-ffi
         'patch-batch $ %{} 'CodeEntry
           :doc "|Wrap a list of public change-op values as a method-oriented PatchBatch."
-          :code $ quote $ defn patch-batch (changes)
-            %{} PatchBatch $ :changes changes
+          :code $ quote $ defn patch-batch (changes) (PatchBatch :changes changes)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchBatch)
             :args $ [] $ :: 'List 'recollect.schema/change-op
@@ -2142,7 +2175,7 @@
             %{} 'TestEntry (:name |reads-typed-struct-field)
               :code $ quote $ let
                   Person $ defstruct Person $ :name (quote String)
-                  person $ %{} Person $ :name |Ada
+                  person $ Person :name |Ada
                 assert= |Ada $ patch-get person :name
             %{} 'TestEntry (:name |legacy-map-read-keeps-nil-and-falsey-values)
               :code $ quote $ let
@@ -2346,7 +2379,7 @@
               :tags $ #{} :unit
         'patch-vector-append $ %{} 'CodeEntry
           :doc "|Append elements to a vector. Used for :vec-append operations."
-          :code $ quote $ defn patch-vector-append (base data) (&list:concat base data)
+          :code $ quote $ defn patch-vector-append (base data) (concat base data)
           :examples $ [] $ quote
             patch-vector-append ([] 1 2) ([] 3 4)
           :schema $ :: 'Fn $ {}
@@ -2411,13 +2444,13 @@
             %{} 'TestEntry (:name |checks-dynamic-struct-field-writes)
               :code $ quote $ let
                   CheckedPerson $ defstruct CheckedPerson (:name 'String) (:age 'Number)
-                  base $ %{} CheckedPerson (:name |Ada) (:age 20)
+                  base $ CheckedPerson :name |Ada :age 20
                   path $ [] $ PatchPathSegment :field :person
                 assert=
-                  PatchResult :ok $ %{} CheckedPerson (:name |Ada) (:age 21)
+                  PatchResult :ok $ CheckedPerson :name |Ada :age 21
                   try-patch-assoc base :age 21 path
                 assert=
-                  PatchResult :ok $ %{} CheckedPerson (:name |Grace) (:age 20)
+                  PatchResult :ok $ CheckedPerson :name |Grace :age 20
                   try-patch-assoc base |name |Grace path
                 assert=
                   PatchResult :err $ PatchError :type-mismatch
@@ -2431,9 +2464,7 @@
                   try-patch-assoc base |name 42 path
                 assert= (PatchResult :ok 20) (try-patch-get base :age path)
                 assert= (PatchResult :ok |Ada) (try-patch-get base |name path)
-                assert=
-                  %{} CheckedPerson (:name |Ada) (:age 20)
-                  , base
+                assert= (CheckedPerson :name |Ada :age 20) base
               :tags $ #{} :unit
             %{} 'TestEntry (:name |preserves-enum-tag-index)
               :code $ quote $ do
