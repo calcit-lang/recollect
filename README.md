@@ -67,11 +67,11 @@ let
       println $ patch-error-message error
 ```
 
-`try-patch-one` and `try-patch-twig` return the same structured `Result` without
-constructing a `PatchBatch`. `PatchError` reports unsupported operations,
-unsupported containers, missing nodes, type mismatches, and invalid indexes,
-including the rejected tree path. The older `patch-one` and `patch-twig` APIs
-retain their existing raising behavior and direct hot path for compatibility.
+`try-patch-one`、`try-patch-twig` 与 `PatchBatch .apply-to` 返回同一名义
+`PatchResult`，用 `:ok` / `:err` 匹配，成功 payload 仍是开放数据。
+`PatchError` 包含失败路径及操作、容器、字段类型或索引错误；旧 `patch-one` /
+`patch-twig` 仍直接返回数据或抛错，不支持 Struct 字段更新。名义 Struct 与网络边界的
+入口选择、wire/typed 状态提交顺序见 [受检补丁指南](docs/validated-patch.md)。
 
 ### Related
 
