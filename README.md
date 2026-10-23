@@ -170,6 +170,10 @@ assumptions still need WASM-specific acceptance.
 44/2045；旧 WASM runner 的 app 汇总期望 1 与迁移前实现也不一致。
 这些跨 native/JS 结果不是旧 WASM ABI runner 或 WASM 后端通过的证据。
 
+WASM 相关的当前验证入口与旧规划索引见 [WASM 文档导航](plan/README.md)。
+`WASM-ROADMAP.md` 与索引下的 2026-04 规划是历史档案；其中的旧 API、进度百分比、
+stub/nil placeholder 和“0 skip”不作为当前类型合同或 WASM 支持承诺。
+
 ### COS/CDN 配置
 
 前端 `dist` 使用正式 COS Action v1.2.0 对应的已审查提交，通过

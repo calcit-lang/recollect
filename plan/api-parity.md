@@ -1,10 +1,13 @@
-# API Parity Plan
+# 历史档案：API Parity Plan（2026-04-18）
+
+> 本文是当时的 fixture 规划，不是当前缺失能力或实现清单。35% 是无可复现测量范围的历史估算。
+> 保留原 API 名称和描述；当前合同与实际验证入口见 [文档导航](README.md)。
 
 These items focus on recollect semantics rather than calcit runtime internals.
 
-## Distance Snapshot
+## 历史进度估算（不作当前覆盖率）
 
-Current parity confidence is about `35%` of the way to a convincing WASM story for recollect's public behavior.
+当时对 Recollect 公共行为的 WASM parity 信心估计约为 `35%`；这不是当前覆盖率。
 
 Why it is still low:
 

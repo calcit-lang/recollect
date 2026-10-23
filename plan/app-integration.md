@@ -1,10 +1,13 @@
-# App Integration Gaps
+# 历史档案：App Integration Gaps（2026-04-18）
+
+> 本文记录当时的应用集成假设，不是当前完整应用或 WASM 能力矩阵。15% 是无可复现测量范围的历史估算。
+> 不据此安排新实现或复制旧 API；当前使用与验证入口见 [文档导航](README.md)。
 
 These blockers only show up when recollect is used through application-side namespaces.
 
-## Distance Snapshot
+## 历史进度估算（不作当前覆盖率）
 
-This track is still early, about `15%` complete.
+当时这项应用集成探索仍处于早期，进度估计约为 `15%`；这不是当前完成度。
 
 The main reason is that the blocker is no longer recollect alone. Once app-shaped namespaces are involved, the supported subset has to absorb `respo.core`, `memof.once`, cache invalidation paths, and more browser-oriented assumptions.
 
