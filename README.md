@@ -67,11 +67,11 @@ let
       println $ patch-error-message error
 ```
 
-`try-patch-one` and `try-patch-twig` return the same structured `Result` without
-constructing a `PatchBatch`. `PatchError` reports unsupported operations,
-unsupported containers, missing nodes, type mismatches, and invalid indexes,
-including the rejected tree path. The older `patch-one` and `patch-twig` APIs
-retain their existing raising behavior and direct hot path for compatibility.
+`try-patch-one`、`try-patch-twig` 与 `PatchBatch .apply-to` 返回同一名义
+`PatchResult`，用 `:ok` / `:err` 匹配，成功 payload 仍是开放数据。
+`PatchError` 包含失败路径及操作、容器、字段类型或索引错误；旧 `patch-one` /
+`patch-twig` 仍直接返回数据或抛错，不支持 Struct 字段更新。名义 Struct 与网络边界的
+入口选择、wire/typed 状态提交顺序见 [受检补丁指南](docs/validated-patch.md)。
 
 ### Related
 
@@ -98,10 +98,11 @@ JS-FFI `0.2.3` 与传递 Router `0.8.36`，让消费者严格解析一致的完�
 分别见该 tag 的 [deps.cirru](https://github.com/calcit-lang/recollect/blob/0.0.66/deps.cirru)
 和 [package.json](https://github.com/calcit-lang/recollect/blob/0.0.66/package.json)；
 本轮补齐的是模块依赖图，而不是首次采用正式 CLI/runtime。
-本次 Snapshot、diff/patch/memo 算法、测试名、标签、断言和预期值逐字节不变；
-`yarn test:calcit` 执行当前 40 项共享附带测试，包含此前未带 `unit` tag 的 Struct 字段断言，
-不以 `unit` tag 筛选漏测。共享测试在 native / JS 各回放 40 项，另有 1 项 `app-js` 显示测试
-只在 JS 回放；均为原有分组。跨后端回放复用 Calcit 主仓库既有工具，不复制 runner 到本项目。
+现有 diff/patch/memo 算法及原有测试名、标签、断言和预期值保持不变；Struct 补丁合同
+补充三项附带测试和一个测试用 Struct，不改变原函数实现或 schema。
+`yarn test:calcit` 执行当前 43 项共享附带测试，包含此前未带 `unit` tag 的 Struct 字段断言，
+不以 `unit` tag 筛选漏测。共享测试在 native / JS 各回放 43 项，另有 1 项 `app-js` 显示测试
+只在 JS 回放，保留原分组。跨后端回放复用 Calcit 主仓库既有工具，不复制 runner 到本项目。
 
 早期 alpha.5 阶段（尚未合并后续新增测试时）的正常 Caps strict 安装、工具链精确配对、不可变 Yarn 安装与完整 strict 通过；
 项目全部 162 个定义、338 项可达定义检查和 89 个公开定义检查均通过，

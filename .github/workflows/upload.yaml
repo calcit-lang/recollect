@@ -61,6 +61,8 @@ jobs:
         calcit calcit.cirru analyze check-examples --ns recollect.patch
         calcit calcit.cirru analyze check-examples --ns recollect.twig
         calcit calcit.cirru analyze check-examples --ns recollect.util
+        calcit docs check-md README.md --dep ./ --failures-only
+        calcit docs check-md docs/validated-patch.md --dep ./ --failures-only
 
     - name: "calcit test"
       run: |
