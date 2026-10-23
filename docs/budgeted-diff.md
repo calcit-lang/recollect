@@ -21,9 +21,7 @@ ns app.main $ :require
   recollect.diff :refer $ diff-twig-budgeted DiffBudget
 
 defn main! () $ let
-    budget $ %{} DiffBudget
-      :max-visited $ Option :some 20000
-      :max-emitted $ Option :some 2000
+    budget $ DiffBudget :max-visited (Option :some 20000) :max-emitted (Option :some 2000)
     outcome $ diff-twig-budgeted 1 2 ({}) budget
   , outcome
 ```

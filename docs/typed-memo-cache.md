@@ -10,7 +10,8 @@
 
 ## 不变的用户行为
 
-- `memo-twig-by0/1/2` 的参数、返回与推断合同不变；优先使用这些类型化入口。
+- `memo-twig-by0/1/2` 的参数、返回声明与推断合同不变；但 wrapper 转发 variadic 的 Dynamic 返回，
+  尚不等于缓存已独立证明泛型 R，见 [#68](https://github.com/calcit-lang/recollect/issues/68)。
 - 任意参数个数仍可用原 `memo-twig-by`；不把它改成固定参数，不伪造其开放函数签名。
 - nil key 仍绕过缓存；Tag、String、Number、false、空字符串 key 保持独立。
 - nil、false、0、空串都可以是已缓存的结果，不能被误当成缓存缺失。
@@ -26,6 +27,7 @@
 业务 key 保留异构 key 合同，variadic 参数及结果继续保留 Dynamic。此次只强化
 固定缓存结构，不宣称这些异构 payload 已全部静态化，也不豁免其他 Option→nil
 或宿主边界的逐项审阅。内部 Ref 不应由调用方注入旧 List 或未经证明的缓存条目。
+完整 strict 与身份回归通过不能替代 #68 的泛型关系证明；不加 coercion、自定义 checker 或每次重算来伪称解决。
 
 ## 验收
 
