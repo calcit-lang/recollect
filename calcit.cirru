@@ -881,7 +881,7 @@
           :doc "|Internal function to compute diff between two maps. Collects :map-splice operations for removed and added entries."
           :code $ quote $ defn diff-map (a b options)
             let
-                id-k $ if (nil? options) (%some :id) (get options :key)
+                id-k $ if (nil? options) (Option :some :id) (get options :key)
                 ka $ match id-k
                   (:some k) (get a k)
                   (:none) (get a nil)
@@ -908,7 +908,7 @@
         'diff-map-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware map diff.")
           :code $ quote $ defn diff-map-budgeted (state a b options)
             let
-                id-k $ if (nil? options) (%some :id) (get options :key)
+                id-k $ if (nil? options) (Option :some :id) (get options :key)
                 ka $ match id-k
                   (:some k) (get a k)
                   (:none) (get a nil)
