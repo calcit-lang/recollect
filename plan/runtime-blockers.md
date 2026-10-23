@@ -1,8 +1,12 @@
-# Runtime Blockers
+# 历史档案：Runtime Blockers（2026-04-18）
+
+> 本文保留 2026-04-18 的实验记录，不是当前 blocker 清单。
+> 下文的百分比没有可复现测量范围，旧 API 名称、修复描述和“已清除”项也不代表当前正式版本已验收。
+> 当前使用与限制见 [文档导航](README.md) 和 [项目 README](../README.md#develop)。
 
 These blockers come from calcit WASM/runtime coverage rather than recollect logic itself.
 
-## Distance Snapshot
+## 历史进度估算（不作当前覆盖率）
 
 - Runtime substrate for recollect-only probes: about `70%` complete.
 - Runtime substrate for recollect API parity fixtures: about `50%` complete.
@@ -14,7 +18,7 @@ The remaining distance is no longer dominated by raw container allocation or bas
 2. Higher-order helpers that still rely on unsupported closure/spread/sort paths.
 3. App dependencies that drag in a much wider unsupported surface than recollect itself.
 
-## Active
+## 当时的待办（历史）
 
 1. Dynamic collection methods are still incomplete.
    - `.contains?`, `.includes?`, `.empty` now have direct method coverage in the dedicated WASM tests for list/map/set, but whole-program lowering around `calcit.core` wrappers is still not fully aligned.
@@ -29,7 +33,7 @@ The remaining distance is no longer dominated by raw container allocation or bas
    - Respo and memof entry paths still trigger preprocessing failures or unsupported runtime features when trying to compile app-level namespaces to WASM.
    - This blocks “full app on wasm” even when recollect's own probe namespace passes.
 
-## Cleared
+## 当时记录的已清除项（历史）
 
 1. BufList is available across Rust, JS, and WASM.
 2. Host println/logging is available for Node.js-side WASM verification.
