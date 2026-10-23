@@ -62,7 +62,7 @@ assert.deepEqual(render.schema.find(p=>Array.isArray(p)&&p[0]===':args')[1],['[]
 render.schema.find(p=>Array.isArray(p)&&p[0]===':args')[1]=['[]',renderer];
 const click=find('recollect.app.comp.panel/on-click');
 assert.deepEqual(click.code[3].slice(0,2),['fn',['e','dispatch!']]);
-const handler=['::',"'Fn",['{}',[':args',['[]',['::',"'Map","'Tag","'Dynamic"],['::',"'Fn",['{}',[':args',['[]',"'Dynamic"]],[':return',"'Unit"]]]]],[':return',"'Unit"],[':features',['#{}',':js-ffi']]]];
+const handler=['::',"'Fn",['{}',[':return',"'Unit"],[':args',['[]',['::',"'Map","'Tag","'Dynamic"],['::',"'Fn",['{}',[':return',"'Unit"],[':args',['[]',"'Dynamic"]]]]]],[':features',['#{}',':js-ffi']]]];
 click.code[3].splice(2,0,['hint-fn',handler[2]]);
 assert.equal(click.schema.find(p=>Array.isArray(p)&&p[0]===':return')[1],"'Dynamic");
 click.schema.find(p=>Array.isArray(p)&&p[0]===':return')[1]=handler;
