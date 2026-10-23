@@ -7,7 +7,7 @@ These items focus on recollect semantics rather than calcit runtime internals.
 
 ## 历史进度估算（不作当前覆盖率）
 
-Current parity confidence is about `35%` of the way to a convincing WASM story for recollect's public behavior.
+当时对 Recollect 公共行为的 WASM parity 信心估计约为 `35%`；这不是当前覆盖率。
 
 Why it is still low:
 

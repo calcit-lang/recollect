@@ -4,7 +4,7 @@
 > 下文的百分比没有可复现测量范围，旧 API 名称、修复描述和“已清除”项也不代表当前正式版本已验收。
 > 当前使用与限制见 [文档导航](README.md) 和 [项目 README](../README.md#develop)。
 
-These blockers come from calcit WASM/runtime coverage rather than recollect logic itself.
+下列阻塞记录来自当时的 Calcit WASM/runtime 覆盖，而非 Recollect 自身逻辑；不据此判断当前支持范围。
 
 ## 历史进度估算（不作当前覆盖率）
 

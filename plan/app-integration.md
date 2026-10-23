@@ -7,7 +7,7 @@ These blockers only show up when recollect is used through application-side name
 
 ## 历史进度估算（不作当前覆盖率）
 
-This track is still early, about `15%` complete.
+当时这项应用集成探索仍处于早期，进度估计约为 `15%`；这不是当前完成度。
 
 The main reason is that the blocker is no longer recollect alone. Once app-shaped namespaces are involved, the supported subset has to absorb `respo.core`, `memof.once`, cache invalidation paths, and more browser-oriented assumptions.
 
