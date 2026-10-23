@@ -60,6 +60,16 @@ render.code[3][1][1][0]='dom/query-selector';
 render.code[3][3]=['fn',['op'],['hint-fn',['{}',[':args',['[]',"'Dynamic"]],[':return',"'Unit"]]],['dispatch!',['decode-op','op']]];
 assert.deepEqual(render.schema.find(p=>Array.isArray(p)&&p[0]===':args')[1],['[]',"'Dynamic"]);
 render.schema.find(p=>Array.isArray(p)&&p[0]===':args')[1]=['[]',renderer];
+const click=find('recollect.app.comp.panel/on-click');
+assert.deepEqual(click.code[3].slice(0,2),['fn',['e','dispatch!']]);
+const handler=['::',"'Fn",['{}',[':args',['[]',['::',"'Map","'Tag","'Dynamic"],['::',"'Fn",['{}',[':args',['[]',"'Dynamic"]],[':return',"'Unit"]]]]],[':return',"'Unit"],[':features',['#{}',':js-ffi']]]];
+click.code[3].splice(2,0,['hint-fn',handler[2]]);
+assert.equal(click.schema.find(p=>Array.isArray(p)&&p[0]===':return')[1],"'Dynamic");
+click.schema.find(p=>Array.isArray(p)&&p[0]===':return')[1]=handler;
+const button=find('recollect.app.comp.panel/render-button');
+assert.equal(button.code[3][0],'div');
+assert.equal(button.schema.find(p=>Array.isArray(p)&&p[0]===':return')[1],"'Dynamic");
+button.schema.find(p=>Array.isArray(p)&&p[0]===':return')[1]="'respo.schema/Element";
 const namespace=expectedNs.find(n=>n.namespace==='recollect.app.main');
 const imports=namespace.ns_code[2];
 assert.equal(imports[0],':require');
@@ -90,7 +100,7 @@ ops.push(['edit','imports','recollect.app.main','--input-format','json-ast','--c
 ops.push(['edit','def',decoder.id,'--input-format','json-ast','--code',JSON.stringify(decoder.code)]);
 ops.push(['edit','schema',decoder.id,'--input-format','json-ast','--code',JSON.stringify(decoder.schema)]);
 const t=decoder.tests[0];ops.push(['edit','add-test',decoder.id,t.name,'--tags',t.tags.join(','),'--input-format','json-ast','--code',JSON.stringify(t.code)]);
-assert.equal(ops.length,23);
+assert.equal(ops.length,26);
 writeFileSync('acceptance/before.json',JSON.stringify({definitions:before,nsViews:beforeNs,config},null,2));
 writeFileSync('acceptance/operations.json',JSON.stringify(ops,null,2));
 const args=['edit','transaction','--file','acceptance/operations.json','--format','json'];
@@ -98,7 +108,7 @@ const preview=JSON.parse(run(...args,'--dry-run'));assert.ok(preview.scoped_revi
 writeFileSync('acceptance/preview.json',JSON.stringify(preview,null,2));
 writeFileSync('acceptance/applied.json',run(...args,'--expect-revision',preview.scoped_revision));
 const {definitions:after,nsViews:afterNs}=inventory();
-for(const id of [main.id,render.id,decoder.id]){
+for(const id of [main.id,render.id,click.id,button.id,decoder.id]){
   const actual=after.find(d=>d.id===id),planned=find(id);
   const fields=s=>(s[0]==='::'?s[2].slice(1):s.slice(1).filter(p=>p[0]!==':kind'));
   assert.deepEqual(Object.fromEntries(fields(actual.schema)),Object.fromEntries(fields(planned.schema)));
@@ -113,4 +123,4 @@ writeFileSync('acceptance/after.json',JSON.stringify({definitions:after,nsViews:
 const diff=json('analyze','program-diff','HEAD');
 writeFileSync('acceptance/program-diff.json',JSON.stringify(diff,null,2));
 writeFileSync('acceptance/snapshot-blob.txt',execFileSync('git',['hash-object','calcit.cirru'],{encoding:'utf8'}));
-writeFileSync('acceptance/preserved.json',JSON.stringify({definitionsBefore:164,definitionsAfter:165,testsBefore:44,testsAfter:45,examples:17,...counts,operations:23,programDiffRegions:diff.data.evidence.changes.length,originalTestNamesTagsOrderAndNormalizedAssertionsPreserved:true,memoAndPatchProtocolsUnchanged:true,unsafe:0,hudReloadUnchanged:true,memoGenericProof68NotResolved:true},null,2));
+writeFileSync('acceptance/preserved.json',JSON.stringify({definitionsBefore:164,definitionsAfter:165,testsBefore:44,testsAfter:45,examples:17,...counts,operations:26,programDiffRegions:diff.data.evidence.changes.length,originalTestNamesTagsOrderAndNormalizedAssertionsPreserved:true,memoAndPatchProtocolsUnchanged:true,unsafe:0,hudReloadUnchanged:true,memoGenericProof68NotResolved:true},null,2));

@@ -16,7 +16,8 @@ CLI 与 `@calcit/procs` 保持精确正式 `0.30.1`，模块声明准备 `0.0.68
 本轮迁移旧 Option、内部 Map/List 合并、Struct 构造和 fold 写法；diff/patch/memo、Option 与旧 nil wire 合同、
 缓存身份、原测试预期、Demo 控件和原部署路径保持。Demo renderer 补充准确函数合同，
 复用 Respo 类型化 DOM 查询，并在原开放回调进入 Enum dispatch 前集中检查；非法非 Enum 提前报错，不写状态。
-main! 的实际日志返回声明为 Unit，hud! 页面报错保留。升级后按既有要求完整刷新，
+main! 的实际日志返回声明为 Unit，按钮返回 Element、点击回调声明实际 Map/派发函数合同，
+hud! 页面报错保留。升级后按既有要求完整刷新，
 热替换时继续调用 `clear-twig-caches!`，不兼容保存旧内部缓存形状。
 CI 继续复用上游共享 runner，版本同步正式 0.30.1；保留原 native/JS 断言和 JS 专属显示测试，
 不复制 runner、不增加统计门禁。WASM 原非阻断检查不升级为发布依据。
