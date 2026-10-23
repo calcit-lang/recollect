@@ -6,19 +6,23 @@ Demo http://repo.calcit-lang.org/recollect/ .
 
 Diff/patch library designed for Cumulo project.
 
-### 0.0.67 候选：使用者影响
+### 0.0.68 维护候选：使用者影响
 
-CLI 与 `@calcit/procs` 保持精确正式 `0.30.1`，模块声明准备 `0.0.67`；
+CLI 与 `@calcit/procs` 保持精确正式 `0.30.1`，模块声明准备 `0.0.68`；
 发布状态以 GitHub Releases 为准，不使用候选分支/hash 代替正式依赖。
-本轮补齐正式 UI 0.8.0、Value 0.5.21、Respo 0.16.124、js-ffi 0.2.5，传递 Router 0.8.37，
+本轮补齐正式 UI 0.8.1、Value 0.5.22、Respo 0.16.126、js-ffi 0.2.6，传递 Router 0.8.38，
 解除 Cumulo 等最新依赖图的 strict Caps 冲突，不使用根覆盖或放宽门禁。
-UI 0.8 基础样式可能影响 Demo 外观；公开算法、测试和协议不变。
-本轮 Snapshot 与已发布 0.0.65/0.0.66 相同，diff/patch/memo、Option 与旧 nil wire 合同、
-缓存身份、测试预期、Demo 控件和原部署路径均不变。升级后按既有要求完整刷新，
+保留当前 main 已合并的 Struct 受检补丁合同/测试与 WASM 历史文档归档，不从旧 tag 覆盖它们。
+本轮迁移旧 Option、内部 Map/List 合并、Struct 构造和 fold 写法；diff/patch/memo、Option 与旧 nil wire 合同、
+缓存身份、原测试预期、Demo 控件和原部署路径保持。Demo renderer 补充准确函数合同，
+复用 Respo 类型化 DOM 查询，并在原开放回调进入 Enum dispatch 前集中检查；非法非 Enum 提前报错，不写状态。
+main! 的实际日志返回声明为 Unit，hud! 页面报错保留。升级后按既有要求完整刷新，
 热替换时继续调用 `clear-twig-caches!`，不兼容保存旧内部缓存形状。
 CI 继续复用上游共享 runner，版本同步正式 0.30.1；保留原 native/JS 断言和 JS 专属显示测试，
 不复制 runner、不增加统计门禁。WASM 原非阻断检查不升级为发布依据。
-本 PR 不合并或部署业务应用；Recollect Demo 部署/正式 tag 须在验收后另获明确授权。
+本候选面向独立 maintenance/0.30.1，维护线和维护 PR 只检查/构建相对路径 artifact，不读 COS 上传凭据、
+不 rsync、不部署 Demo 或业务应用，不发布 npm。main 与 wasm-support 原部署/预览行为保持。
+memo wrapper 的 R 与全局异构缓存之间仍有 #68 所述独立泛型证明缺口；完整 strict 通过不等于该问题解决。
 
 ### API and guides
 
@@ -100,8 +104,9 @@ JS-FFI `0.2.3` 与传递 Router `0.8.36`，让消费者严格解析一致的完�
 本轮补齐的是模块依赖图，而不是首次采用正式 CLI/runtime。
 现有 diff/patch/memo 算法及原有测试名、标签、断言和预期值保持不变；Struct 补丁合同
 补充三项附带测试和一个测试用 Struct，不改变原函数实现或 schema。
-`yarn test:calcit` 执行当前 43 项共享附带测试，包含此前未带 `unit` tag 的 Struct 字段断言，
-不以 `unit` tag 筛选漏测。共享测试在 native / JS 各回放 43 项，另有 1 项 `app-js` 显示测试
+本轮只为新增的集中 Enum 入口补一项同源边界断言，不新增测试框架或重复脚本。
+`yarn test:calcit` 执行当前 44 项共享附带测试，包含此前未带 `unit` tag 的 Struct 字段断言，
+不以 `unit` tag 筛选漏测。共享测试在 native / JS 各回放 44 项，另有 1 项 `app-js` 显示测试
 只在 JS 回放，保留原分组。跨后端回放复用 Calcit 主仓库既有工具，不复制 runner 到本项目。
 
 早期 alpha.5 阶段（尚未合并后续新增测试时）的正常 Caps strict 安装、工具链精确配对、不可变 Yarn 安装与完整 strict 通过；
@@ -111,7 +116,7 @@ JS-FFI `0.2.3` 与传递 Router `0.8.36`，让消费者严格解析一致的完�
 absence 迁移预览无建议，未新增 Option→nil 回流、Dynamic 或 unsafe；既有开放异构载荷仍需后续收窄。
 上述定义/测试计数和浏览器结果是此前迁移记录；本轮正式工具链结果以 PR 的精确提交为准，
 不把历史 23 项、32 项或已合并新增套件的计数混作同一次验收。
-最新 HEAD review / CI 与精确 main 部署成功后才发布候选；其他应用与稳定版本验收不由本模块替代。
+最新 HEAD review / CI 与精确维护线、实际 Demo 验收成功后才发布维护候选；不以此部署 main 或替代其他应用验收。
 
 npm 新包安装隔离期沿用已批准的一小时设置，不设逐包预批准。
 不用工作分支或 commit hash 替代经过验证的正式 tag。
@@ -196,7 +201,7 @@ List 的 `rest`，空 Set 保持不变。未增加 cast 或独立校验脚本。
 
 CI 保留严格 Caps，UI、Router、Respo、Value 必须形成一致的正式版本图，
 不能通过修改模块缓存或关闭 strict 解决版本冲突。完整 Actions 与 review 通过、
-精确 main 验证成功后再发布；普通 Caps 本地回归不作为发布通过证据。
+精确目标维护线验证成功后再发布；普通 Caps 本地回归不作为发布通过证据。
 详情见[发布工具链迁移记录](history/20261005-published-alpha6.md)。
 
 ### License
