@@ -6,6 +6,7 @@ on:
       - main
       - wasm-support
       - maintenance/0.30.1
+      - prepare/recollect068-formal031
   pull_request: {}
 
 permissions:
@@ -48,8 +49,16 @@ jobs:
     - name: "validate snapshot and types"
       run: |
         set -euo pipefail
+        calcit --check-only --all-defs
+        calcit fix --workflow strict --verify --format json | jq -e '.data.workflow.status == "passed" and .diagnostics == []'
+        yarn test
+        node acceptance/prepare-recollect.mjs
+
+    - name: "validate prepared snapshot and types"
+      run: |
+        set -euo pipefail
         calcit calcit.cirru edit format
-        git diff --exit-code -- calcit.cirru
+        test "$(git hash-object calcit.cirru)" = "$(cat acceptance/snapshot-blob.txt)"
         calcit calcit.cirru --check-only --all-defs
         calcit calcit.cirru --entry test --check-only
         calcit calcit.cirru fix --workflow strict --verify --format json | jq -e '.data.workflow.status == "passed" and .diagnostics == []'
@@ -64,6 +73,7 @@ jobs:
         calcit calcit.cirru analyze check-examples --ns recollect.util
         calcit docs check-md README.md --dep ./ --failures-only
         calcit docs check-md docs/validated-patch.md --dep ./ --failures-only
+        calcit docs check-md docs/budgeted-diff.md --dep ./ --failures-only
 
     - name: "calcit test"
       run: |
@@ -168,3 +178,13 @@ jobs:
     - name: Display status from deploy
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: echo "${{ steps.deploy.outputs.status }}"
+
+    - name: Preserve prepared source and evidence
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      with:
+        name: recollect-prepared
+        path: |
+          calcit.cirru
+          acceptance/
+        if-no-files-found: error
+        retention-days: 7
