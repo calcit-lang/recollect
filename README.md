@@ -6,19 +6,13 @@ Demo http://repo.calcit-lang.org/recollect/ .
 
 Diff/patch library designed for Cumulo project.
 
-### 0.0.67 候选：使用者影响
+### 0.1.0-alpha.1 候选：使用者影响
 
-CLI 与 `@calcit/procs` 保持精确正式 `0.30.1`，模块声明准备 `0.0.67`；
-发布状态以 GitHub Releases 为准，不使用候选分支/hash 代替正式依赖。
-本轮补齐正式 UI 0.8.0、Value 0.5.21、Respo 0.16.124、js-ffi 0.2.5，传递 Router 0.8.37，
-解除 Cumulo 等最新依赖图的 strict Caps 冲突，不使用根覆盖或放宽门禁。
-UI 0.8 基础样式可能影响 Demo 外观；公开算法、测试和协议不变。
-本轮 Snapshot 与已发布 0.0.65/0.0.66 相同，diff/patch/memo、Option 与旧 nil wire 合同、
-缓存身份、测试预期、Demo 控件和原部署路径均不变。升级后按既有要求完整刷新，
-热替换时继续调用 `clear-twig-caches!`，不兼容保存旧内部缓存形状。
-CI 继续复用上游共享 runner，版本同步正式 0.30.1；保留原 native/JS 断言和 JS 专属显示测试，
-不复制 runner、不增加统计门禁。WASM 原非阻断检查不升级为发布依据。
-本 PR 不合并或部署业务应用；Recollect Demo 部署/正式 tag 须在验收后另获明确授权。
+CLI 与 `@calcit/procs` 成对固定为预发布 `0.31.0-alpha.2`，模块声明准备 `0.1.0-alpha.1`。
+依赖改为 Respo 0.17.0-alpha.2、Respo UI 0.9.0-alpha.1 和 Respo Value 0.6.0-alpha.1。
+公开 diff/patch/memo 算法、测试预期和 wire 合同不变。
+仍在 Calcit 0.30.1 / Respo 0.16 上的使用者继续用 0.0.x 维护线（最新 0.0.68）。
+发布状态以 GitHub Releases 为准。
 
 ### API and guides
 
@@ -81,8 +75,8 @@ For record parsing http://stackoverflow.com/a/29133350/883571
 
 Workflow https://github.com/calcit-lang/respo-calcit-workflow .
 
-CLI 与 `@calcit/procs` 成对固定为正式 `0.30.1`，模块依赖以 `deps.cirru`
-中的发布 tag 为准；此前 alpha.5 的验收仅是历史证据，不能冒称本轮正式验收。
+CLI 与 `@calcit/procs` 成对固定为 `0.31.0-alpha.2`，模块依赖以 `deps.cirru`
+中的发布 tag 为准。
 CI 使用完整 strict 检查；memo 的任意参数 spread
 保留为真实开放边界，需要人工审阅，不改为固定参数或新增编译器规则。
 

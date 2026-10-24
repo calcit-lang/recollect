@@ -6,7 +6,7 @@
     :default $ {} (:description |) (:init-fn 'recollect.app.main/main!) (:mode :js) (:reload-fn 'recollect.app.main/reload!) (:target :browser)
       :feature-policy $ {}
       :modules $ [] |respo.calcit/ |respo-ui.calcit/ |respo-value.calcit/ |js-ffi/
-      :type-slots $ {}
+      :type-slots $ {} $ :dispatch-op |recollect.app.updater/Op
     :test $ {} (:description |) (:init-fn 'recollect.app.main/test!) (:mode :native) (:reload-fn 'recollect.app.main/test!) (:target :native)
       :feature-policy $ {}
       :modules $ [] |js-ffi/
@@ -228,7 +228,7 @@
             , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Enum
+            :args $ [] 'recollect.app.updater/Op
             :features $ #{} :js-ffi
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!)
@@ -459,8 +459,24 @@
         :code $ quote $ ns recollect.app.twig.container
           :require $ recollect.memo :refer $ memo-twig-by2
     'recollect.app.updater $ %{} 'FileEntry
-      :defs $ {} $ 'updater
-        %{} 'CodeEntry (:doc |)
+      :defs $ {}
+        'Op $ %{} 'CodeEntry
+          :doc "|Dispatch Op of the demo app, bound to the :dispatch-op type slot."
+          :code $ quote $ defenum Op
+            :states (:: 'List 'Dynamic) 'Dynamic
+            :lit-0 'Dynamic
+            :lit-1 'Dynamic
+            :map-0 'Dynamic
+            :map-0-rm
+            :vec-0 'Dynamic
+            :vec-0-rm
+            :set-0 'Dynamic
+            :set-0-rm
+            :date
+            :types 'Dynamic
+          :examples $ []
+          :schema $ :: 'EnumDef
+        'updater $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn updater (store op)
             match op
               (:states cursor s)
