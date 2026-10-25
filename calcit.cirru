@@ -1934,22 +1934,26 @@
               :tags $ #{} :unit
         'memo-twig-by0 $ %{} 'CodeEntry
           :doc "|Typed zero-argument twig memoization keyed by function and stable application key."
-          :code $ quote $ defn memo-twig-by0 (key f) (memo-twig-by key f)
+          :code $ quote $ defn memo-twig-by0 (key f)
+            unsafe-coerce (memo-twig-by key f) 'R
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'R)
             :args $ [] 'K $ :: 'Fn
               {} (:return 'R)
                 :args $ []
+            :features $ #{} :erased-cache
             :generics $ [] 'K 'R
         'memo-twig-by1 $ %{} 'CodeEntry
           :doc "|Typed unary twig memoization keyed by function, stable application key, and argument value."
-          :code $ quote $ defn memo-twig-by1 (key f a) (memo-twig-by key f a)
+          :code $ quote $ defn memo-twig-by1 (key f a)
+            unsafe-coerce (memo-twig-by key f a) 'R
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'R)
             :args $ [] 'K
               :: 'Fn $ {} (:return 'R)
                 :args $ [] 'A
               , 'A
+            :features $ #{} :erased-cache
             :generics $ [] 'K 'A 'R
           :tests $ [] $ %{} 'TestEntry (:name |caches-values-and-prunes-frames)
             :code $ quote $ let
@@ -1995,13 +1999,15 @@
             :tags $ #{} :unit
         'memo-twig-by2 $ %{} 'CodeEntry
           :doc "|Typed binary twig memoization keyed by function, stable application key, and both argument values."
-          :code $ quote $ defn memo-twig-by2 (key f a b) (memo-twig-by key f a b)
+          :code $ quote $ defn memo-twig-by2 (key f a b)
+            unsafe-coerce (memo-twig-by key f a b) 'R
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'R)
             :args $ [] 'K
               :: 'Fn $ {} (:return 'R)
                 :args $ [] 'A 'B
               , 'A 'B
+            :features $ #{} :erased-cache
             :generics $ [] 'K 'A 'B 'R
         'reset-twig-memo! $ %{} 'CodeEntry
           :doc "|Clear all twig memo entries and leave frame collection inactive."
