@@ -6,9 +6,10 @@ Demo http://repo.calcit-lang.org/recollect/ .
 
 Diff/patch library designed for Cumulo project.
 
-### 0.1.0-alpha.1 候选：使用者影响
+### 0.1.0-alpha.2 候选：使用者影响
 
-CLI 与 `@calcit/procs` 成对固定为预发布 `0.31.0-alpha.2`，模块声明准备 `0.1.0-alpha.1`。
+CLI 与 `@calcit/procs` 成对固定为预发布 `0.31.0-alpha.5`，模块声明准备 `0.1.0-alpha.2`。
+`memo-twig-by0/1/2` 的 `'R` 返回现在由 `:erased-cache` 恢复点给出，strict 下可证明；调用方式不变。
 依赖改为 Respo 0.17.0-alpha.2、Respo UI 0.9.0-alpha.1 和 Respo Value 0.6.0-alpha.1。
 公开 diff/patch/memo 算法、测试预期和 wire 合同不变。
 仍在 Calcit 0.30.1 / Respo 0.16 上的使用者继续用 0.0.x 维护线（最新 0.0.68）。
@@ -79,6 +80,8 @@ CLI 与 `@calcit/procs` 成对固定为 `0.31.0-alpha.5`，模块依赖以 `deps
 中的发布 tag 为准。
 CI 使用完整 strict 检查；memo 的任意参数 spread
 保留为真实开放边界，需要人工审阅，不改为固定参数或新增编译器规则。
+固定参数的 `memo-twig-by0/1/2` 在声明 `:erased-cache` 的小函数里用
+`unsafe-coerce` 从 Dynamic 缓存恢复 `'R`，这是唯一的恢复点。
 
 此前为 0.30.1 准备迁移：59 处底层 Map/List 缺失值读取改用现有公开
 Option 查询，保留 nil、false、0、空串、惰性业务 fallback 与 memo 缓存行为。
