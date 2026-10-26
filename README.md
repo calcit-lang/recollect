@@ -6,7 +6,16 @@ Demo http://repo.calcit-lang.org/recollect/ .
 
 Diff/patch library designed for Cumulo project.
 
-### 0.1.0-alpha.3 候选：使用者影响
+### 当前工具链：Calcit 0.31.0-alpha.7
+
+CLI 与 `@calcit/procs` 从 alpha.6 成对升级到已发布 `0.31.0-alpha.7`，
+保留原精确模块图和全部 Snapshot。该版默认预检查拒绝未证明的 Dynamic 流向；
+原 strict、native/JS 契约回放和业务回归继续执行，不放宽类型或质量基线。
+官方同版 runner 对临时回放 fixture 使用其原有审计策略；项目本身的检查和构建仍启用
+默认 proof audit，不把 fixture 配置扩散到项目。算法、wire 协议和部署路径不变。
+以下 alpha.6 迁移记录为历史；0.30 稳定消费者仍使用原维护线。
+
+### 0.1.0-alpha.3 / alpha.6 历史迁移记录
 
 CLI 与 `@calcit/procs` 成对固定为已发布预发布版 `0.31.0-alpha.6`，模块声明准备 `0.1.0-alpha.3`。
 `memo-twig-by0/1/2` 的 `'R` 返回沿用既有的 `:erased-cache` 恢复点，strict 下可证明；调用方式不变。
