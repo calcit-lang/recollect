@@ -283,7 +283,7 @@
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! (renderer)
             renderer
-              option:unwrap $ browser/query-selector |.app
+              .unwrap $ browser/query-selector |.app
               comp-container @*data-twig @*client-store
               , dispatch!
             , &unit
@@ -742,10 +742,10 @@
                 diff-t $ diff-twig base new-thread opts
                 diff-r $ diff-twig base reorder opts
                 _ $ println "|Pre-computed patch sizes:"
-                _ $ println $ str "|  single_msg  patch ops: " (count diff-s)
-                _ $ println $ str "|  bulk_status patch ops: " (count diff-b)
-                _ $ println $ str "|  new_thread  patch ops: " (count diff-t)
-                _ $ println $ str "|  reorder     patch ops: " (count diff-r)
+                _ $ println $ str "|  single_msg  patch ops: " (.len diff-s)
+                _ $ println $ str "|  bulk_status patch ops: " (.len diff-b)
+                _ $ println $ str "|  new_thread  patch ops: " (.len diff-t)
+                _ $ println $ str "|  reorder     patch ops: " (.len diff-r)
                 _ $ print-sep
                 iters-diff 10
                 _ $ println $ str "|=== diff-twig (" iters-diff "|x each) ==="
@@ -1655,7 +1655,7 @@
           :doc "|Internal helper to wrap multiple changes into a :pick operation for a specific key."
           :code $ quote $ defn wrap-pick (k chunk)
             let
-                size $ count chunk
+                size $ .len chunk
               if (&> size 0)
                 if (&= size 1)
                   let
@@ -1676,7 +1676,7 @@
           :doc "|Wrap nested changes while accounting for the emitted wrapper operation."
           :code $ quote $ defn wrap-pick-budgeted (state k chunk)
             let
-                size $ count chunk
+                size $ .len chunk
               if (&> size 0)
                 if (&= size 1)
                   let
@@ -2398,9 +2398,9 @@
                       and
                         = k $ floor k
                         &>= k 0
-                        &< k $ count base
+                        &< k $ .len base
                       PatchResult :ok $ &list:assoc base k data
-                      PatchResult :err $ PatchError :invalid-index next-path k $ count base
+                      PatchResult :err $ PatchError :invalid-index next-path k $ .len base
                     PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
                 (enum? base)
                   if (number? k)
@@ -2485,9 +2485,9 @@
                       and
                         = k $ floor k
                         &>= k 0
-                        &< k $ count base
+                        &< k $ .len base
                       PatchResult :ok $ &list:nth base k
-                      PatchResult :err $ PatchError :invalid-index next-path k $ count base
+                      PatchResult :err $ PatchError :invalid-index next-path k $ .len base
                     PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
                 (enum? base)
                   if (number? k)
@@ -2540,10 +2540,10 @@
                     and (number? data)
                       = data $ floor data
                       &>= data 0
-                      &<= data $ count base
+                      &<= data $ .len base
                     PatchResult :ok $ patch-vector-drop base data
                     if (number? data)
-                      PatchResult :err $ PatchError :invalid-index path data $ count base
+                      PatchResult :err $ PatchError :invalid-index path data $ .len base
                       PatchResult :err $ PatchError :type-mismatch path :number $ type-of data
                   PatchResult :err $ PatchError :type-mismatch path :list $ type-of base
               (:assoc k data) (try-patch-assoc base k data path)

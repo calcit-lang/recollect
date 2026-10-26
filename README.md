@@ -6,14 +6,22 @@ Demo http://repo.calcit-lang.org/recollect/ .
 
 Diff/patch library designed for Cumulo project.
 
-### 0.1.0-alpha.2 候选：使用者影响
+### 0.1.0-alpha.3 候选：使用者影响
 
-CLI 与 `@calcit/procs` 成对固定为预发布 `0.31.0-alpha.5`，模块声明准备 `0.1.0-alpha.2`。
-`memo-twig-by0/1/2` 的 `'R` 返回现在由 `:erased-cache` 恢复点给出，strict 下可证明；调用方式不变。
-依赖改为 Respo 0.17.0-alpha.2、Respo UI 0.9.0-alpha.1 和 Respo Value 0.6.0-alpha.1。
+CLI 与 `@calcit/procs` 成对固定为已发布预发布版 `0.31.0-alpha.6`，模块声明准备 `0.1.0-alpha.3`。
+`memo-twig-by0/1/2` 的 `'R` 返回沿用既有的 `:erased-cache` 恢复点，strict 下可证明；调用方式不变。
+UI 升为已发布 0.9.0-alpha.2；保留 Respo 0.17.0-alpha.2、Value 0.6.0-alpha.1、
+JS FFI 0.2.5 与间接 Router 0.9.0-alpha.1。下游必须协调全部模块的 UI/Respo 版本图，
+不能只改应用根依赖、修改缓存或放宽 Caps strict。
+12 处已检查为 List 的长度读取改用 `.len`，挂载点 Option 解包改用 `.unwrap`；
+保留原错误载荷、预算与边界判断、缺失挂载点异常及求值次数，不增加强转或兜底。
+六处开放输入在原 `list?` 分支内读取长度；元素类型仍开放，不将方法可解析误称为元素已强类型化。
+UI 的条件渲染修复随依赖带入，不声称整个依赖图的生成代码或样式完全相同。
 公开 diff/patch/memo 算法、测试预期和 wire 合同不变。
 仍在 Calcit 0.30.1 / Respo 0.16 上的使用者继续用 0.0.x 维护线（最新 0.0.68）。
-发布状态以 GitHub Releases 为准。
+原 44 项附带测试（43 项共享、1 项 JS 显示）的断言、schema、HUD 和持久化合同不变；
+不新增测试、脚本、门禁、类型预算或安装策略例外。WASM 原非阻断检查不代表运行支持。
+候选不代表已发布，发布状态以对应 Git tag 为准。
 
 ### API and guides
 
