@@ -6,33 +6,23 @@ Demo http://repo.calcit-lang.org/recollect/ .
 
 Diff/patch library designed for Cumulo project.
 
-### 当前工具链：正式 Calcit 0.31.0
+### 使用者需要注意
 
-本仓库提交仍为模块候选，未发布新 tag；消费者需同步 CLI/runtime 并重新生成 JS，不用候选、main 或 commit 替代已发布依赖。
+候选 `0.1.0-alpha.4` 将模块依赖图同步到正式 Calcit `0.31.0`：消费者需成对使用
+CLI / `@calcit/procs` `0.31.0`，协调 Respo `0.17.0-alpha.4`、UI `0.9.0-alpha.4`、
+Value `0.6.0-alpha.2`、JS FFI `0.2.7` 及间接 Router `0.9.0-alpha.3`，然后重新生成 JS。
+本提交不等于已发布，使用前核对 Git tag；0.30.1 消费者继续使用 0.0.x 维护线。
 
-CLI 与 `@calcit/procs` 从 alpha.7 成对升级到已发布 `0.31.0`，
-保留原精确模块图和全部 Snapshot。该版默认预检查拒绝未证明的 Dynamic 流向；
-原 strict、native/JS 契约回放和业务回归继续执行，不放宽类型或质量基线。
-官方同版 runner 对临时回放 fixture 使用其原有审计策略；项目本身的检查和构建仍启用
-默认 proof audit，不把 fixture 配置扩散到项目。算法、wire 协议和部署路径不变。
-以下 alpha.6 迁移记录为历史；0.30 稳定消费者仍使用原维护线。
+内部 List/Map/Set 操作及 Option 判断改用当前接收者方法，算法、公开 schema、wire 格式、
+测试断言、HUD 和部署路径保持不变。原 `&list:nth` 改为 `.get` 后立即 `.unwrap`，
+保留无效索引抛错和操作数求值次数；异常文字可能不同。`.slice` 显式传入 `Option :some end`。
+已有异构 payload 仍然开放，不把可解析的集合方法称为 payload 已完全强类型化。
 
-### 0.1.0-alpha.3 / alpha.6 历史迁移记录
-
-CLI 与 `@calcit/procs` 成对固定为已发布预发布版 `0.31.0-alpha.6`，模块声明准备 `0.1.0-alpha.3`。
-`memo-twig-by0/1/2` 的 `'R` 返回沿用既有的 `:erased-cache` 恢复点，strict 下可证明；调用方式不变。
-UI 升为已发布 0.9.0-alpha.2；保留 Respo 0.17.0-alpha.2、Value 0.6.0-alpha.1、
-JS FFI 0.2.5 与间接 Router 0.9.0-alpha.1。下游必须协调全部模块的 UI/Respo 版本图，
-不能只改应用根依赖、修改缓存或放宽 Caps strict。
-12 处已检查为 List 的长度读取改用 `.len`，挂载点 Option 解包改用 `.unwrap`；
-保留原错误载荷、预算与边界判断、缺失挂载点异常及求值次数，不增加强转或兜底。
-六处开放输入在原 `list?` 分支内读取长度；元素类型仍开放，不将方法可解析误称为元素已强类型化。
-UI 的条件渲染修复随依赖带入，不声称整个依赖图的生成代码或样式完全相同。
-公开 diff/patch/memo 算法、测试预期和 wire 合同不变。
-仍在 Calcit 0.30.1 / Respo 0.16 上的使用者继续用 0.0.x 维护线（最新 0.0.68）。
-原 44 项附带测试（43 项共享、1 项 JS 显示）的断言、schema、HUD 和持久化合同不变；
-不新增测试、脚本、门禁、类型预算或安装策略例外。WASM 原非阻断检查不代表运行支持。
-候选不代表已发布，发布状态以对应 Git tag 为准。
+`&map:diff-triple` 的发布版 schema 声明 Enum，实际返回 List；两个 diff 函数暂保留该调用及
+六处读取，见 [Calcit #2439](https://github.com/calcit-lang/calcit/issues/2439)。不增加强转或
+关闭 proof audit。原 strict、全部 native/JS 契约回放与业务测试继续保留；WASM 非阻断检查
+不代表完整运行支持。Value 对名义 Struct/Enum 的显示限制仍见
+[Value #55](https://github.com/Respo/respo-value.calcit/issues/55)，不能把生成标签测试当作内容显示验收。
 
 ### API and guides
 
@@ -95,51 +85,17 @@ For record parsing http://stackoverflow.com/a/29133350/883571
 
 Workflow https://github.com/calcit-lang/respo-calcit-workflow .
 
-CLI 与 `@calcit/procs` 成对固定为 `0.31.0`，模块依赖以 `deps.cirru`
-中的发布 tag 为准。
-CI 使用完整 strict 检查；memo 的任意参数 spread
-保留为真实开放边界，需要人工审阅，不改为固定参数或新增编译器规则。
-固定参数的 `memo-twig-by0/1/2` 在声明 `:erased-cache` 的小函数里用
-`unsafe-coerce` 从 Dynamic 缓存恢复 `'R`，这是唯一的恢复点。
+精确版本以 `deps.cirru` 和严格 Caps 解析结果为准。安装使用 `caps --strict --ci`、
+`yarn install --immutable`、`caps verify --toolchain`；沿用已批准的一小时 npm 安装隔离期。
+不以 main、工作分支或 commit hash 替代发布 tag，不修改缓存或放宽 strict 来解决依赖冲突。
 
-此前为 0.30.1 准备迁移：59 处底层 Map/List 缺失值读取改用现有公开
-Option 查询，保留 nil、false、0、空串、惰性业务 fallback 与 memo 缓存行为。
-只有原代码已检查非空或键/字段存在的分支直接解包；开放读取继续保留原 nil
-返回。Struct 的旧 `patch-get` 仍仅以 Tag 匹配字段，其他键返回 nil，
-不把它改成 `try-patch-get` 的 String 字段兼容行为。
-不新增 cast、helper、验证脚本或编译器规则，不修改原测试预期与部署路径。
-此前 `0.0.63` 至 `0.0.66` 使用已发布的 Respo `0.16.122`、UI `0.7.41`、Value `0.5.20`、
-JS-FFI `0.2.3` 与传递 Router `0.8.36`，让消费者严格解析一致的完整依赖图。
-其中 `0.0.66` 的 CLI 与 `@calcit/procs` 也已配对正式 `0.30.1`，
-分别见该 tag 的 [deps.cirru](https://github.com/calcit-lang/recollect/blob/0.0.66/deps.cirru)
-和 [package.json](https://github.com/calcit-lang/recollect/blob/0.0.66/package.json)；
-本轮补齐的是模块依赖图，而不是首次采用正式 CLI/runtime。
-现有 diff/patch/memo 算法及原有测试名、标签、断言和预期值保持不变；Struct 补丁合同
-补充三项附带测试和一个测试用 Struct，不改变原函数实现或 schema。
-`yarn test:calcit` 执行当前 43 项共享附带测试，包含此前未带 `unit` tag 的 Struct 字段断言，
-不以 `unit` tag 筛选漏测。共享测试在 native / JS 各回放 43 项，另有 1 项 `app-js` 显示测试
-只在 JS 回放，保留原分组。跨后端回放复用 Calcit 主仓库既有工具，不复制 runner 到本项目。
-
-早期 alpha.5 阶段（尚未合并后续新增测试时）的正常 Caps strict 安装、工具链精确配对、不可变 Yarn 安装与完整 strict 通过；
-项目全部 162 个定义、338 项可达定义检查和 89 个公开定义检查均通过，
-当时的 23 项附带测试在 native / 生成 JS 同源回放且零排除，原 entry/JS suite、17 个示例和构建保留。
-浏览器实际验证全部 demo 控件、集合增删、空 Set 再删除、日期与混合 key，控制台无 warning/error。
-absence 迁移预览无建议，未新增 Option→nil 回流、Dynamic 或 unsafe；既有开放异构载荷仍需后续收窄。
-上述定义/测试计数和浏览器结果是此前迁移记录；本轮正式工具链结果以 PR 的精确提交为准，
-不把历史 23 项、32 项或已合并新增套件的计数混作同一次验收。
-最新 HEAD review / CI 与精确 main 部署成功后才发布候选；其他应用与稳定版本验收不由本模块替代。
-
-npm 新包安装隔离期沿用已批准的一小时设置，不设逐包预批准。
-不用工作分支或 commit hash 替代经过验证的正式 tag。
-
-后续缓存类型收敛见 [memo 缓存的类型边界](docs/typed-memo-cache.md)：固定缓存条目改用
-具名 Struct，缺失保持 Option，嵌套 Map 保留值类型；原 variadic 边界仍明确开放。
-CI 复用已发布的共享 runner 回放全部附带测试的 native / JS 语义，不按 tag 漏测，不增加统计门禁。
-
-演示内部 Option 与兼容读取的后续审阅见 [Option 边界](docs/option-boundaries.md)：
-已知 card Map 和二参数 memo 保留类型，nil 仅在原 wire/显示边界编码；
-updater 与旧 patch-get 的保留合同逐项说明。共享测试执行 native/JS，新增组件显示测试
-按 `app-js` 执行 JS；这不是对原测试的排除或对其他消费者的豁免。
+固定参数的 `memo-twig-by0/1/2` 保留既有 `:erased-cache` 恢复点；variadic memo 的真实开放
+spread 仍需人工审阅，不增加编译器规则。边界依据见
+[memo 缓存的类型边界](docs/typed-memo-cache.md) 和 [Option 边界](docs/option-boundaries.md)。
+原 nil/false/0/空串、惰性 fallback、Struct 字段和 memo 缓存合同不随写法迁移收紧。
+CLI 的完整 strict、公开命名空间、原示例与同版官方共享 runner 继续执行；不增加测试脚本或预算例外。
+历史计数与迁移经过见 Git 历史及[发布工具链迁移记录](history/20261005-published-alpha6.md)，
+不把旧版本的验收数字作为当前提交证据。
 
 Run definition-attached native tests, then compile and run the JS test entry:
 

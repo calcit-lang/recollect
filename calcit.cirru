@@ -26,7 +26,7 @@
                   div
                     {} $ :style ui/expand
                     div
-                      {} $ :style $ &map:assoc ui/row :padding |8px
+                      {} $ :style $ .assoc ui/row :padding |8px
                       pre $ {} (:class-name css-code-block)
                         :inner-text $ trim $ format-cirru-edn
                           match data-twig
@@ -234,7 +234,7 @@
           :code $ quote $ defn main! () (load-console-formatter!)
             println "|Running mode:" $ if config/dev? |dev |release
             if
-              option:some? $ browser/query-selector |meta.respo-ssr
+              .some? $ browser/query-selector |meta.respo-ssr
               render-app! realize-ssr!
             render-app! render!
             add-watch! *store :changes $ fn (store prev) (render-data-twig!)
@@ -485,21 +485,21 @@
                     decode-map-as cursor $ :: 'List 'Dynamic
                     , s
                   :: 'Map 'Tag 'Dynamic
-              (:lit-0 d) (&map:assoc store :lit-0 d)
+              (:lit-0 d) (.assoc store :lit-0 d)
               (:lit-1 d)
-                &map:assoc store :in-map $ &map:assoc
+                .assoc store :in-map $ .assoc
                   decode-map-as
                     .unwrap-or (get store :in-map) nil
                     :: 'Map 'Tag 'Dynamic
                   , :lit-1 d
               (:map-0 d)
-                &map:assoc store :map-0 $ &map:assoc
+                .assoc store :map-0 $ .assoc
                   decode-map-as
                     .unwrap-or (get store :map-0) nil
                     :: 'Map 'Tag 'Dynamic
                   , :y d
               (:map-0-rm)
-                &map:assoc store :map-0 $ &map:dissoc
+                .assoc store :map-0 $ .dissoc
                   decode-map-as
                     or
                       .unwrap-or (get store :map-0) nil
@@ -507,21 +507,21 @@
                     :: 'Map 'Tag 'Dynamic
                   , :y
               (:vec-0 d)
-                &map:assoc store :vec-0 $ &list:append
-                  &list:append
+                .assoc store :vec-0 $ .append
+                  .append
                     decode-map-as
                       .unwrap-or (get store :vec-0) nil
                       :: 'List 'Dynamic
                     , d
                   , :cursor
               (:vec-0-rm)
-                &map:assoc store :vec-0 $ either
-                  &list:butlast $ decode-map-as
+                .assoc store :vec-0 $ either
+                  .butlast $ decode-map-as
                     .unwrap-or (get store :vec-0) nil
                     :: 'List 'Dynamic
                   []
               (:set-0 d)
-                &map:assoc store :set-0 $ &union
+                .assoc store :set-0 $ &union
                   decode-map-as
                     .unwrap-or (get store :set-0) nil
                     :: 'Set 'Dynamic
@@ -530,7 +530,7 @@
                 &let
                   items $ .unwrap-or (get store :set-0) nil
                   if (set? items)
-                    &map:assoc store :set-0 $ match (.destruct items)
+                    .assoc store :set-0 $ match (.destruct items)
                       (:some _item rest) rest
                       (:none) items
                     raise |Expected-set-for-set-0
@@ -541,14 +541,14 @@
                         .unwrap-or (get store :date) nil
                         {}
                       :: 'Map 'Tag 'Dynamic
-                  &map:assoc store :date $ &map:assoc date :month $ inc
+                  .assoc store :date $ .assoc date :month $ inc
                     decode-map-as
                       or
                         .unwrap-or (get date :month) nil
                         , 0
                       , 'Number
               (:types d)
-                &map:assoc store :types $ &map:assoc
+                .assoc store :types $ .assoc
                   decode-map-as
                     .unwrap-or (get store :types) nil
                     :: 'Map 'Dynamic 'Dynamic
@@ -943,7 +943,7 @@
                     common-triples $ checked-triples $ &list:nth triple 2
                     splice-changes $ &let
                       changes $ map-splice-changes drop-keys new-diff
-                      if (empty? changes) changes $ emit-change state $ &list:nth changes 0
+                      if (empty? changes) changes $ emit-change state $ .unwrap (.get changes 0)
                     init-acc splice-changes
                   if (diff-state-exceeded? state) init-acc $ diff-map-step-budgeted state init-acc common-triples options
           :examples $ []
@@ -956,15 +956,15 @@
               (:none) acc
               (:some triple rest-triples)
                 let
-                    k $ &list:nth triple 0
-                    va $ &list:nth triple 1
-                    vb $ &list:nth triple 2
+                    k $ .unwrap $ .get triple 0
+                    va $ .unwrap $ .get triple 1
+                    vb $ .unwrap $ .get triple 2
                   if
                     not $ &= va vb
                     let
                         child-changes $ diff-twig-iterate va vb options
                         wrapped $ wrap-pick k child-changes
-                      diff-map-step (&list:concat acc wrapped) rest-triples options
+                      diff-map-step (.concat acc wrapped) rest-triples options
                     diff-map-step acc rest-triples options
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -978,16 +978,16 @@
               (:none) acc
               (:some triple rest-triples)
                 let
-                    k $ &list:nth triple 0
-                    va $ &list:nth triple 1
-                    vb $ &list:nth triple 2
+                    k $ .unwrap $ .get triple 0
+                    va $ .unwrap $ .get triple 1
+                    vb $ .unwrap $ .get triple 2
                   if
                     not $ &= va vb
                     let
                         child-changes $ diff-twig-iterate-budgeted state va vb options
                       if (diff-state-exceeded? state) acc $ let
                           wrapped $ wrap-pick-budgeted state k child-changes
-                        diff-map-step-budgeted state (&list:concat acc wrapped) rest-triples options
+                        diff-map-step-budgeted state (.concat acc wrapped) rest-triples options
                     diff-map-step-budgeted state acc rest-triples options
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -1027,7 +1027,7 @@
                 let
                     child-changes $ diff-twig-iterate va vb options
                     wrapped $ wrap-pick k child-changes
-                  diff-record-step (&list:concat acc wrapped) (&+ idx 1) n a b options
+                  diff-record-step (.concat acc wrapped) (&+ idx 1) n a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Struct 'Struct $ :: 'Map 'Tag 'Tag
@@ -1046,7 +1046,7 @@
                       child-changes $ diff-twig-iterate-budgeted state va vb options
                     if (diff-state-exceeded? state) acc $ let
                         wrapped $ wrap-pick-budgeted state k child-changes
-                      diff-record-step-budgeted state (&list:concat acc wrapped) (&+ idx 1) n a b options
+                      diff-record-step-budgeted state (.concat acc wrapped) (&+ idx 1) n a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Struct 'Struct $ :: 'Map 'Tag 'Tag
@@ -1115,7 +1115,7 @@
             if (&> idx max-idx) acc $ let
                 child-changes $ diff-twig-iterate (&enum:nth a idx) (&enum:nth b idx) options
                 wrapped $ wrap-pick idx child-changes
-              diff-tuple-step (&list:concat acc wrapped) (&+ idx 1) max-idx a b options
+              diff-tuple-step (.concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Enum 'Enum $ :: 'Map 'Tag 'Tag
@@ -1128,7 +1128,7 @@
                   child-changes $ diff-twig-iterate-budgeted state (&enum:nth a idx) (&enum:nth b idx) options
                 if (diff-state-exceeded? state) acc $ let
                     wrapped $ wrap-pick-budgeted state idx child-changes
-                  diff-tuple-step-budgeted state (&list:concat acc wrapped) (&+ idx 1) max-idx a b options
+                  diff-tuple-step-budgeted state (.concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Enum 'Enum $ :: 'Map 'Tag 'Tag
@@ -1544,16 +1544,16 @@
                 and (empty? a-items) (empty? b-items)
                 , acc
               (empty? b-items)
-                &list:concat acc $ [] $ schema/change-op :vec-drop idx
+                .concat acc $ [] $ schema/change-op :vec-drop idx
               (empty? a-items)
-                &list:concat acc $ [] $ schema/change-op :vec-append b-items
+                .concat acc $ [] $ schema/change-op :vec-append b-items
               true $ let
                   child-changes $ diff-twig-iterate
                     .unwrap $ first a-items
                     .unwrap $ first b-items
                     , options
                   wrapped $ wrap-pick idx child-changes
-                find-vector-changes (&list:concat acc wrapped) (&+ idx 1) (&list:rest a-items) (&list:rest b-items) options
+                find-vector-changes (.concat acc wrapped) (&+ idx 1) (.rest a-items) (.rest b-items) options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'List 'recollect.schema/change-op) 'Number (:: 'List 'Dynamic) (:: 'List 'Dynamic) (:: 'Map 'Tag 'Tag)
@@ -1564,9 +1564,9 @@
                 and (empty? a-items) (empty? b-items)
                 , acc
               (empty? b-items)
-                &list:concat acc $ emit-change state $ schema/change-op :vec-drop idx
+                .concat acc $ emit-change state $ schema/change-op :vec-drop idx
               (empty? a-items)
-                &list:concat acc $ emit-change state $ schema/change-op :vec-append b-items
+                .concat acc $ emit-change state $ schema/change-op :vec-append b-items
               true $ let
                   child-changes $ diff-twig-iterate-budgeted state
                     .unwrap $ first a-items
@@ -1574,7 +1574,7 @@
                     , options
                 if (diff-state-exceeded? state) acc $ let
                     wrapped $ wrap-pick-budgeted state idx child-changes
-                  find-vector-changes-budgeted state (&list:concat acc wrapped) (&+ idx 1) (&list:rest a-items) (&list:rest b-items) options
+                  find-vector-changes-budgeted state (.concat acc wrapped) (&+ idx 1) (.rest a-items) (.rest b-items) options
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'List 'recollect.schema/change-op) 'Number (:: 'List 'Dynamic) (:: 'List 'Dynamic) (:: 'Map 'Tag 'Tag)
@@ -1600,7 +1600,7 @@
             if (set? drop-keys)
               if (map? new-diff)
                 if
-                  and (&set:empty? drop-keys) (&map:empty? new-diff)
+                  and (.empty? drop-keys) (.empty? new-diff)
                   []
                   [] $ schema/change-op :map-splice drop-keys new-diff
                 raise $ str "|recollect expected added entries as a map, got: " $ type-of new-diff
@@ -1620,16 +1620,16 @@
         'set-difference-dynamic $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn set-difference-dynamic (a b)
             let
-                xs $ &set:to-list a
-              &list:to-set $ loop
+                xs $ .to-list a
+              .to-set $ loop
                   i 0
                   acc $ []
                 if
-                  >= i $ &list:count xs
+                  >= i $ .len xs
                   , acc $ let
-                      x $ &list:nth xs i
+                      x $ .unwrap $ .get xs i
                     recur (inc i)
-                      if (&set:includes? b x) acc $ &list:append acc x
+                      if (.includes? b x) acc $ .append acc x
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Set 'T) (:: 'Set 'T)
@@ -1639,7 +1639,7 @@
           :code $ quote $ defn set-difference-iter (xs a acc)
             if (empty? xs) acc $ let
                 x $ .unwrap $ first xs
-              set-difference-iter (&list:rest xs) a $ if (&set:includes? a x) acc $ &list:append acc x
+              set-difference-iter (.rest xs) a $ if (.includes? a x) acc $ .append acc x
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'List 'Dynamic) (:: 'Set 'Dynamic) (:: 'List 'Dynamic)
@@ -1659,7 +1659,7 @@
               if (&> size 0)
                 if (&= size 1)
                   let
-                      c0 $ &list:nth chunk 0
+                      c0 $ .unwrap $ .get chunk 0
                     match c0
                       (:replace v)
                         [] $ schema/change-op :assoc k v
@@ -1680,7 +1680,7 @@
               if (&> size 0)
                 if (&= size 1)
                   let
-                      c0 $ &list:nth chunk 0
+                      c0 $ .unwrap $ .get chunk 0
                     match c0
                       (:replace v)
                         emit-change state $ schema/change-op :assoc k v
@@ -1726,12 +1726,13 @@
         'assoc-in-map $ %{} 'CodeEntry
           :doc "|两层 Map 更新保留值类型 V。内部调用始终传入函数与业务 key 构成的二项 path；不把未知缓存值 decode 成 Map。"
           :code $ quote $ defn assoc-in-map (m path v)
-            .assoc m (&list:nth path 0)
+            .assoc m
+              .unwrap $ .get path 0
               .assoc
                 .unwrap-or
-                  get m $ &list:nth path 0
+                  get m $ .unwrap $ .get path 0
                   {}
-                &list:nth path 1
+                .unwrap $ .get path 1
                 , v
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -2091,9 +2092,9 @@
                 if (number? k) (&enum:assoc base k data)
                   raise $ str "|patch-assoc expected a Number index for enum, got: " k
               (list? base)
-                if (number? k) (&list:assoc base k data)
+                if (number? k) (.assoc base k data)
                   raise $ str "|patch-assoc expected a Number index for list, got: " k
-              (map? base) (&map:assoc base k data)
+              (map? base) (.assoc base k data)
               true $ raise $ str "|Unsupported-patch-container-type: " (type-of base)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
@@ -2138,7 +2139,8 @@
             if (map? base)
               .unwrap-or (get base k) nil
               if (list? base)
-                if (number? k) (&list:nth base k)
+                if (number? k)
+                  .unwrap $ .get base k
                   raise $ str "|patch-get expected a Number index for list, got: " k
                 if (enum? base)
                   if (number? k) (&enum:nth base k)
@@ -2190,10 +2192,12 @@
         'patch-map $ %{} 'CodeEntry
           :doc "|Apply map-splice patch by removing specified keys and merging in new entries."
           :code $ quote $ defn patch-map (base removed added)
-            foldl (&map:to-list added)
-              foldl (&set:to-list removed) base $ fn (acc k) (&map:dissoc acc k)
+            foldl (.to-list added)
+              foldl (.to-list removed) base $ fn (acc k) (.dissoc acc k)
               fn (acc pair)
-                &map:assoc acc (&list:nth pair 0) (&list:nth pair 1)
+                .assoc acc
+                  .unwrap $ .get pair 0
+                  .unwrap $ .get pair 1
           :examples $ [] $ quote
             patch-map
               {} (:a 1) (:b 2)
@@ -2368,7 +2372,7 @@
               :tags $ #{} :unit
         'patch-vector-append $ %{} 'CodeEntry
           :doc "|Append elements to a vector. Used for :vec-append operations."
-          :code $ quote $ defn patch-vector-append (base data) (&list:concat base data)
+          :code $ quote $ defn patch-vector-append (base data) (.concat base data)
           :examples $ [] $ quote
             patch-vector-append ([] 1 2) ([] 3 4)
           :schema $ :: 'Fn $ {}
@@ -2377,7 +2381,8 @@
             :return $ :: 'List 'T
         'patch-vector-drop $ %{} 'CodeEntry
           :doc "|Drop trailing elements from a vector. Takes first n elements."
-          :code $ quote $ defn patch-vector-drop (base data) (&list:slice base 0 data)
+          :code $ quote $ defn patch-vector-drop (base data)
+            .slice base 0 $ Option :some data
           :examples $ [] $ quote
             patch-vector-drop ([] 1 2 3 4) 2
           :schema $ :: 'Fn $ {}
@@ -2391,7 +2396,7 @@
                 next-path $ append path $ patch-path-segment k
               cond
                   map? base
-                  PatchResult :ok $ &map:assoc base k data
+                  PatchResult :ok $ .assoc base k data
                 (list? base)
                   if (number? k)
                     if
@@ -2399,7 +2404,7 @@
                         = k $ floor k
                         &>= k 0
                         &< k $ .len base
-                      PatchResult :ok $ &list:assoc base k data
+                      PatchResult :ok $ .assoc base k data
                       PatchResult :err $ PatchError :invalid-index next-path k $ .len base
                     PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
                 (enum? base)
@@ -2486,7 +2491,7 @@
                         = k $ floor k
                         &>= k 0
                         &< k $ .len base
-                      PatchResult :ok $ &list:nth base k
+                      PatchResult :ok $ .unwrap $ .get base k
                       PatchResult :err $ PatchError :invalid-index next-path k $ .len base
                     PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
                 (enum? base)
@@ -3078,15 +3083,15 @@
                     and (map? user) (list? items) (set? flags) (map? nested)
                     let
                         n0 $ .unwrap $ get user :score
-                        n1 $ &list:nth items 2
+                        n1 $ .unwrap $ .get items 2
                         n2 $ .unwrap $ get nested :count
                         n3 $ .unwrap $ get nested :bonus
                       if
                         and (number? n0) (number? n1) (number? n2) (number? n3)
-                        &+ (&map:count patched)
-                          &+ n0 $ &+ (&list:count items)
+                        &+ (.len patched)
+                          &+ n0 $ &+ (.len items)
                             &+ n1 $ &+
-                              if (&set:includes? flags :c) 10 0
+                              if (.includes? flags :c) 10 0
                               &+ n2 n3
                         raise "|roundtrip probe expected numeric fields"
                     raise "|API roundtrip probe expected original field containers"
@@ -3117,8 +3122,8 @@
                             n3 $ .unwrap $ get date :month
                           if
                             and (number? n0) (number? n1) (number? n2) (number? n3)
-                            &+ (&map:count patched)
-                              &+ (&map:count card)
+                            &+ (.len patched)
+                              &+ (.len card)
                                 &+ n0 $ &+ n1 $ &+ n2 n3
                             raise "|roundtrip probe expected numeric fields"
                         raise "|app roundtrip probe expected user and date Maps"
@@ -3191,7 +3196,7 @@
             :features $ #{} :js-ffi
         'test-empty-recur-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-recur-list (xs)
-            if (empty? xs) 1 $ recur $ &list:rest xs
+            if (empty? xs) 1 $ recur $ .rest xs
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ [] $ :: 'List 'T
@@ -3226,7 +3231,7 @@
             :features $ #{} :js-ffi
         'test-list-empty-proc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-list-empty-proc (a b)
-            if (&list:empty? b) 1 0
+            if (.empty? b) 1 0
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ [] 'A $ :: 'List 'T
@@ -3284,7 +3289,7 @@
                     value0 $ .unwrap $ get patched :b
                   if
                     and $ number? value0
-                    &+ (&map:count patched) value0
+                    &+ (.len patched) value0
                     raise "|patch probe expected numeric map values"
                 raise "|patch probe expected a Map"
           :examples $ []
@@ -3303,7 +3308,7 @@
                     value1 $ .unwrap $ get patched :c
                   if
                     and (number? value0) (number? value1)
-                    &+ (&map:count patched) (&+ value0 value1)
+                    &+ (.len patched) (&+ value0 value1)
                     raise "|patch probe expected numeric map values"
                 raise "|patch probe expected a Map"
           :examples $ []
@@ -3316,7 +3321,7 @@
                 b $ {} (:a 1) (:b 3) (:c 4)
                 changes $ diff-twig a b $ {}
                 patched $ patch-twig a changes
-              if (map? patched) (&map:count patched) (raise "|patch probe expected a Map")
+              if (map? patched) (.len patched) (raise "|patch probe expected a Map")
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
@@ -3349,7 +3354,7 @@
                     value0 $ .unwrap $ get patched :b
                   if
                     and $ number? value0
-                    &+ (&map:count patched) value0
+                    &+ (.len patched) value0
                     raise "|patch probe expected numeric map values"
                 raise "|patch probe expected a Map"
           :examples $ []
@@ -3380,8 +3385,8 @@
                 let
                     s $ .unwrap $ get patched :a
                   if (set? s)
-                    &+ (&set:count s)
-                      if (&set:includes? s 4) 10 0
+                    &+ (.len s)
+                      if (.includes? s 4) 10 0
                     raise "|collection probe expected the original member container"
                 raise "|collection probe expected a Map"
           :examples $ []
@@ -3407,8 +3412,10 @@
             let
                 base $ [] 1 2
                 patched $ patch-vector-append base $ [] 3 4
-              &+ (&list:count patched)
-                &+ (&list:nth patched 2) (&list:nth patched 3)
+              &+ (.len patched)
+                &+
+                  .unwrap $ .get patched 2
+                  .unwrap $ .get patched 3
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ []
@@ -3418,7 +3425,8 @@
             let
                 base $ [] 1 2 3 4
                 patched $ patch-vector-drop base 2
-              &+ (&list:count patched) (&list:nth patched 1)
+              &+ (.len patched)
+                .unwrap $ .get patched 1
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ []
@@ -3435,12 +3443,12 @@
                     xs $ .unwrap $ get patched :a
                   if (list? xs)
                     let
-                        n0 $ &list:nth xs 1
-                        n1 $ &list:nth xs 2
-                        n2 $ &list:nth xs 3
+                        n0 $ .unwrap $ .get xs 1
+                        n1 $ .unwrap $ .get xs 2
+                        n2 $ .unwrap $ .get xs 3
                       if
                         and (number? n0) (number? n1) (number? n2)
-                        &+ (&list:count xs)
+                        &+ (.len xs)
                           &+ n0 $ &+ n1 n2
                         raise "|vector probe expected numeric members"
                     raise "|collection probe expected the original member container"
