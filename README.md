@@ -93,7 +93,7 @@ For record parsing http://stackoverflow.com/a/29133350/883571
 
 Workflow https://github.com/calcit-lang/respo-calcit-workflow .
 
-CLI 与 `@calcit/procs` 成对固定为 `0.31.0-alpha.6`，模块依赖以 `deps.cirru`
+CLI 与 `@calcit/procs` 成对固定为 `0.31.0-alpha.7`，模块依赖以 `deps.cirru`
 中的发布 tag 为准。
 CI 使用完整 strict 检查；memo 的任意参数 spread
 保留为真实开放边界，需要人工审阅，不改为固定参数或新增编译器规则。
