@@ -6,9 +6,11 @@ Demo http://repo.calcit-lang.org/recollect/ .
 
 Diff/patch library designed for Cumulo project.
 
-### 当前工具链：Calcit 0.31.0-alpha.7
+### 当前工具链：正式 Calcit 0.31.0
 
-CLI 与 `@calcit/procs` 从 alpha.6 成对升级到已发布 `0.31.0-alpha.7`，
+本仓库提交仍为模块候选，未发布新 tag；消费者需同步 CLI/runtime 并重新生成 JS，不用候选、main 或 commit 替代已发布依赖。
+
+CLI 与 `@calcit/procs` 从 alpha.7 成对升级到已发布 `0.31.0`，
 保留原精确模块图和全部 Snapshot。该版默认预检查拒绝未证明的 Dynamic 流向；
 原 strict、native/JS 契约回放和业务回归继续执行，不放宽类型或质量基线。
 官方同版 runner 对临时回放 fixture 使用其原有审计策略；项目本身的检查和构建仍启用
@@ -93,7 +95,7 @@ For record parsing http://stackoverflow.com/a/29133350/883571
 
 Workflow https://github.com/calcit-lang/respo-calcit-workflow .
 
-CLI 与 `@calcit/procs` 成对固定为 `0.31.0-alpha.7`，模块依赖以 `deps.cirru`
+CLI 与 `@calcit/procs` 成对固定为 `0.31.0`，模块依赖以 `deps.cirru`
 中的发布 tag 为准。
 CI 使用完整 strict 检查；memo 的任意参数 spread
 保留为真实开放边界，需要人工审阅，不改为固定参数或新增编译器规则。
