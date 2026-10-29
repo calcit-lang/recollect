@@ -44,19 +44,16 @@
                       :style $ {} (:line-height |1.4) (:margin "|0 8px")
                       :inner-text $ format-cirru-edn changes
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ []
-              :: 'Option $ :: 'Map 'Tag 'Dynamic
-              :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn
+            Option $ Map Tag Dynamic
+            Map Tag Dynamic
+            -> respo.schema/Component
           :tests $ [] $ %{} 'TestEntry (:name |option-display-keeps-original-nil-and-map-text)
             :code $ quote $ let
                 verify $ fn (input expected)
-                  hint-fn $ {}
-                    :args $ []
-                      :: 'Option $ :: 'Map 'Tag 'Dynamic
-                      , 'Dynamic
-                    :return 'Unit
-                    :features $ #{} :js-ffi
+                  hint-fn $ Fn
+                    Option $ Map Tag Dynamic
+                    , Dynamic (-> Unit) (:features :js-ffi)
                   let
                       html $ respo.render.html/make-string $ comp-container input
                         {}
@@ -78,7 +75,7 @@
             {} $ |$0 $ {} (:line-height |20px) (:margin 0) (:padding |8px) (:border-radius |4px)
               :background-color $ hsl 0 0 90
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'deep-a $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def deep-a
             {}
@@ -88,7 +85,7 @@
                     :children $ {} (:a 1) (:b 2)
               :aa1 2
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ quote Dynamic
         'deep-b $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def deep-b
             {}
@@ -98,7 +95,7 @@
                     :children $ {} (:a 1) (:b 3)
               :aa1 4
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ quote Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.comp.container
           :require
@@ -147,8 +144,7 @@
                 {} $ :style style-line
                 render-button "|Change types" :types
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ []
+          :schema $ quote $ Fn (-> respo.schema/Component)
         'on-click $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn on-click (op)
             fn (e dispatch!)
@@ -158,22 +154,18 @@
                 dispatch! $ :: op $ round
                   * 100 $ js-ffi.contract/expect-number |Math.random $ js/Math.random
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Tag
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Tag (-> Dynamic) (:features :js-ffi)
         'render-button $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-button (title op)
             div $ {} (:style ui/button) (:inner-text title)
               :on-click $ on-click op
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'String 'Tag
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn String Tag (-> Dynamic) (:features :js-ffi)
         'style-line $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-line
             {} $ :height |40px
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.comp.panel
           :require
@@ -186,12 +178,12 @@
         'dev? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def dev? true
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
         'site $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def site
             {} (:dev-ui |http://localhost:8100/main-fonts.css) (:release-ui |http://cdn.tiye.me/favored-fonts/main-fonts.css) (:cdn-url |http://cdn.tiye.me/recollect/) (:cdn-folder |tiye.me:cdn/recollect) (:title |Recollect) (:icon |http://cdn.tiye.me/logo/cirru.png) (:storage-key |recollect) (:upload-folder |tiye.me:repo/Cumulo/recollect/)
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.config
     'recollect.app.main $ %{} 'FileEntry
@@ -199,13 +191,14 @@
         '*client-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *client-store schema/store
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Ref (Map Tag Dynamic)
         '*data-twig $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *data-twig
             assert-type (Option :none)
-              :: 'Option $ :: 'Map 'Tag 'Dynamic
+              quote $ Option $ Map Tag Dynamic
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Option (:: 'Map 'Tag 'Dynamic)
+          :schema $ quote $ Ref
+            Option $ Map Tag Dynamic
         '*store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *store
             &merge schema/store $ {} (:lit-0 1)
@@ -219,7 +212,7 @@
               :user $ {} $ :name |Chen
               :types $ {} (:name 1) (|name 2)
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Ref (Map Tag Dynamic)
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             when (and config/dev?)
@@ -227,9 +220,7 @@
             reset! *store $ next-store op
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'recollect.app.updater/Op
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn recollect.app.updater/Op (-> Unit) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!)
             println "|Running mode:" $ if config/dev? |dev |release
@@ -242,29 +233,24 @@
             ; render-data-twig!
             println "|app started!"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'next-client-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-client-store (changes)
             decode-map-as (patch-twig @*client-store changes) (:: 'Map 'Tag 'Dynamic)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] $ :: 'List 'recollect.schema/change-op
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (List recollect.schema/change-op)
+            -> $ Map Tag Dynamic
         'next-data-twig $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-data-twig () (twig-container @*store)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ []
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn
+            -> $ Map Tag Dynamic
         'next-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-store (op) (updater @*store op)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Enum
-            :features $ #{} :js-ffi
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn Enum
+            -> $ Map Tag Dynamic
+            :features :js-ffi
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
@@ -277,9 +263,7 @@
                 hud! |ok~ |Ok
               hud! |error build-errors
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! (renderer)
             renderer
@@ -288,9 +272,7 @@
               , dispatch!
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Dynamic (-> Unit) (:features :js-ffi)
         'render-data-twig! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-data-twig! ()
             let
@@ -306,9 +288,7 @@
               reset! *client-store $ next-client-store changes
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'test! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test! ()
             let
@@ -334,9 +314,7 @@
               assert= &unit $ clear-twig-caches!
               , nil
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.main
           :require
@@ -364,9 +342,8 @@
               :user $ .unwrap-or user nil
               :date $ .unwrap-or date nil
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Option 'Dynamic) (:: 'Option 'Dynamic)
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Option Dynamic) (Option Dynamic)
+            -> $ Map Tag Dynamic
           :tests $ [] $ %{} 'TestEntry (:name |encodes-options-only-at-wire-map)
             :code $ quote $ let
                 absent $ twig-card (Option :none) (Option :none)
@@ -391,9 +368,8 @@
           :code $ quote $ defn twig-container (store)
             let
                 normalize-field $ fn (field)
-                  hint-fn $ {}
-                    :args $ [] $ :: 'Option 'Dynamic
-                    :return $ :: 'Option 'Dynamic
+                  hint-fn $ Fn (Option Dynamic)
+                    -> $ Option Dynamic
                   match field
                     (:none) (Option :none)
                     (:some value)
@@ -403,9 +379,8 @@
                   normalize-field $ get store :user
                   normalize-field $ get store :date
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic)
+            -> $ Map Tag Dynamic
           :tests $ []
             %{} 'TestEntry (:name |missing-and-nil-keep-card-cache-identity)
               :code $ quote $ do (recollect.memo/reset-twig-memo!)
@@ -431,9 +406,7 @@
             %{} 'TestEntry (:name |false-zero-and-empty-keep-values-and-cache)
               :code $ quote $ let
                   verify $ fn (value)
-                    hint-fn $ {}
-                      :args $ [] 'Dynamic
-                      :return 'Unit
+                    hint-fn $ Fn Dynamic $ -> Unit
                     recollect.memo/reset-twig-memo!
                     let
                         store $ {} (:user value) (:date value) (:extra 9)
@@ -463,7 +436,9 @@
         'Op $ %{} 'CodeEntry
           :doc "|Dispatch Op of the demo app, bound to the :dispatch-op type slot."
           :code $ quote $ defenum Op
-            :states (:: 'List 'Dynamic) 'Dynamic
+            :states
+              quote $ List Dynamic
+              , 'Dynamic
             :lit-0 'Dynamic
             :lit-1 'Dynamic
             :map-0 'Dynamic
@@ -475,7 +450,7 @@
             :date
             :types 'Dynamic
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'updater $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn updater (store op)
             match op
@@ -555,16 +530,13 @@
                   , d true
               _ $ do (eprintln "|Unhandled op:" op) store
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Enum
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) Enum
+            -> $ Map Tag Dynamic
           :tests $ []
             %{} 'TestEntry (:name |required-fields-reject-missing-and-nil)
               :code $ quote $ let
                   verify $ fn (key op expected)
-                    hint-fn $ {}
-                      :args $ [] 'Tag 'Enum 'String
-                      :return 'Unit
+                    hint-fn $ Fn Tag Enum String $ -> Unit
                     assert= expected $ try
                       do
                         updater ({}) op
@@ -588,9 +560,7 @@
               :name |existing-truthy-defaults-and-errors-are-preserved
               :code $ quote $ let
                   verify $ fn (value)
-                    hint-fn $ {}
-                      :args $ [] 'Dynamic
-                      :return 'Unit
+                    hint-fn $ Fn Dynamic $ -> Unit
                     assert |map-removal-fallback $ &=
                       {} $ :map-0 $ {}
                       updater
@@ -656,9 +626,7 @@
             %{} 'TestEntry (:name |set-removal-distinguishes-empty-and-invalid)
               :code $ quote $ let
                   verify $ fn (value)
-                    hint-fn $ {}
-                      :args $ [] 'Dynamic
-                      :return 'Unit
+                    hint-fn $ Fn Dynamic $ -> Unit
                     assert= |Expected-set-for-set-0 $ try
                       do
                         updater
@@ -699,9 +667,7 @@
         'bench! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn bench! () (run-bench!)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'bench-fn $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn bench-fn (label n f)
             let
@@ -713,17 +679,14 @@
               println $ str label "|: " n "|x => " elapsed "|ms total, " per-iter |ms/iter
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'String 'Number $ :: 'Fn
-              {} (:return 'Dynamic)
-                :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn String Number
+            Fn $ -> Dynamic
+            -> Unit
+            :features :js-ffi
         'print-sep $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn print-sep () (println "|─────────────────────────────────────────")
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'run-bench! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn run-bench! ()
             let
@@ -774,9 +737,7 @@
                 _ $ print-sep
               println |Done.
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.bench
           :require
@@ -787,58 +748,57 @@
         'DiffBudget $ %{} 'CodeEntry
           :doc "|Deterministic traversal limits. none means unlimited for that dimension."
           :code $ quote $ defstruct DiffBudget
-            :max-visited $ :: 'Option 'Number
-            :max-emitted $ :: 'Option 'Number
+            :max-visited $ quote $ Option Number
+            :max-emitted $ quote $ Option Number
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'DiffBudgetReason $ %{} 'CodeEntry
           :doc "|The first deterministic work dimension that exceeded its configured maximum."
           :code $ quote $ defenum DiffBudgetReason (:visited-nodes) (:emitted-ops)
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'DiffOutcome $ %{} 'CodeEntry
           :doc "|Atomic result of a bounded diff. BudgetExceeded never carries a partial patch batch."
           :code $ quote $ defenum DiffOutcome
-            :complete (:: 'List 'recollect.schema/change-op) 'recollect.diff/DiffStats
+            :complete
+              quote $ List recollect.schema/change-op
+              , 'recollect.diff/DiffStats
             :budget-exceeded 'recollect.diff/DiffBudgetReason 'recollect.diff/DiffStats
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'DiffStats $ %{} 'CodeEntry
           :doc "|Work consumed by one isolated diff call. Emitted counts operation-construction units, including intermediate nodes later normalized into parent operations."
           :code $ quote $ defstruct DiffStats (:visited-nodes 'Number) (:emitted-ops 'Number)
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'DiffWorkState $ %{} 'CodeEntry
           :doc "|Per-call internal mutable counter state; never escapes the bounded entry."
           :code $ quote $ defstruct DiffWorkState (:budget 'recollect.diff/DiffBudget) (:stats 'recollect.diff/DiffStats)
-            :exceeded $ :: 'Option 'recollect.diff/DiffBudgetReason
+            :exceeded $ quote $ Option recollect.diff/DiffBudgetReason
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'by-key $ %{} 'CodeEntry
           :doc "|Compare two key-value pairs by their keys. Used for sorting map entries."
           :code $ quote $ defn by-key (x y)
             &compare (&enum:nth x 0) (&enum:nth y 0)
           :examples $ [] $ quote
             by-key (:: :a 1) (:: :b 2)
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Enum 'Enum
+          :schema $ quote $ Fn Enum Enum (-> Number)
         'checked-triples $ %{} 'CodeEntry (:doc "|校验 &map:diff-triple 的公共项列表。")
           :code $ quote $ defn checked-triples (value)
             if (list? value)
               foldl value ([])
                 defn %checked-triple (acc item)
-                  hint-fn $ {}
-                    :args $ []
-                      :: 'List $ :: 'List 'Dynamic
-                      , 'Dynamic
-                    :return $ :: 'List $ :: 'List 'Dynamic
+                  hint-fn $ Fn
+                    List $ List Dynamic
+                    , Dynamic $ ->
+                      List $ List Dynamic
                   if (list? item) (append acc item)
                     raise $ str "|recollect expected a map entry triple, got: " $ type-of item
               raise $ str "|recollect expected common entries as a list, got: " $ type-of value
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic
-            :return $ :: 'List $ :: 'List 'Dynamic
+          :schema $ quote $ Fn Dynamic
+            -> $ List $ List Dynamic
         'consume-emitted! $ %{} 'CodeEntry
           :doc "|Consume one emitted-operation unit or record the first exceeded reason."
           :code $ quote $ defn consume-emitted! (state)
@@ -864,8 +824,7 @@
                           Option :some $ DiffBudgetReason :emitted-ops
                         , false
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] $ :: 'Ref 'recollect.diff/DiffWorkState
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (-> Bool)
         'consume-visited! $ %{} 'CodeEntry
           :doc "|Consume one visited-node unit or record the first exceeded reason."
           :code $ quote $ defn consume-visited! (state)
@@ -891,8 +850,7 @@
                           Option :some $ DiffBudgetReason :visited-nodes
                         , false
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] $ :: 'Ref 'recollect.diff/DiffWorkState
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (-> Bool)
         'diff-map $ %{} 'CodeEntry
           :doc "|Internal function to compute diff between two maps. Collects :map-splice operations for removed and added entries."
           :code $ quote $ defn diff-map (a b options)
@@ -918,9 +876,8 @@
                     init-acc splice-changes
                   diff-map-step init-acc common-triples options
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Dynamic 'Dynamic) (:: 'Map 'Dynamic 'Dynamic) (:: 'Map 'Tag 'Tag)
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (Map Dynamic Dynamic) (Map Dynamic Dynamic) (Map Tag Tag)
+            -> $ List recollect.schema/change-op
         'diff-map-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware map diff.")
           :code $ quote $ defn diff-map-budgeted (state a b options)
             let
@@ -947,9 +904,8 @@
                     init-acc splice-changes
                   if (diff-state-exceeded? state) init-acc $ diff-map-step-budgeted state init-acc common-triples options
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'Map 'Dynamic 'Dynamic) (:: 'Map 'Dynamic 'Dynamic) (:: 'Map 'Tag 'Tag)
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (Map Dynamic Dynamic) (Map Dynamic Dynamic) (Map Tag Tag)
+            -> $ List recollect.schema/change-op
         'diff-map-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-map-step (acc triples options)
             match (destruct-list triples)
@@ -967,11 +923,10 @@
                       diff-map-step (.concat acc wrapped) rest-triples options
                     diff-map-step acc rest-triples options
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'recollect.schema/change-op)
-              :: 'List $ :: 'List 'Dynamic
-              :: 'Map 'Tag 'Tag
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (List recollect.schema/change-op)
+            List $ List Dynamic
+            Map Tag Tag
+            -> $ List recollect.schema/change-op
         'diff-map-step-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware iteration over common map values.")
           :code $ quote $ defn diff-map-step-budgeted (state acc triples options)
             if (diff-state-exceeded? state) acc $ match (destruct-list triples)
@@ -990,11 +945,10 @@
                         diff-map-step-budgeted state (.concat acc wrapped) rest-triples options
                     diff-map-step-budgeted state acc rest-triples options
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'List 'recollect.schema/change-op)
-              :: 'List $ :: 'List 'Dynamic
-              :: 'Map 'Tag 'Tag
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (List recollect.schema/change-op)
+            List $ List Dynamic
+            Map Tag Tag
+            -> $ List recollect.schema/change-op
         'diff-record $ %{} 'CodeEntry
           :doc "|Internal function to compute a diff between two structs. Only diffs structs with the same definition."
           :code $ quote $ defn diff-record (a b options)
@@ -1003,9 +957,8 @@
                 diff-record-step (empty-changes) 0 (&struct:count a) a b options
                 [] $ schema/change-op :replace b
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Struct 'Struct $ :: 'Map 'Tag 'Tag
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn Struct Struct (Map Tag Tag)
+            -> $ List recollect.schema/change-op
         'diff-record-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware struct diff.")
           :code $ quote $ defn diff-record-budgeted (state a b options)
             if (identical? a b) ([])
@@ -1013,9 +966,8 @@
                 diff-record-step-budgeted state (empty-changes) 0 (&struct:count a) a b options
                 emit-change state $ schema/change-op :replace b
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) 'Struct 'Struct $ :: 'Map 'Tag 'Tag
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) Struct Struct (Map Tag Tag)
+            -> $ List recollect.schema/change-op
         'diff-record-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-record-step (acc idx n a b options)
             if (&>= idx n) acc $ let
@@ -1029,9 +981,8 @@
                     wrapped $ wrap-pick k child-changes
                   diff-record-step (.concat acc wrapped) (&+ idx 1) n a b options
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Struct 'Struct $ :: 'Map 'Tag 'Tag
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (List recollect.schema/change-op) Number Number Struct Struct (Map Tag Tag)
+            -> $ List recollect.schema/change-op
         'diff-record-step-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware iteration over struct fields.")
           :code $ quote $ defn diff-record-step-budgeted (state acc idx n a b options)
             if
@@ -1048,9 +999,8 @@
                         wrapped $ wrap-pick-budgeted state k child-changes
                       diff-record-step-budgeted state (.concat acc wrapped) (&+ idx 1) n a b options
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Struct 'Struct $ :: 'Map 'Tag 'Tag
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (List recollect.schema/change-op) Number Number Struct Struct (Map Tag Tag)
+            -> $ List recollect.schema/change-op
         'diff-set $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-set (a b)
             let
@@ -1058,9 +1008,8 @@
                 removed $ set-difference-dynamic a b
               [] $ schema/change-op :set-splice removed added
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Set 'Dynamic) (:: 'Set 'Dynamic)
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (Set Dynamic) (Set Dynamic)
+            -> $ List recollect.schema/change-op
         'diff-set-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware set diff.")
           :code $ quote $ defn diff-set-budgeted (state a b)
             let
@@ -1068,9 +1017,8 @@
                 removed $ set-difference-dynamic a b
               emit-change state $ schema/change-op :set-splice removed added
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'Set 'Dynamic) (:: 'Set 'Dynamic)
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (Set Dynamic) (Set Dynamic)
+            -> $ List recollect.schema/change-op
         'diff-state-exceeded? $ %{} 'CodeEntry
           :doc "|Return whether this invocation has exhausted either budget."
           :code $ quote $ defn diff-state-exceeded? (state)
@@ -1079,8 +1027,7 @@
               (:some _) true
               (:none) false
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] $ :: 'Ref 'recollect.diff/DiffWorkState
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (-> Bool)
         'diff-tuple $ %{} 'CodeEntry
           :doc "|Internal function to compute a diff between two enums. Replaces when the variant tag or arity differs; otherwise diffs payload elements."
           :code $ quote $ defn diff-tuple (a b options)
@@ -1093,9 +1040,8 @@
                   max-idx $ dec $ &enum:count a
                 diff-tuple-step (empty-changes) 1 max-idx a b options
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Enum 'Enum $ :: 'Map 'Tag 'Tag
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn Enum Enum (Map Tag Tag)
+            -> $ List recollect.schema/change-op
         'diff-tuple-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware enum diff.")
           :code $ quote $ defn diff-tuple-budgeted (state a b options)
             if
@@ -1107,9 +1053,8 @@
                   max-idx $ dec $ &enum:count a
                 diff-tuple-step-budgeted state (empty-changes) 1 max-idx a b options
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) 'Enum 'Enum $ :: 'Map 'Tag 'Tag
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) Enum Enum (Map Tag Tag)
+            -> $ List recollect.schema/change-op
         'diff-tuple-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-tuple-step (acc idx max-idx a b options)
             if (&> idx max-idx) acc $ let
@@ -1117,9 +1062,8 @@
                 wrapped $ wrap-pick idx child-changes
               diff-tuple-step (.concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Enum 'Enum $ :: 'Map 'Tag 'Tag
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (List recollect.schema/change-op) Number Number Enum Enum (Map Tag Tag)
+            -> $ List recollect.schema/change-op
         'diff-tuple-step-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware iteration over enum payloads.")
           :code $ quote $ defn diff-tuple-step-budgeted (state acc idx max-idx a b options)
             if
@@ -1130,9 +1074,8 @@
                     wrapped $ wrap-pick-budgeted state idx child-changes
                   diff-tuple-step-budgeted state (.concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'List 'recollect.schema/change-op) 'Number 'Number 'Enum 'Enum $ :: 'Map 'Tag 'Tag
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (List recollect.schema/change-op) Number Number Enum Enum (Map Tag Tag)
+            -> $ List recollect.schema/change-op
         'diff-twig $ %{} 'CodeEntry
           :doc "|计算旧、新数据树的 change-op 列表，第三个参数是必需的 options Map。需要受检应用或更新 Struct 字段时使用 try-patch-twig；旧 patch-twig 返回数据而非 PatchResult，且不支持 Struct 字段更新。网络数据先经 decode-changes 校验操作，再在 wire tree 应用补丁并完整解码应用类型。"
           :code $ quote $ defn diff-twig (a b options)
@@ -1146,9 +1089,8 @@
               {} $ :items $ [] 1 2 3
               {} $ :items $ [] 1 2 4
               {} $ :key :id
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic 'Dynamic $ :: 'Map 'Tag 'Tag
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn Dynamic Dynamic (Map Tag Tag)
+            -> $ List recollect.schema/change-op
           :tests $ []
             %{} 'TestEntry (:name |reports-map-and-set-operations)
               :code $ quote $ do
@@ -1236,9 +1178,7 @@
             %{} 'TestEntry (:name |absent-key-preserves-nil-key-identity)
               :code $ quote $ let
                   verify $ fn (identity-value)
-                    hint-fn $ {}
-                      :args $ [] 'Dynamic
-                      :return 'Unit
+                    hint-fn $ Fn Dynamic $ -> Unit
                     let
                         old $ {} (nil identity-value) (:x 1)
                         updated $ {} (nil 2) (:x 1)
@@ -1283,8 +1223,7 @@
                 (:some reason) (DiffOutcome :budget-exceeded reason stats)
                 (:none) (DiffOutcome :complete changes stats)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'recollect.diff/DiffOutcome)
-            :args $ [] 'Dynamic 'Dynamic (:: 'Map 'Tag 'Tag) 'recollect.diff/DiffBudget
+          :schema $ quote $ Fn Dynamic Dynamic (Map Tag Tag) recollect.diff/DiffBudget (-> recollect.diff/DiffOutcome)
           :tests $ []
             %{} 'TestEntry (:name |zero-and-one-visited-limits)
               :code $ quote $ do
@@ -1426,9 +1365,7 @@
             %{} 'TestEntry (:name |nil-key-identity-replaces-at-root-budget)
               :code $ quote $ let
                   verify $ fn (identity-value)
-                    hint-fn $ {}
-                      :args $ [] 'Dynamic
-                      :return 'Unit
+                    hint-fn $ Fn Dynamic $ -> Unit
                     let
                         old $ {} (nil identity-value) (:x 1)
                         updated $ {} (nil 2) (:x 1)
@@ -1486,9 +1423,8 @@
                       [] $ schema/change-op :replace b
                   true $ []
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic 'Dynamic $ :: 'Map 'Tag 'Tag
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn Dynamic Dynamic (Map Tag Tag)
+            -> $ List recollect.schema/change-op
         'diff-twig-iterate-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware recursive value dispatcher.")
           :code $ quote $ defn diff-twig-iterate-budgeted (state a b options)
             if (consume-visited! state)
@@ -1520,23 +1456,20 @@
                     true $ []
               []
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) 'Dynamic 'Dynamic $ :: 'Map 'Tag 'Tag
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) Dynamic Dynamic (Map Tag Tag)
+            -> $ List recollect.schema/change-op
         'emit-change $ %{} 'CodeEntry
           :doc "|Return a singleton change list only when one emitted-operation unit is available."
           :code $ quote $ defn emit-change (state change)
             if (consume-emitted! state) ([] change) ([])
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) 'recollect.schema/change-op
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) recollect.schema/change-op
+            -> $ List recollect.schema/change-op
         'empty-changes $ %{} 'CodeEntry (:doc "|类型化的空变更列表，作为差异累加器初值。")
           :code $ quote $ defn empty-changes () ([])
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ []
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn
+            -> $ List recollect.schema/change-op
         'find-vector-changes $ %{} 'CodeEntry
           :doc "|Internal function to find changes between two vectors. Recursively compares elements from the tail."
           :code $ quote $ defn find-vector-changes (acc idx a-items b-items options)
@@ -1555,9 +1488,8 @@
                   wrapped $ wrap-pick idx child-changes
                 find-vector-changes (.concat acc wrapped) (&+ idx 1) (.rest a-items) (.rest b-items) options
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'recollect.schema/change-op) 'Number (:: 'List 'Dynamic) (:: 'List 'Dynamic) (:: 'Map 'Tag 'Tag)
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (List recollect.schema/change-op) Number (List Dynamic) (List Dynamic) (Map Tag Tag)
+            -> $ List recollect.schema/change-op
         'find-vector-changes-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware list diff.")
           :code $ quote $ defn find-vector-changes-budgeted (state acc idx a-items b-items options)
             if (diff-state-exceeded? state) acc $ cond
@@ -1576,9 +1508,8 @@
                     wrapped $ wrap-pick-budgeted state idx child-changes
                   find-vector-changes-budgeted state (.concat acc wrapped) (&+ idx 1) (.rest a-items) (.rest b-items) options
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) (:: 'List 'recollect.schema/change-op) 'Number (:: 'List 'Dynamic) (:: 'List 'Dynamic) (:: 'Map 'Tag 'Tag)
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (List recollect.schema/change-op) Number (List Dynamic) (List Dynamic) (Map Tag Tag)
+            -> $ List recollect.schema/change-op
         'fold-update $ %{} 'CodeEntry
           :doc "|Internal helper to fold :update operations into :update-in for nested paths."
           :code $ quote $ defn fold-update (k c0)
@@ -1593,8 +1524,7 @@
                 schema/change-op :pick-in (prepend ks k) cs
               _ $ schema/change-op :update k c0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'recollect.schema/change-op)
-            :args $ [] 'Dynamic 'recollect.schema/change-op
+          :schema $ quote $ Fn Dynamic recollect.schema/change-op (-> recollect.schema/change-op)
         'map-splice-changes $ %{} 'CodeEntry (:doc "|校验 &map:diff-triple 的删除键与新增项，生成 map-splice 变更。")
           :code $ quote $ defn map-splice-changes (drop-keys new-diff)
             if (set? drop-keys)
@@ -1606,51 +1536,35 @@
                 raise $ str "|recollect expected added entries as a map, got: " $ type-of new-diff
               raise $ str "|recollect expected removed keys as a set, got: " $ type-of drop-keys
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic 'Dynamic
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn Dynamic Dynamic
+            -> $ List recollect.schema/change-op
         'new-diff-state $ %{} 'CodeEntry
           :doc "|Create isolated work counters for one diff invocation."
           :code $ quote $ defn new-diff-state (budget)
             ref $ DiffWorkState :budget budget :stats (DiffStats :visited-nodes 0 :emitted-ops 0) :exceeded $ Option :none
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'recollect.diff/DiffBudget
-            :return $ :: 'Ref 'recollect.diff/DiffWorkState
+          :schema $ quote $ Fn recollect.diff/DiffBudget
+            -> $ Ref recollect.diff/DiffWorkState
         'set-difference-dynamic $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn set-difference-dynamic (a b)
-            let
-                xs $ .to-list a
-              .to-set $ loop
-                  i 0
-                  acc $ []
-                if
-                  >= i $ .len xs
-                  , acc $ let
-                      x $ .unwrap $ .get xs i
-                    recur (inc i)
-                      if (.includes? b x) acc $ .append acc x
+          :code $ quote $ defn set-difference-dynamic (a b) (&difference a b)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Set 'T) (:: 'Set 'T)
-            :generics $ [] 'T
-            :return $ :: 'Set 'T
+          :schema $ quote $ Fn (Set T) (Set T)
+            -> $ Set T
+            :generics T
         'set-difference-iter $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn set-difference-iter (xs a acc)
             if (empty? xs) acc $ let
                 x $ .unwrap $ first xs
               set-difference-iter (.rest xs) a $ if (.includes? a x) acc $ .append acc x
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'Dynamic) (:: 'Set 'Dynamic) (:: 'List 'Dynamic)
-            :return $ :: 'List 'Dynamic
+          :schema $ quote $ Fn (List Dynamic) (Set Dynamic) (List Dynamic)
+            -> $ List Dynamic
         'unlimited-diff-budget $ %{} 'CodeEntry
           :doc "|Construct an unlimited budget for compatibility entry points."
           :code $ quote $ defn unlimited-diff-budget (unit)
             DiffBudget :max-visited (Option :none) :max-emitted $ Option :none
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'recollect.diff/DiffBudget)
-            :args $ [] 'Unit
+          :schema $ quote $ Fn Unit (-> recollect.diff/DiffBudget)
         'wrap-pick $ %{} 'CodeEntry
           :doc "|Internal helper to wrap multiple changes into a :pick operation for a specific key."
           :code $ quote $ defn wrap-pick (k chunk)
@@ -1669,9 +1583,8 @@
                   [] $ schema/change-op :pick k chunk
                 []
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic $ :: 'List 'recollect.schema/change-op
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn Dynamic (List recollect.schema/change-op)
+            -> $ List recollect.schema/change-op
         'wrap-pick-budgeted $ %{} 'CodeEntry
           :doc "|Wrap nested changes while accounting for the emitted wrapper operation."
           :code $ quote $ defn wrap-pick-budgeted (state k chunk)
@@ -1690,9 +1603,8 @@
                   emit-change state $ schema/change-op :pick k chunk
                 []
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Ref 'recollect.diff/DiffWorkState) 'Dynamic $ :: 'List 'recollect.schema/change-op
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) Dynamic (List recollect.schema/change-op)
+            -> $ List recollect.schema/change-op
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.diff
           :require
@@ -1703,26 +1615,28 @@
         '*twig-call-cache $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *twig-call-cache
             assert-type ({})
-              :: 'Map 'Dynamic $ :: 'Map 'Dynamic 'MemoEntry
+              quote $ Map Dynamic $ Map Dynamic MemoEntry
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Dynamic (:: 'Map 'Dynamic 'recollect.memo/MemoEntry)
+          :schema $ quote $ Ref
+            Map Dynamic $ Map Dynamic recollect.memo/MemoEntry
         '*twig-frame-active? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *twig-frame-active? false
           :examples $ []
-          :schema $ :: 'Ref 'Bool
+          :schema $ quote $ Ref Bool
         '*twig-frame-cache $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *twig-frame-cache
             assert-type ({})
-              :: 'Map 'Dynamic $ :: 'Map 'Dynamic 'MemoEntry
+              quote $ Map Dynamic $ Map Dynamic MemoEntry
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Dynamic (:: 'Map 'Dynamic 'recollect.memo/MemoEntry)
+          :schema $ quote $ Ref
+            Map Dynamic $ Map Dynamic recollect.memo/MemoEntry
         'MemoEntry $ %{} 'CodeEntry
           :doc "|内部 memo 条目：参数列表与结果分字段保存；异构值只保留在原 variadic 合同中，不再用动态二元 List 表达固定结构。"
           :code $ quote $ defstruct MemoEntry
-            :args $ :: 'List 'Dynamic
+            :args $ quote $ List Dynamic
             :value 'Dynamic
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'assoc-in-map $ %{} 'CodeEntry
           :doc "|两层 Map 更新保留值类型 V。内部调用始终传入函数与业务 key 构成的二项 path；不把未知缓存值 decode 成 Map。"
           :code $ quote $ defn assoc-in-map (m path v)
@@ -1735,13 +1649,12 @@
                 .unwrap $ .get path 1
                 , v
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ []
-              :: 'Map 'Dynamic $ :: 'Map 'Dynamic 'V
-              :: 'List 'Dynamic
-              , 'V
-            :generics $ [] 'V
-            :return $ :: 'Map 'Dynamic $ :: 'Map 'Dynamic 'V
+          :schema $ quote $ Fn
+            Map Dynamic $ Map Dynamic V
+            List Dynamic
+            , V
+              -> $ Map Dynamic $ Map Dynamic V
+              :generics V
           :tests $ [] $ %{} 'TestEntry (:name |preserves-nested-value-type-and-other-keys)
             :code $ quote $ let
                 initial $ {} $ :f
@@ -1769,8 +1682,7 @@
             reset! *twig-frame-active? true
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'finish-twig-frame! $ %{} 'CodeEntry
           :doc "|Finish the current twig memo frame, retaining only entries touched during that frame."
           :code $ quote $ defn finish-twig-frame! ()
@@ -1779,8 +1691,7 @@
             reset! *twig-frame-cache $ {}
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'memo-twig-by $ %{} 'CodeEntry
           :doc "|Memoize a twig builder with arbitrary arguments. This variadic escape hatch is intentionally dynamic; prefer memo-twig-by0, memo-twig-by1, or memo-twig-by2 for static argument and return checking."
           :code $ quote $ defn memo-twig-by (key f & args)
@@ -1821,16 +1732,13 @@
                           swap! *twig-call-cache assoc-in-map ([] f key) (MemoEntry :args args :value ret)
                           , ret
           :examples $ []
-          :schema $ :: 'Fn $ {} (:rest 'Dynamic) (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Fn
+          :schema $ quote $ Fn Dynamic Fn & Dynamic (-> Dynamic)
           :tests $ []
             %{} 'TestEntry (:name |caches-nil-false-zero-empty-string)
               :code $ quote $ let
                   calls $ ref 0
                   build $ fn (value)
-                    hint-fn $ {}
-                      :args $ [] 'Dynamic
-                      :return 'Dynamic
+                    hint-fn $ Fn Dynamic $ -> Dynamic
                     swap! calls inc
                     , value
                 reset-twig-memo!
@@ -1850,9 +1758,7 @@
               :code $ quote $ let
                   calls $ ref 0
                   build $ fn (value)
-                    hint-fn $ {}
-                      :args $ [] 'Number
-                      :return 'Number
+                    hint-fn $ Fn Number $ -> Number
                     swap! calls inc
                     , value
                 reset-twig-memo!
@@ -1877,15 +1783,11 @@
               :code $ quote $ let
                   calls $ ref 0
                   build-a $ fn ()
-                    hint-fn $ {}
-                      :args $ []
-                      :return 'Number
+                    hint-fn $ Fn $ -> Number
                     swap! calls inc
                     , 10
                   build-b $ fn ()
-                    hint-fn $ {}
-                      :args $ []
-                      :return 'Number
+                    hint-fn $ Fn $ -> Number
                     swap! calls inc
                     , 20
                 reset-twig-memo!
@@ -1910,15 +1812,11 @@
               :code $ quote $ let
                   calls $ ref 0
                   build $ fn (a b c d)
-                    hint-fn $ {}
-                      :args $ [] 'Number 'Number 'Number 'Number
-                      :return 'Number
+                    hint-fn $ Fn Number Number Number Number $ -> Number
                     swap! calls inc
                     + a b c d
                   fail $ fn ()
-                    hint-fn $ {}
-                      :args $ []
-                      :return 'Number
+                    hint-fn $ Fn $ -> Number
                     swap! calls inc
                     raise |builder-failed
                 reset-twig-memo!
@@ -1938,33 +1836,26 @@
           :code $ quote $ defn memo-twig-by0 (key f)
             unsafe-coerce (memo-twig-by key f) 'R
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'R)
-            :args $ [] 'K $ :: 'Fn
-              {} (:return 'R)
-                :args $ []
-            :features $ #{} :erased-cache
-            :generics $ [] 'K 'R
+          :schema $ quote $ Fn K
+            Fn $ -> R
+            -> R
+            :generics K R
+            :features :erased-cache
         'memo-twig-by1 $ %{} 'CodeEntry
           :doc "|Typed unary twig memoization keyed by function, stable application key, and argument value."
           :code $ quote $ defn memo-twig-by1 (key f a)
             unsafe-coerce (memo-twig-by key f a) 'R
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'R)
-            :args $ [] 'K
-              :: 'Fn $ {} (:return 'R)
-                :args $ [] 'A
-              , 'A
-            :features $ #{} :erased-cache
-            :generics $ [] 'K 'A 'R
+          :schema $ quote $ Fn K
+            Fn A $ -> R
+            , A (-> R) (:generics K A R) (:features :erased-cache)
           :tests $ [] $ %{} 'TestEntry (:name |caches-values-and-prunes-frames)
             :code $ quote $ let
                 calls $ ref 0
                 build $ assert-type
                   fn (value) (swap! calls inc)
                     {} $ :value value
-                  :: 'Fn $ {}
-                    :args $ [] 'Number
-                    :return $ :: 'Map 'Tag 'Number
+                  quote $ Fn Number $ -> (Map Tag Number)
               reset-twig-memo!
               begin-twig-frame!
               let
@@ -2003,13 +1894,9 @@
           :code $ quote $ defn memo-twig-by2 (key f a b)
             unsafe-coerce (memo-twig-by key f a b) 'R
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'R)
-            :args $ [] 'K
-              :: 'Fn $ {} (:return 'R)
-                :args $ [] 'A 'B
-              , 'A 'B
-            :features $ #{} :erased-cache
-            :generics $ [] 'K 'A 'B 'R
+          :schema $ quote $ Fn K
+            Fn A B $ -> R
+            , A B (-> R) (:generics K A B R) (:features :erased-cache)
         'reset-twig-memo! $ %{} 'CodeEntry
           :doc "|Clear all twig memo entries and leave frame collection inactive."
           :code $ quote $ defn reset-twig-memo! ()
@@ -2018,8 +1905,7 @@
             reset! *twig-frame-active? false
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
           :tests $ [] $ %{} 'TestEntry (:name |lifecycle-returns-unit)
             :code $ quote $ do
               assert= &unit $ reset-twig-memo!
@@ -2034,8 +1920,7 @@
             .fold (map-entries @*twig-call-cache) 0 $ fn (total entry)
               + total $ .len $ :value entry
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.memo
     'recollect.patch $ %{} 'FileEntry
@@ -2044,10 +1929,10 @@
           :doc "|Nominal validated patch batch. Construct with patch-batch and apply with batch .apply-to base."
           :code $ quote $ def PatchBatch
             impl-traits
-              defstruct PatchBatch $ :changes $ :: 'List 'recollect.schema/change-op
+              defstruct PatchBatch $ :changes $ quote (List recollect.schema/change-op)
               , PatchBatchOpsImpl
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'PatchBatchOps $ %{} 'CodeEntry
           :doc "|Method contract for applying a validated patch batch to a base tree."
           :code $ quote $ deftrait PatchBatchOps
@@ -2056,35 +1941,40 @@
               :args $ [] 'recollect.patch/PatchBatch $ quote T
               :return 'recollect.patch/PatchResult
           :examples $ []
-          :schema $ :: 'Trait
+          :schema $ quote Trait
         'PatchBatchOpsImpl $ %{} 'CodeEntry (:doc "|PatchBatch method implementation.")
           :code $ quote $ defimpl PatchBatchOpsImpl PatchBatchOps (.apply-to patch-batch:apply-to)
           :examples $ []
-          :schema $ :: 'Impl
+          :schema $ quote Impl
         'PatchError $ %{} 'CodeEntry
           :doc "|Structured failure returned by validated patch application. Paths point to the rejected node in the base tree."
           :code $ quote $ defenum PatchError (:unsupported-operation 'String)
-            :unsupported-container (:: 'List 'Dynamic) 'Tag
-            :missing-node $ :: 'List 'recollect.patch/PatchPathSegment
-            :type-mismatch (:: 'List 'Dynamic) 'Tag 'Tag
-            :invalid-index (:: 'List 'Dynamic) 'Number 'Number
+            :unsupported-container
+              quote $ List Dynamic
+              , 'Tag
+            :missing-node $ quote $ List recollect.patch/PatchPathSegment
+            :type-mismatch
+              quote $ List Dynamic
+              , 'Tag 'Tag
+            :invalid-index
+              quote $ List Dynamic
+              , 'Number 'Number
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'PatchPathSegment $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum PatchPathSegment (:field 'Tag) (:name 'String) (:index 'Number) (:key 'String)
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'PatchResult $ %{} 'CodeEntry
           :doc "|Nominal patch result carrying an open twig payload on success or a diagnostic PatchError."
           :code $ quote $ defenum PatchResult (:ok 'Dynamic) (:err 'recollect.patch/PatchError)
           :examples $ []
-          :schema $ :: 'Enum
+          :schema $ quote Enum
         'empty-patch-path $ %{} 'CodeEntry (:doc "|类型化的根补丁路径。")
           :code $ quote $ defn empty-patch-path () ([])
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ []
-            :return $ :: 'List 'recollect.patch/PatchPathSegment
+          :schema $ quote $ Fn
+            -> $ List recollect.patch/PatchPathSegment
         'patch-assoc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn patch-assoc (base k data)
             cond
@@ -2097,24 +1987,20 @@
               (map? base) (.assoc base k data)
               true $ raise $ str "|Unsupported-patch-container-type: " (type-of base)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Dynamic 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Dynamic Dynamic Dynamic (-> Dynamic) (:features :js-ffi)
         'patch-batch $ %{} 'CodeEntry
           :doc "|Wrap a list of public change-op values as a method-oriented PatchBatch."
           :code $ quote $ defn patch-batch (changes)
             %{} PatchBatch $ :changes changes
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchBatch)
-            :args $ [] $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn (List recollect.schema/change-op) (-> recollect.patch/PatchBatch)
           :tags $ #{} :scaffold
         'patch-batch:apply-to $ %{} 'CodeEntry
           :doc "|应用 PatchBatch，委托 try-patch-twig 返回同一名义 PatchResult。成功 payload 仍开放，不能仅凭方法返回声明把它当作原应用类型；网络值须在成功后完整解码。"
           :code $ quote $ defn patch-batch:apply-to (self base)
             try-patch-twig base $ :changes self
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'recollect.patch/PatchBatch 'Dynamic
+          :schema $ quote $ Fn recollect.patch/PatchBatch Dynamic (-> recollect.patch/PatchResult)
           :tags $ #{} :scaffold
         'patch-error-message $ %{} 'CodeEntry
           :doc "|Render a structured PatchError for compatibility APIs and logs."
@@ -2131,8 +2017,7 @@
               (:invalid-index path index size)
                 str "|Invalid patch index at " (str path) "|: " index "| for size " size
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'String)
-            :args $ [] 'recollect.patch/PatchError
+          :schema $ quote $ Fn recollect.patch/PatchError (-> String)
           :tags $ #{} :scaffold
         'patch-get $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn patch-get (base k)
@@ -2153,8 +2038,7 @@
                       , nil
                     raise $ str "|Unsupported-patch-container-type: " $ type-of base
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Dynamic
+          :schema $ quote $ Fn Dynamic Dynamic (-> Dynamic)
           :tests $ []
             %{} 'TestEntry (:name |rejects-unsupported-containers)
               :code $ quote $ let
@@ -2203,9 +2087,8 @@
               {} (:a 1) (:b 2)
               #{} :a
               {} $ :c 3
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Dynamic 'Dynamic) (:: 'Set 'Dynamic) (:: 'Map 'Dynamic 'Dynamic)
-            :return $ :: 'Map 'Dynamic 'Dynamic
+          :schema $ quote $ Fn (Map Dynamic Dynamic) (Set Dynamic) (Map Dynamic Dynamic)
+            -> $ Map Dynamic Dynamic
         'patch-map-set $ %{} 'CodeEntry
           :doc "|Set a key-value pair in a map. Equivalent to assoc."
           :code $ quote $ defn patch-map-set (base k data) (patch-assoc base k data)
@@ -2213,8 +2096,7 @@
             patch-map-set
               {} $ :a 1
               , :b 2
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Dynamic 'Dynamic
+          :schema $ quote $ Fn Dynamic Dynamic Dynamic (-> Dynamic)
         'patch-one $ %{} 'CodeEntry
           :doc "|Apply a single change operation to base data. Dispatches to appropriate patch function based on operation tag."
           :code $ quote $ defn patch-one (base change)
@@ -2257,8 +2139,7 @@
                       patch-assoc base k0 $ patch-one old-val $ schema/change-op :pick-in rest-ks changes
               _ $ raise $ str |Unknown-patch-operation: change
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'recollect.schema/change-op
+          :schema $ quote $ Fn Dynamic recollect.schema/change-op (-> Dynamic)
           :tests $ [] $ %{} 'TestEntry (:name |rejects-unknown-operations)
             :code $ quote $ let
                 result $ try
@@ -2276,18 +2157,16 @@
               (number? value) (PatchPathSegment :index value)
               true $ PatchPathSegment :key $ str value
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchPathSegment)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> recollect.patch/PatchPathSegment)
         'patch-set $ %{} 'CodeEntry
           :doc "|Apply set-splice patch by removing and adding elements to a set."
           :code $ quote $ defn patch-set (base removed added)
             &union (recollect.diff/set-difference-dynamic base removed) added
           :examples $ [] $ quote
             patch-set (#{} 1 2 3) (#{} 1) (#{} 4)
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Set 'T) (:: 'Set 'T) (:: 'Set 'T)
-            :generics $ [] 'T
-            :return $ :: 'Set 'T
+          :schema $ quote $ Fn (Set T) (Set T) (Set T)
+            -> $ Set T
+            :generics T
         'patch-twig $ %{} 'CodeEntry
           :doc "|沿旧热路径应用 changes，返回更新后的开放数据，不返回 PatchResult；非法操作会抛错。旧字段更新路径支持 Map/List/Enum，不支持 Struct 字段更新。Struct 或网络输入使用 try-patch-twig，并显式处理 PatchResult 的 :ok / :err；不扩大此兼容入口的运行时能力。"
           :code $ quote $ defn patch-twig (base changes)
@@ -2301,13 +2180,12 @@
                 new $ {} $ :a 2
                 changes $ assert-type
                   recollect.diff/diff-twig old new $ {}
-                  :: 'List 'recollect.schema/change-op
+                  quote $ List recollect.schema/change-op
               patch-twig old changes
             quote $ patch-twig
               {} $ :a 1
               [] $ schema/change-op :assoc :a 2
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn Dynamic (List recollect.schema/change-op) (-> Dynamic)
           :tests $ []
             %{} 'TestEntry (:name |roundtrips-diff-results)
               :code $ quote $ do
@@ -2375,20 +2253,18 @@
           :code $ quote $ defn patch-vector-append (base data) (.concat base data)
           :examples $ [] $ quote
             patch-vector-append ([] 1 2) ([] 3 4)
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'T) (:: 'List 'T)
-            :generics $ [] 'T
-            :return $ :: 'List 'T
+          :schema $ quote $ Fn (List T) (List T)
+            -> $ List T
+            :generics T
         'patch-vector-drop $ %{} 'CodeEntry
           :doc "|Drop trailing elements from a vector. Takes first n elements."
           :code $ quote $ defn patch-vector-drop (base data)
             .slice base 0 $ Option :some data
           :examples $ [] $ quote
             patch-vector-drop ([] 1 2 3 4) 2
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'T) 'Number
-            :generics $ [] 'T
-            :return $ :: 'List 'T
+          :schema $ quote $ Fn (List T) Number
+            -> $ List T
+            :generics T
         'try-patch-assoc $ %{} 'CodeEntry
           :doc "|Associate a validated patch result without raising."
           :code $ quote $ defn try-patch-assoc (base k data path)
@@ -2431,8 +2307,7 @@
                     PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'Dynamic 'Dynamic 'Dynamic $ :: 'List 'recollect.patch/PatchPathSegment
+          :schema $ quote $ Fn Dynamic Dynamic Dynamic (List recollect.patch/PatchPathSegment) (-> recollect.patch/PatchResult)
           :tags $ #{} :scaffold
           :tests $ []
             %{} 'TestEntry (:name |checks-dynamic-struct-field-writes)
@@ -2515,8 +2390,7 @@
                     PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'Dynamic 'Dynamic $ :: 'List 'recollect.patch/PatchPathSegment
+          :schema $ quote $ Fn Dynamic Dynamic (List recollect.patch/PatchPathSegment) (-> recollect.patch/PatchResult)
           :tags $ #{} :scaffold
         'try-patch-one $ %{} 'CodeEntry
           :doc "|Apply one change operation atomically and return Result."
@@ -2525,8 +2399,7 @@
                 path $ empty-patch-path
               try-patch-one-at base change path
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'Dynamic 'recollect.schema/change-op
+          :schema $ quote $ Fn Dynamic recollect.schema/change-op (-> recollect.patch/PatchResult)
           :tags $ #{} :scaffold
         'try-patch-one-at $ %{} 'CodeEntry
           :doc "|Apply one change operation at a diagnostic path."
@@ -2614,8 +2487,7 @@
                             (:ok next-val) (try-patch-assoc base k0 next-val path)
               _ $ PatchResult :err $ PatchError :unsupported-operation (str change)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'Dynamic 'recollect.schema/change-op $ :: 'List 'recollect.patch/PatchPathSegment
+          :schema $ quote $ Fn Dynamic recollect.schema/change-op (List recollect.patch/PatchPathSegment) (-> recollect.patch/PatchResult)
           :tags $ #{} :scaffold
         'try-patch-twig $ %{} 'CodeEntry
           :doc "|原子应用补丁批次，返回名义 PatchResult：:ok 携带开放数据，:err 携带 PatchError；不是自动保留输入类型的 Result<T,PatchError>。支持对已有 Struct 进行受检字段更新，失败不暴露部分结果。网络边界先 decode-changes，在独立 wire tree 应用，再完整 decode 为应用类型；匿名 EDN Enum 不能凭相同 tag 冒充名义 Option 字段。"
@@ -2624,8 +2496,7 @@
                 path $ empty-patch-path
               try-patch-twig-at base changes path
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'Dynamic $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn Dynamic (List recollect.schema/change-op) (-> recollect.patch/PatchResult)
           :tags $ #{} :scaffold
           :tests $ []
             %{} 'TestEntry (:name |applies-valid-batches)
@@ -2794,8 +2665,7 @@
                   (:ok next-base) (recur next-base cs path)
                   (:err error) (PatchResult :err error)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'recollect.patch/PatchResult)
-            :args $ [] 'Dynamic (:: 'List 'recollect.schema/change-op) (:: 'List 'recollect.patch/PatchPathSegment)
+          :schema $ quote $ Fn Dynamic (List recollect.schema/change-op) (List recollect.patch/PatchPathSegment) (-> recollect.patch/PatchResult)
           :tags $ #{} :scaffold
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.patch
@@ -2806,17 +2676,25 @@
       :defs $ {}
         'change-op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum change-op (:replace 'Dynamic)
-            :vec-append $ :: 'List 'Dynamic
+            :vec-append $ quote $ List Dynamic
             :vec-drop 'Number
             :assoc 'Dynamic 'Dynamic
-            :set-splice (:: 'Set 'Dynamic) (:: 'Set 'Dynamic)
-            :map-splice (:: 'Set 'Dynamic) (:: 'Map 'Dynamic 'Dynamic)
+            :set-splice
+              quote $ Set Dynamic
+              quote $ Set Dynamic
+            :map-splice
+              quote $ Set Dynamic
+              quote $ Map Dynamic Dynamic
             :update 'Dynamic 'recollect.schema/change-op
-            :update-in (:: 'List 'Dynamic) 'recollect.schema/change-op
-            :pick 'Dynamic $ :: 'List 'recollect.schema/change-op
-            :pick-in (:: 'List 'Dynamic) (:: 'List 'recollect.schema/change-op)
+            :update-in
+              quote $ List Dynamic
+              , 'recollect.schema/change-op
+            :pick 'Dynamic $ quote $ List recollect.schema/change-op
+            :pick-in
+              quote $ List Dynamic
+              quote $ List recollect.schema/change-op
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'decode-change-op $ %{} 'CodeEntry (:doc "|按变体标签与载荷类型校验单个 change-op，嵌套操作递归解码。")
           :code $ quote $ defn decode-change-op (x)
             if (enum? x)
@@ -2878,8 +2756,7 @@
                     true $ raise $ str "|recollect cannot decode change operation: " x
               raise $ str "|recollect cannot decode change operation: " x
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'recollect.schema/change-op)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> recollect.schema/change-op)
         'decode-changes $ %{} 'CodeEntry
           :doc "|在网络/EDN 边界逐项校验并重建 change-op 列表，替代对未知数据的 assert-type。"
           :code $ quote $ defn decode-changes (xs)
@@ -2894,27 +2771,26 @@
                   append acc $ decode-change-op x
               raise $ str "|recollect expected a list of changes, got: " $ type-of xs
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic
-            :return $ :: 'List 'recollect.schema/change-op
+          :schema $ quote $ Fn Dynamic
+            -> $ List recollect.schema/change-op
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             {} $ :states $ {}
           :examples $ []
-          :schema $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.schema
     'recollect.test.fixture $ %{} 'FileEntry
       :defs $ {}
         'OptionalProfile $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct OptionalProfile (:name 'String)
-            :score $ :: 'Option 'Number
+            :score $ quote $ Option Number
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'Person $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct Person (:name 'String) (:age 'Number)
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.test.fixture
     'recollect.twig $ %{} 'FileEntry
@@ -2923,20 +2799,17 @@
           :doc "|Clear all dedicated twig memo entries. Call this on hot reload or when application state is replaced."
           :code $ quote $ defn clear-twig-caches! () (reset-twig-memo!)
           :examples $ [] $ quote (clear-twig-caches!)
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'show-tag-summay $ %{} 'CodeEntry
           :doc "|Legacy misspelled alias returning the retained twig memo entry count."
           :code $ quote $ defn show-tag-summay () (twig-memo-size)
           :examples $ [] $ quote (show-tag-summay)
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
         'show-twig-summary $ %{} 'CodeEntry
           :doc "|Return the number of retained dedicated twig memo entries."
           :code $ quote $ defn show-twig-summary () (twig-memo-size)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.twig
           :require $ recollect.memo :refer $ reset-twig-memo! twig-memo-size
@@ -2954,9 +2827,7 @@
                     if (identical? x0 y0) (recur xss yss) false
           :examples $ [] $ quote
             =seq ([] 1 2 3) ([] 1 2 3)
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] (:: 'List 'T) (:: 'List 'T)
-            :generics $ [] 'T
+          :schema $ quote $ Fn (List T) (List T) (-> Bool) (:generics T)
         'compare $ %{} 'CodeEntry
           :doc "|Compare two numbers. Returns -1 if x < y, 1 if x > y, otherwise 0; preserves the existing unordered-NaN behavior."
           :code $ quote $ defn compare (x y)
@@ -2966,8 +2837,7 @@
               (&> x y) 1
               true 0
           :examples $ [] $ quote (compare 1 2)
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number 'Number
+          :schema $ quote $ Fn Number Number (-> Number)
         'literal? $ %{} 'CodeEntry
           :doc "|Check if value is a literal type (string, number, boolean, nil, tag, or symbol)."
           :code $ quote $ defn literal? (x)
@@ -2975,8 +2845,7 @@
           :examples $ []
             quote $ literal? 123
             quote $ literal? $ [] 1 2
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> Bool)
         'vec-add $ %{} 'CodeEntry
           :doc "|Append vector ys to vector xs. Returns a new vector with all elements from xs followed by all elements from ys."
           :code $ quote $ defn vec-add (xs ys)
@@ -2986,14 +2855,14 @@
                 recur (xs .append y0) yss
           :examples $ [] $ quote
             vec-add ([] 1 2) ([] 3 4)
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'T) (:: 'List 'T)
-            :generics $ [] 'T
-            :return $ :: 'List 'T
+          :schema $ quote $ Fn (List T) (List T)
+            -> $ List T
+            :generics T
           :tests $ [] $ %{} 'TestEntry (:name |appends-immutable-lists)
             :code $ quote $ do
               let
-                  empty-numbers $ assert-type ([]) (:: 'List 'Number)
+                  empty-numbers $ assert-type ([])
+                    quote $ List Number
                 assert |empty-left-is-identity $ &= ([] 5 6)
                   vec-add empty-numbers $ [] 5 6
                 assert |empty-right-is-identity $ &= ([] 1 2)
@@ -3009,9 +2878,7 @@
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'probe-tag-match $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn probe-tag-match ()
             match (:: :map-splice 1 2)
@@ -3022,8 +2889,7 @@
                   raise "|tag probe expected numeric payloads"
               _ 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
         'sample-api-base $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn sample-api-base ()
             {}
@@ -3032,9 +2898,7 @@
               :flags $ #{} :a :b
               :nested $ {} $ :count 4
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'sample-api-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn sample-api-target ()
             {}
@@ -3043,9 +2907,7 @@
               :flags $ #{} :b :c
               :nested $ {} (:count 10) (:bonus 3)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'sample-store-a $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn sample-store-a ()
             {}
@@ -3053,9 +2915,7 @@
               :date $ {} (:year 2016) (:month 10)
               :lit-0 1
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'sample-store-b $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn sample-store-b ()
             {}
@@ -3063,9 +2923,7 @@
               :date $ {} (:year 2017) (:month 11)
               :lit-0 2
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-api-roundtrip-summary $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-api-roundtrip-summary ()
             let
@@ -3097,8 +2955,7 @@
                     raise "|API roundtrip probe expected original field containers"
                 raise "|roundtrip probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
         'test-app-twig-roundtrip-summary $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-app-twig-roundtrip-summary ()
             let
@@ -3130,119 +2987,88 @@
                     raise "|app roundtrip probe expected a card Map"
                 raise "|roundtrip probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
         'test-arg-order $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-arg-order (a b)
             if (empty? b) 1 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Dynamic Dynamic (-> Dynamic) (:features :js-ffi)
         'test-arg-order-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-arg-order-call ()
             test-arg-order 1 $ []
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-diff-identical $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-diff-identical ()
             diff-twig 1 1 $ {}
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-diff-identical-empty $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-diff-identical-empty ()
             if
               empty? $ diff-twig 1 1 $ {}
               , 1 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-empty-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-list ()
             if
               empty? $ []
               , 1 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-empty-map $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-map ()
             if
               empty? $ {}
               , 1 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-empty-recur-guard $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-recur-guard (xs)
             if (empty? xs) 1 $ recur xs
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Dynamic (-> Dynamic) (:features :js-ffi)
         'test-empty-recur-guard-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-recur-guard-call ()
             test-empty-recur-guard $ []
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-empty-recur-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-recur-list (xs)
             if (empty? xs) 1 $ recur $ .rest xs
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] $ :: 'List 'T
-            :generics $ [] 'T
+          :schema $ quote $ Fn (List T) (-> Number) (:generics T)
         'test-empty-recur-list-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-recur-list-call ()
             test-empty-recur-list $ []
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-identical $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-identical ()
             if (identical? 1 1) 1 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-list-arg-kind $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-list-arg-kind (a b)
             if (list? b) 1 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Dynamic Dynamic (-> Dynamic) (:features :js-ffi)
         'test-list-arg-kind-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-list-arg-kind-call ()
             test-list-arg-kind 1 $ []
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-list-empty-proc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-list-empty-proc (a b)
             if (.empty? b) 1 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'A $ :: 'List 'T
-            :generics $ [] 'A 'T
+          :schema $ quote $ Fn A (List T) (-> Number) (:generics A T)
         'test-list-empty-proc-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-list-empty-proc-call ()
             test-list-empty-proc 1 $ []
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-list-match-empty $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-list-match-empty ()
             match
@@ -3250,9 +3076,7 @@
               (:none) 1
               (:some c0 cs) 2
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-list-match-pair $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-list-match-pair ()
             match
@@ -3260,25 +3084,19 @@
               (:none) 0
               (:some c0 cs) c0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-loop-empty $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-loop-empty (base changes)
             match (destruct-list changes)
               (:none) base
               (:some c0 cs) (recur base cs)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number $ :: 'List 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number (List Number) (-> Number) (:features :js-ffi)
         'test-loop-empty-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-loop-empty-call ()
             test-loop-empty 1 $ []
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-map-assoc-op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-map-assoc-op ()
             let
@@ -3293,8 +3111,7 @@
                     raise "|patch probe expected numeric map values"
                 raise "|patch probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
         'test-map-patch $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-map-patch ()
             let
@@ -3312,8 +3129,7 @@
                     raise "|patch probe expected numeric map values"
                 raise "|patch probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
         'test-map-patch2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-map-patch2 ()
             let
@@ -3323,27 +3139,21 @@
                 patched $ patch-twig a changes
               if (map? patched) (.len patched) (raise "|patch probe expected a Map")
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
         'test-num-order $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-num-order (a b) (if true b 0)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Dynamic Dynamic (-> Dynamic) (:features :js-ffi)
         'test-num-order-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-num-order-call () (test-num-order 1 2)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-patch-empty $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-patch-empty ()
-            patch-twig 1 $ assert-type ([]) (:: 'List 'recollect.schema/change-op)
+            patch-twig 1 $ assert-type ([])
+              quote $ List recollect.schema/change-op
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-patch-one-assoc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-patch-one-assoc ()
             let
@@ -3358,22 +3168,17 @@
                     raise "|patch probe expected numeric map values"
                 raise "|patch probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
         'test-scalar-change $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-scalar-change ()
             patch-twig 1 $ diff-twig 1 2 $ {}
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-scalar-stable $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-scalar-stable ()
             patch-twig 1 $ diff-twig 1 1 $ {}
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-set-patch $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-set-patch ()
             let
@@ -3390,8 +3195,7 @@
                     raise "|collection probe expected the original member container"
                 raise "|collection probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
         'test-tuple-patch $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-tuple-patch ()
             let
@@ -3405,8 +3209,7 @@
                   if (number? value) value $ raise "|tuple probe expected a numeric payload"
                 raise "|tuple probe expected an Enum"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
         'test-vector-append-op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-vector-append-op ()
             let
@@ -3417,9 +3220,7 @@
                   .unwrap $ .get patched 2
                   .unwrap $ .get patched 3
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-vector-drop-op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-vector-drop-op ()
             let
@@ -3428,9 +3229,7 @@
               &+ (.len patched)
                 .unwrap $ .get patched 1
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'test-vector-patch $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-vector-patch ()
             let
@@ -3454,8 +3253,7 @@
                     raise "|collection probe expected the original member container"
                 raise "|collection probe expected a Map"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.wasm-test
           :require
