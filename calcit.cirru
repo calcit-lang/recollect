@@ -160,7 +160,7 @@
             div $ {} (:style ui/button) (:inner-text title)
               :on-click $ on-click op
           :examples $ []
-          :schema $ quote $ Fn String Tag (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn String Tag (-> respo.schema/Element) (:features :js-ffi)
         'style-line $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-line
             {} $ :height |40px
@@ -233,7 +233,7 @@
             ; render-data-twig!
             println "|app started!"
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'next-client-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-client-store (changes)
             decode-map-as (patch-twig @*client-store changes) (:: 'Map 'Tag 'Dynamic)
@@ -686,7 +686,7 @@
         'print-sep $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn print-sep () (println "|─────────────────────────────────────────")
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'run-bench! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn run-bench! ()
             let
@@ -737,7 +737,7 @@
                 _ $ print-sep
               println |Done.
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.bench
           :require
@@ -2878,7 +2878,7 @@
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () 0
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'probe-tag-match $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn probe-tag-match ()
             match (:: :map-splice 1 2)
@@ -3002,28 +3002,30 @@
           :code $ quote $ defn test-diff-identical ()
             diff-twig 1 1 $ {}
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn
+            -> $ List recollect.schema/change-op
+            :features :js-ffi
         'test-diff-identical-empty $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-diff-identical-empty ()
             if
               empty? $ diff-twig 1 1 $ {}
               , 1 0
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'test-empty-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-list ()
             if
               empty? $ []
               , 1 0
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'test-empty-map $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-map ()
             if
               empty? $ {}
               , 1 0
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'test-empty-recur-guard $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-recur-guard (xs)
             if (empty? xs) 1 $ recur xs
@@ -3043,12 +3045,12 @@
           :code $ quote $ defn test-empty-recur-list-call ()
             test-empty-recur-list $ []
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'test-identical $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-identical ()
             if (identical? 1 1) 1 0
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'test-list-arg-kind $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-list-arg-kind (a b)
             if (list? b) 1 0
@@ -3068,7 +3070,7 @@
           :code $ quote $ defn test-list-empty-proc-call ()
             test-list-empty-proc 1 $ []
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'test-list-match-empty $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-list-match-empty ()
             match
@@ -3076,7 +3078,7 @@
               (:none) 1
               (:some c0 cs) 2
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'test-list-match-pair $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-list-match-pair ()
             match
@@ -3084,7 +3086,7 @@
               (:none) 0
               (:some c0 cs) c0
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'test-loop-empty $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-loop-empty (base changes)
             match (destruct-list changes)
@@ -3096,7 +3098,7 @@
           :code $ quote $ defn test-loop-empty-call ()
             test-loop-empty 1 $ []
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'test-map-assoc-op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-map-assoc-op ()
             let
@@ -3220,7 +3222,7 @@
                   .unwrap $ .get patched 2
                   .unwrap $ .get patched 3
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'test-vector-drop-op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-vector-drop-op ()
             let
@@ -3229,7 +3231,7 @@
               &+ (.len patched)
                 .unwrap $ .get patched 1
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'test-vector-patch $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-vector-patch ()
             let
