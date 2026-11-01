@@ -8,25 +8,22 @@ Diff/patch library designed for Cumulo project.
 
 ### 使用者需要注意
 
-本轮准备正式 `0.1.0`，依赖图保持配对正式 Calcit `0.32.1`：消费者需成对使用
-CLI / `@calcit/procs` `0.32.1`，协调 Respo `0.17.1`、UI `0.9.0`、
-Value `0.6.0`、JS FFI `0.2.9` 及间接 Router `0.9.0-alpha.4`，然后重新生成 JS。Snapshot 类型写法已迁移到 0.32 语法；`set-difference-dynamic` 改为 `&difference`，行为不变。
-发布状态以精确 Git tag 为准；0.30.1 消费者继续使用 0.0.x 维护线。
+候选 `0.1.1` 继续配对正式 Calcit CLI / `@calcit/procs` `0.32.1`，协调正式 Respo `0.18.0`、UI `0.10.0`、Value `0.6.1`、JS-FFI `0.2.9` 与传递 Router `0.9.0`。消费者须更新完整精确图并重新生成 JS；直接构造上游 DomProps 的代码采用 Option 字段。旧 0.1.0 及 0.0.x 维护线 tag 不移动，0.1.1 发布前不引用候选 main/hash。
 
-相对已发布 `0.1.0-alpha.5`，运行代码、测试、六个公开库 namespace 的 schema 和 wire 格式保持。
-包含已合并 #118 的17处 Demo、bench 与历史探针返回 schema 收紧，不扩大外部输入合同，
-也不把历史 WASM 探针的 native/JS 通过计作 WASM 支持。安装完整图后需重新编译并刷新。
+本 PR 只修改依赖、版本与本文档。已发布 0.1.0 的精确提交就是当前 base，规范 Snapshot、原测试、六个公开库 namespace 的 schema、算法和 wire 格式完全保持；上游 UI/Core 的真实行为变化仍须整图验收，不能由本库源码未变推断所有消费者都兼容。
+
+正常 Caps strict 从正式 tag 安装五模块，无候选链接；toolchain0.32.1、Yarn immutable、canonical、344 项全定义、90 项公开定义、完整 strict diagnostics=[]、原示例/文档/业务入口与构建均通过。同版官方共享 runner 的 native/JS 共享契约各 43 项、JS 显示 1 项全部通过，均零排除；dynamic-method 与 deprecated-call 为零，原门禁没有放宽。WASM eligibility 通过只代表检查，不是运行支持承诺。
+
+实际隔离 Demo 逐项完成全部 12 个标量、Map、两组 List、Set、日期及 key 类型原控件，源/客户端显示同步；普通刷新恢复初始状态，console warn/error=[]。不冒称状态持久化；未操作真实数据、文件或剪贴板。163 个本地非 meta 定义仍有 71 partial，异构 payload 和 memo 缓存边界未被伪装成全部静态化。
 
 内部 List/Map/Set 操作及 Option 判断改用当前接收者方法，算法、公开 schema、wire 格式、
 测试断言、HUD 和部署路径保持不变。原 `&list:nth` 改为 `.get` 后立即 `.unwrap`，
 保留无效索引抛错和操作数求值次数；异常文字可能不同。`.slice` 显式传入 `Option :some end`。
 已有异构 payload 仍然开放，不把可解析的集合方法称为 payload 已完全强类型化。
 
-`&map:diff-triple` 的发布版 schema 声明 Enum，实际返回 List；两个 diff 函数暂保留该调用及
-六处读取，见 [Calcit #2439](https://github.com/calcit-lang/calcit/issues/2439)。不增加强转或
-关闭 proof audit。原 strict、全部 native/JS 契约回放与业务测试继续保留；WASM 非阻断检查
-不代表完整运行支持。Value 对名义 Struct/Enum 的显示限制仍见
-[Value #55](https://github.com/Respo/respo-value.calcit/issues/55)，不能把生成标签测试当作内容显示验收。
+旧 `&map:diff-triple` schema 将返回 List 错记为 Enum 的问题已在 0.31.1 发布修复，见 [Calcit #2439](https://github.com/calcit-lang/calcit/issues/2439)。本候选使用正式 0.32.1 复核查询 schema 与原生实际值均为 List，不再将已关闭问题列为当前阻塞；异构三元组各位置的精确泛型关系仍未在本 PR 实现。原函数与读取方式保持，不添加强转或关闭审计。
+
+原 strict、全部 native/JS 契约回放与业务测试继续保留；WASM 非阻断检查不代表完整运行支持。Value 对名义 Struct/Enum 的显示限制仍见 [Value #55](https://github.com/Respo/respo-value.calcit/issues/55)，不能把生成标签测试当作内容显示验收。
 
 ### API and guides
 
