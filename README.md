@@ -8,10 +8,14 @@ Diff/patch library designed for Cumulo project.
 
 ### 使用者需要注意
 
-候选 `0.1.0-alpha.5` 将模块依赖图同步到正式 Calcit `0.32.1`：消费者需成对使用
+本轮准备正式 `0.1.0`，依赖图保持配对正式 Calcit `0.32.1`：消费者需成对使用
 CLI / `@calcit/procs` `0.32.1`，协调 Respo `0.17.1`、UI `0.9.0`、
 Value `0.6.0`、JS FFI `0.2.9` 及间接 Router `0.9.0-alpha.4`，然后重新生成 JS。Snapshot 类型写法已迁移到 0.32 语法；`set-difference-dynamic` 改为 `&difference`，行为不变。
-本提交不等于已发布，使用前核对 Git tag；0.30.1 消费者继续使用 0.0.x 维护线。
+发布状态以精确 Git tag 为准；0.30.1 消费者继续使用 0.0.x 维护线。
+
+相对已发布 `0.1.0-alpha.5`，运行代码、测试、六个公开库 namespace 的 schema 和 wire 格式保持。
+包含已合并 #118 的17处 Demo、bench 与历史探针返回 schema 收紧，不扩大外部输入合同，
+也不把历史 WASM 探针的 native/JS 通过计作 WASM 支持。安装完整图后需重新编译并刷新。
 
 内部 List/Map/Set 操作及 Option 判断改用当前接收者方法，算法、公开 schema、wire 格式、
 测试断言、HUD 和部署路径保持不变。原 `&list:nth` 改为 `.get` 后立即 `.unwrap`，
