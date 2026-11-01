@@ -31,7 +31,8 @@
                         :inner-text $ match data-twig
                           (:some twig)
                             trim $ format-cirru-edn twig
-                          (:none) |nil
+                          (:none)
+                            trim $ format-cirru-edn nil
                       =< 8 nil
                       pre $ {} (:class-name css-code-block)
                         :inner-text $ trim $ format-cirru-edn client-store
