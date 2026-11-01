@@ -28,10 +28,10 @@
                     div
                       {} $ :style $ .assoc ui/row :padding |8px
                       pre $ {} (:class-name css-code-block)
-                        :inner-text $ trim $ format-cirru-edn
-                          match data-twig
-                            (:some twig) twig
-                            (:none) nil
+                        :inner-text $ match data-twig
+                          (:some twig)
+                            trim $ format-cirru-edn twig
+                          (:none) |nil
                       =< 8 nil
                       pre $ {} (:class-name css-code-block)
                         :inner-text $ trim $ format-cirru-edn client-store
@@ -336,31 +336,35 @@
     'recollect.app.twig.container $ %{} 'FileEntry
       :defs $ {}
         'twig-card $ %{} 'CodeEntry
-          :doc "|演示 wire Map 的构造边界。内部使用 Option，只有在既有 :user/:date 数据字段编码处将 none 写成原来的 nil；Map 的外层类型不再擦成 Dynamic。"
+          :doc "|演示 wire Map 的构造边界。内部使用 Option；写入 Map 时只放有值的 :user/:date，none 和 some nil 都不写这个键。"
           :code $ quote $ defn twig-card (user date)
-            {}
-              :user $ .unwrap-or user nil
-              :date $ .unwrap-or date nil
+            let
+                with-field $ fn (m k field)
+                  hint-fn $ Fn (Map Tag Dynamic) Tag (Option Dynamic)
+                    -> $ Map Tag Dynamic
+                  match field
+                    (:some value)
+                      if (nil? value) m $ .assoc m k value
+                    (:none) m
+              -> ({}) (with-field :user user) (with-field :date date)
           :examples $ []
           :schema $ quote $ Fn (Option Dynamic) (Option Dynamic)
             -> $ Map Tag Dynamic
-          :tests $ [] $ %{} 'TestEntry (:name |encodes-options-only-at-wire-map)
+          :tests $ [] $ %{} 'TestEntry (:name |writes-only-present-fields)
             :code $ quote $ let
                 absent $ twig-card (Option :none) (Option :none)
                 explicit-nil $ twig-card (Option :some nil) (Option :some nil)
                 values $ twig-card (Option :some false) (Option :some 0)
                 empty-value $ twig-card (Option :some |) (Option :none)
-              assert= true $ .contains-key? absent :user
-              assert= true $ .contains-key? absent :date
-              assert |none-encodes-original-wire-nil $ &=
-                {} (:user nil) (:date nil)
-                , absent
+              assert= false $ .contains-key? absent :user
+              assert= false $ .contains-key? absent :date
+              assert |none-leaves-the-key-out $ &= ({}) absent
               assert |explicit-nil-keeps-original-wire-value $ &= absent explicit-nil
               assert |false-and-zero-are-not-absent $ &=
                 {} (:user false) (:date 0)
                 , values
               assert |empty-string-is-not-absent $ &=
-                {} (:user |) (:date nil)
+                {} $ :user |
                 , empty-value
             :tags $ #{} :unit
         'twig-container $ %{} 'CodeEntry
@@ -390,9 +394,7 @@
                     absent-card $ .unwrap $ get absent :card
                     nil-card $ .unwrap $ get explicit-nil :card
                   assert |same-card-cache-entry $ identical? absent-card nil-card
-                  assert |absent-wire-fields $ &=
-                    {} (:user nil) (:date nil)
-                    , absent-card
+                  assert |absent-wire-fields $ &= ({}) absent-card
                   assert= 7 $ decode-map-as
                     .unwrap $ get absent :extra
                     , 'Number
@@ -464,46 +466,47 @@
               (:lit-1 d)
                 .assoc store :in-map $ .assoc
                   decode-map-as
-                    .unwrap-or (get store :in-map) nil
+                    .unwrap $ get store :in-map
                     :: 'Map 'Tag 'Dynamic
                   , :lit-1 d
               (:map-0 d)
                 .assoc store :map-0 $ .assoc
                   decode-map-as
-                    .unwrap-or (get store :map-0) nil
+                    .unwrap $ get store :map-0
                     :: 'Map 'Tag 'Dynamic
                   , :y d
               (:map-0-rm)
                 .assoc store :map-0 $ .dissoc
                   decode-map-as
-                    or
-                      .unwrap-or (get store :map-0) nil
-                      {}
+                    match (get store :map-0)
+                      (:some v)
+                        or v $ {}
+                      (:none) ({})
                     :: 'Map 'Tag 'Dynamic
                   , :y
               (:vec-0 d)
                 .assoc store :vec-0 $ .append
                   .append
                     decode-map-as
-                      .unwrap-or (get store :vec-0) nil
+                      .unwrap $ get store :vec-0
                       :: 'List 'Dynamic
                     , d
                   , :cursor
               (:vec-0-rm)
                 .assoc store :vec-0 $ either
                   .butlast $ decode-map-as
-                    .unwrap-or (get store :vec-0) nil
+                    .unwrap $ get store :vec-0
                     :: 'List 'Dynamic
                   []
               (:set-0 d)
                 .assoc store :set-0 $ &union
                   decode-map-as
-                    .unwrap-or (get store :set-0) nil
+                    .unwrap $ get store :set-0
                     :: 'Set 'Dynamic
                   #{} d
               (:set-0-rm)
                 &let
-                  items $ .unwrap-or (get store :set-0) nil
+                  items $ .unwrap-or (get store :set-0) false
                   if (set? items)
                     .assoc store :set-0 $ match (.destruct items)
                       (:some _item rest) rest
@@ -512,20 +515,21 @@
               (:date)
                 let
                     date $ decode-map-as
-                      or
-                        .unwrap-or (get store :date) nil
-                        {}
+                      match (get store :date)
+                        (:some v)
+                          or v $ {}
+                        (:none) ({})
                       :: 'Map 'Tag 'Dynamic
                   .assoc store :date $ .assoc date :month $ inc
                     decode-map-as
-                      or
-                        .unwrap-or (get date :month) nil
-                        , 0
+                      match (get date :month)
+                        (:some v) (or v 0)
+                        (:none) 0
                       , 'Number
               (:types d)
                 .assoc store :types $ .assoc
                   decode-map-as
-                    .unwrap-or (get store :types) nil
+                    .unwrap $ get store :types
                     :: 'Map 'Dynamic 'Dynamic
                   , d true
               _ $ do (eprintln "|Unhandled op:" op) store
@@ -537,11 +541,11 @@
               :code $ quote $ let
                   verify $ fn (key op expected)
                     hint-fn $ Fn Tag Enum String $ -> Unit
-                    assert= expected $ try
+                    assert |missing-field-is-rejected $ try
                       do
                         updater ({}) op
-                        raise |unexpected-success
-                      fn (error) error
+                        , false
+                      fn (error) true
                     assert= expected $ try
                       do
                         updater
@@ -2002,6 +2006,14 @@
           :examples $ []
           :schema $ quote $ Fn recollect.patch/PatchBatch Dynamic (-> recollect.patch/PatchResult)
           :tags $ #{} :scaffold
+        'patch-child $ %{} 'CodeEntry
+          :doc "|Apply a change to a child read with patch-get; a missing child is patched as nil, so :replace can create it."
+          :code $ quote $ defn patch-child (old-option change)
+            match old-option
+              (:some old) (patch-one old change)
+              (:none) (patch-one nil change)
+          :examples $ []
+          :schema $ quote $ Fn (Option Dynamic) recollect.schema/change-op (-> Dynamic)
         'patch-error-message $ %{} 'CodeEntry
           :doc "|Render a structured PatchError for compatibility APIs and logs."
           :code $ quote $ defn patch-error-message (error)
@@ -2019,31 +2031,31 @@
           :examples $ []
           :schema $ quote $ Fn recollect.patch/PatchError (-> String)
           :tags $ #{} :scaffold
-        'patch-get $ %{} 'CodeEntry (:doc |)
+        'patch-get $ %{} 'CodeEntry
+          :doc "|Read the child node at k as an Option: none for a missing map key or struct field; list and enum indexes must exist."
           :code $ quote $ defn patch-get (base k)
-            if (map? base)
-              .unwrap-or (get base k) nil
+            if (map? base) (get base k)
               if (list? base)
                 if (number? k)
-                  .unwrap $ .get base k
+                  Option :some $ .unwrap $ .get base k
                   raise $ str "|patch-get expected a Number index for list, got: " k
                 if (enum? base)
-                  if (number? k) (&enum:nth base k)
+                  if (number? k)
+                    Option :some $ &enum:nth base k
                     raise $ str "|patch-get expected a Number index for enum, got: " k
                   if (struct? base)
                     if (tag? k)
-                      .unwrap-or
-                        get (&struct:to-map base) k
-                        , nil
-                      , nil
+                      get (&struct:to-map base) k
+                      Option :none
                     raise $ str "|Unsupported-patch-container-type: " $ type-of base
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic (-> Dynamic)
+          :schema $ quote $ Fn Dynamic Dynamic
+            -> $ Option Dynamic
           :tests $ []
             %{} 'TestEntry (:name |rejects-unsupported-containers)
               :code $ quote $ let
                   message $ try
-                      patch-get 1 :x
+                    do (patch-get 1 :x) |unexpected-success
                     fn (error) error
                 assert |unsupported-container-includes-type $ &= "|Unsupported-patch-container-type: :number" message
               :tags $ #{} :unit
@@ -2051,27 +2063,27 @@
               :code $ quote $ let
                   Person $ defstruct Person $ :name (quote String)
                   person $ %{} Person $ :name |Ada
-                assert= |Ada $ patch-get person :name
+                assert= (Option :some |Ada) (patch-get person :name)
             %{} 'TestEntry (:name |legacy-map-read-keeps-nil-and-falsey-values)
               :code $ quote $ let
                   source $ {} (:nil nil) (:false false) (:zero 0) (:empty |) (nil |nil-key)
-                assert= true $ nil? $ patch-get source :missing
-                assert= true $ nil? $ patch-get source :nil
-                assert= false $ decode-map-as (patch-get source :false) 'Bool
-                assert= 0 $ decode-map-as (patch-get source :zero) 'Number
-                assert= | $ decode-map-as (patch-get source :empty) 'String
-                assert= |nil-key $ decode-map-as (patch-get source nil) 'String
+                assert= (Option :none) (patch-get source :missing)
+                assert= (Option :some nil) (patch-get source :nil)
+                assert= (Option :some false) (patch-get source :false)
+                assert= (Option :some 0) (patch-get source :zero)
+                assert= (Option :some |) (patch-get source :empty)
+                assert= (Option :some |nil-key) (patch-get source nil)
               :tags $ #{} :unit
             %{} 'TestEntry (:name |legacy-struct-read-is-tag-only-and-keeps-nil)
               :code $ quote $ let
                   Sample $ defstruct Sample $ :field 'Dynamic
                   sample $ Sample :field false
                   nil-sample $ Sample :field nil
-                assert= false $ decode-map-as (patch-get sample :field) 'Bool
-                assert= true $ nil? $ patch-get nil-sample :field
-                assert= true $ nil? $ patch-get sample :unknown
-                assert= true $ nil? $ patch-get sample |field
-                assert= true $ nil? $ patch-get sample 'field
+                assert= (Option :some false) (patch-get sample :field)
+                assert= (Option :some nil) (patch-get nil-sample :field)
+                assert= (Option :none) (patch-get sample :unknown)
+                assert= (Option :none) (patch-get sample |field)
+                assert= (Option :none) (patch-get sample 'field)
               :tags $ #{} :unit
         'patch-map $ %{} 'CodeEntry
           :doc "|Apply map-splice patch by removing specified keys and merging in new entries."
@@ -2118,25 +2130,27 @@
               (:update k c0)
                 let
                     old-val $ patch-get base k
-                  patch-assoc base k $ patch-one old-val c0
+                  patch-assoc base k $ patch-child old-val c0
               (:update-in ks c0)
                 match (destruct-list ks)
                   (:none) (patch-one base c0)
                   (:some k0 rest-ks)
                     let
                         old-val $ patch-get base k0
-                      patch-assoc base k0 $ patch-one old-val $ schema/change-op :update-in rest-ks c0
+                      patch-assoc base k0 $ patch-child old-val $ schema/change-op :update-in rest-ks c0
               (:pick k changes)
                 let
                     old-val $ patch-get base k
-                  patch-assoc base k $ patch-twig old-val changes
+                  patch-assoc base k $ match old-val
+                    (:some old) (patch-twig old changes)
+                    (:none) (patch-twig nil changes)
               (:pick-in ks changes)
                 match (destruct-list ks)
                   (:none) (patch-twig base changes)
                   (:some k0 rest-ks)
                     let
                         old-val $ patch-get base k0
-                      patch-assoc base k0 $ patch-one old-val $ schema/change-op :pick-in rest-ks changes
+                      patch-assoc base k0 $ patch-child old-val $ schema/change-op :pick-in rest-ks changes
               _ $ raise $ str |Unknown-patch-operation: change
           :examples $ []
           :schema $ quote $ Fn Dynamic recollect.schema/change-op (-> Dynamic)
