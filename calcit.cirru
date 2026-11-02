@@ -237,7 +237,8 @@
           :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'next-client-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-client-store (changes)
-            decode-map-as (patch-twig @*client-store changes) (:: 'Map 'Tag 'Dynamic)
+            decode-map-as (patch-twig @*client-store changes)
+              quote $ Map Tag Dynamic
           :examples $ []
           :schema $ quote $ Fn (List recollect.schema/change-op)
             -> $ Map Tag Dynamic
@@ -441,17 +442,17 @@
           :code $ quote $ defenum Op
             :states
               quote $ List Dynamic
-              , 'Dynamic
-            :lit-0 'Dynamic
-            :lit-1 'Dynamic
-            :map-0 'Dynamic
+              , Dynamic
+            :lit-0 Dynamic
+            :lit-1 Dynamic
+            :map-0 Dynamic
             :map-0-rm
-            :vec-0 'Dynamic
+            :vec-0 Dynamic
             :vec-0-rm
-            :set-0 'Dynamic
+            :set-0 Dynamic
             :set-0-rm
             :date
-            :types 'Dynamic
+            :types Dynamic
           :examples $ []
           :schema $ quote EnumDef
         'updater $ %{} 'CodeEntry (:doc |)
@@ -460,21 +461,21 @@
               (:states cursor s)
                 decode-map-as
                   update-states store
-                    decode-map-as cursor $ :: 'List 'Dynamic
+                    decode-map-as cursor $ quote $ List Dynamic
                     , s
-                  :: 'Map 'Tag 'Dynamic
+                  quote $ Map Tag Dynamic
               (:lit-0 d) (.assoc store :lit-0 d)
               (:lit-1 d)
                 .assoc store :in-map $ .assoc
                   decode-map-as
                     .unwrap $ get store :in-map
-                    :: 'Map 'Tag 'Dynamic
+                    quote $ Map Tag Dynamic
                   , :lit-1 d
               (:map-0 d)
                 .assoc store :map-0 $ .assoc
                   decode-map-as
                     .unwrap $ get store :map-0
-                    :: 'Map 'Tag 'Dynamic
+                    quote $ Map Tag Dynamic
                   , :y d
               (:map-0-rm)
                 .assoc store :map-0 $ .dissoc
@@ -483,27 +484,27 @@
                       (:some v)
                         or v $ {}
                       (:none) ({})
-                    :: 'Map 'Tag 'Dynamic
+                    quote $ Map Tag Dynamic
                   , :y
               (:vec-0 d)
                 .assoc store :vec-0 $ .append
                   .append
                     decode-map-as
                       .unwrap $ get store :vec-0
-                      :: 'List 'Dynamic
+                      quote $ List Dynamic
                     , d
                   , :cursor
               (:vec-0-rm)
                 .assoc store :vec-0 $ either
                   .butlast $ decode-map-as
                     .unwrap $ get store :vec-0
-                    :: 'List 'Dynamic
+                    quote $ List Dynamic
                   []
               (:set-0 d)
                 .assoc store :set-0 $ &union
                   decode-map-as
                     .unwrap $ get store :set-0
-                    :: 'Set 'Dynamic
+                    quote $ Set Dynamic
                   #{} d
               (:set-0-rm)
                 &let
@@ -520,7 +521,7 @@
                         (:some v)
                           or v $ {}
                         (:none) ({})
-                      :: 'Map 'Tag 'Dynamic
+                      quote $ Map Tag Dynamic
                   .assoc store :date $ .assoc date :month $ inc
                     decode-map-as
                       match (get date :month)
@@ -531,7 +532,7 @@
                 .assoc store :types $ .assoc
                   decode-map-as
                     .unwrap $ get store :types
-                    :: 'Map 'Dynamic 'Dynamic
+                    quote $ Map Dynamic Dynamic
                   , d true
               _ $ do (eprintln "|Unhandled op:" op) store
           :examples $ []
@@ -767,18 +768,18 @@
           :code $ quote $ defenum DiffOutcome
             :complete
               quote $ List recollect.schema/change-op
-              , 'recollect.diff/DiffStats
-            :budget-exceeded 'recollect.diff/DiffBudgetReason 'recollect.diff/DiffStats
+              , recollect.diff/DiffStats
+            :budget-exceeded recollect.diff/DiffBudgetReason recollect.diff/DiffStats
           :examples $ []
           :schema $ quote EnumDef
         'DiffStats $ %{} 'CodeEntry
           :doc "|Work consumed by one isolated diff call. Emitted counts operation-construction units, including intermediate nodes later normalized into parent operations."
-          :code $ quote $ defstruct DiffStats (:visited-nodes 'Number) (:emitted-ops 'Number)
+          :code $ quote $ defstruct DiffStats (:visited-nodes Number) (:emitted-ops Number)
           :examples $ []
           :schema $ quote StructDef
         'DiffWorkState $ %{} 'CodeEntry
           :doc "|Per-call internal mutable counter state; never escapes the bounded entry."
-          :code $ quote $ defstruct DiffWorkState (:budget 'recollect.diff/DiffBudget) (:stats 'recollect.diff/DiffStats)
+          :code $ quote $ defstruct DiffWorkState (:budget recollect.diff/DiffBudget) (:stats recollect.diff/DiffStats)
             :exceeded $ quote $ Option recollect.diff/DiffBudgetReason
           :examples $ []
           :schema $ quote StructDef
@@ -1639,7 +1640,7 @@
           :doc "|内部 memo 条目：参数列表与结果分字段保存；异构值只保留在原 variadic 合同中，不再用动态二元 List 表达固定结构。"
           :code $ quote $ defstruct MemoEntry
             :args $ quote $ List Dynamic
-            :value 'Dynamic
+            :value Dynamic
           :examples $ []
           :schema $ quote StructDef
         'assoc-in-map $ %{} 'CodeEntry
@@ -1953,26 +1954,26 @@
           :schema $ quote Impl
         'PatchError $ %{} 'CodeEntry
           :doc "|Structured failure returned by validated patch application. Paths point to the rejected node in the base tree."
-          :code $ quote $ defenum PatchError (:unsupported-operation 'String)
+          :code $ quote $ defenum PatchError (:unsupported-operation String)
             :unsupported-container
               quote $ List Dynamic
-              , 'Tag
+              , Tag
             :missing-node $ quote $ List recollect.patch/PatchPathSegment
             :type-mismatch
               quote $ List Dynamic
-              , 'Tag 'Tag
+              , Tag Tag
             :invalid-index
               quote $ List Dynamic
-              , 'Number 'Number
+              , Number Number
           :examples $ []
           :schema $ quote EnumDef
         'PatchPathSegment $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defenum PatchPathSegment (:field 'Tag) (:name 'String) (:index 'Number) (:key 'String)
+          :code $ quote $ defenum PatchPathSegment (:field Tag) (:name String) (:index Number) (:key String)
           :examples $ []
           :schema $ quote EnumDef
         'PatchResult $ %{} 'CodeEntry
           :doc "|Nominal patch result carrying an open twig payload on success or a diagnostic PatchError."
-          :code $ quote $ defenum PatchResult (:ok 'Dynamic) (:err 'recollect.patch/PatchError)
+          :code $ quote $ defenum PatchResult (:ok Dynamic) (:err recollect.patch/PatchError)
           :examples $ []
           :schema $ quote Enum
         'empty-patch-path $ %{} 'CodeEntry (:doc "|类型化的根补丁路径。")
@@ -2690,21 +2691,21 @@
     'recollect.schema $ %{} 'FileEntry
       :defs $ {}
         'change-op $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defenum change-op (:replace 'Dynamic)
+          :code $ quote $ defenum change-op (:replace Dynamic)
             :vec-append $ quote $ List Dynamic
-            :vec-drop 'Number
-            :assoc 'Dynamic 'Dynamic
+            :vec-drop Number
+            :assoc Dynamic Dynamic
             :set-splice
               quote $ Set Dynamic
               quote $ Set Dynamic
             :map-splice
               quote $ Set Dynamic
               quote $ Map Dynamic Dynamic
-            :update 'Dynamic 'recollect.schema/change-op
+            :update Dynamic recollect.schema/change-op
             :update-in
               quote $ List Dynamic
-              , 'recollect.schema/change-op
-            :pick 'Dynamic $ quote $ List recollect.schema/change-op
+              , recollect.schema/change-op
+            :pick Dynamic $ quote $ List recollect.schema/change-op
             :pick-in
               quote $ List Dynamic
               quote $ List recollect.schema/change-op
@@ -2798,12 +2799,12 @@
     'recollect.test.fixture $ %{} 'FileEntry
       :defs $ {}
         'OptionalProfile $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct OptionalProfile (:name 'String)
+          :code $ quote $ defstruct OptionalProfile (:name String)
             :score $ quote $ Option Number
           :examples $ []
           :schema $ quote StructDef
         'Person $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct Person (:name 'String) (:age 'Number)
+          :code $ quote $ defstruct Person (:name String) (:age Number)
           :examples $ []
           :schema $ quote StructDef
       :ns $ %{} 'NsEntry (:doc |)
