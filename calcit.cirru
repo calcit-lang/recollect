@@ -33,7 +33,7 @@
                             trim $ format-cirru-edn twig
                           (:none)
                             trim $ format-cirru-edn nil
-                      =< 8 nil
+                      space-x 8
                       pre $ {} (:class-name css-code-block)
                         :inner-text $ trim $ format-cirru-edn client-store
                     comp-value (>> states :value) client-store 0
@@ -56,8 +56,8 @@
                     Option $ Map Tag Dynamic
                     , Dynamic (-> Unit) (:features :js-ffi)
                   let
-                      html $ respo.render.html/make-string $ comp-container input
-                        {}
+                      html $ respo.memo/with-memo-frame $ fn ()
+                        respo.render.html/make-string $ comp-container input $ {}
                           :states $ {}
                           :client-proof 3
                       text $ trim $ format-cirru-edn expected
@@ -104,7 +104,7 @@
             respo-ui.core :as ui
             respo.core :refer $ defcomp >> <> span div pre memo-comp-by
             respo.css :refer $ defstyle
-            respo.comp.space :refer $ =<
+            respo.comp.space :refer $ space-x
             recollect.app.comp.panel :refer $ comp-panel
             respo-value.comp.value :refer $ comp-value
             recollect.diff :refer $ diff-twig
@@ -116,27 +116,27 @@
               div
                 {} $ :style style-line
                 render-button "|Change lit-0" :lit-0
-                =< 8 nil
+                space-x 8
                 render-button "|Change lit-1" :lit-1
               div
                 {} $ :style style-line
                 render-button "|Change map-0" :map-0
-                =< 8 nil
+                space-x 8
                 render-button "|Remove map-0" :map-0-rm
               div
                 {} $ :style style-line
                 render-button "|Change vec-0" :vec-0
-                =< 8 nil
+                space-x 8
                 render-button "|Remove vec-0" :vec-0-rm
               div
                 {} $ :style style-line
                 render-button "|Change vec-0" :vec-0
-                =< 8 nil
+                space-x 8
                 render-button "|Change vec-0 remove" :vec-0-rm
               div
                 {} $ :style style-line
                 render-button "|Change set-0" :set-0
-                =< 8 0
+                space-x 8
                 render-button "|Change set-0 remove" :set-0-rm
               div
                 {} $ :style style-line
@@ -149,13 +149,22 @@
         'on-click $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn on-click (op)
             fn (e dispatch!)
+              hint-fn $ Fn respo.schema/RespoEvent
+                Fn recollect.app.updater/Op $ -> Unit
+                -> Unit
+                :features :js-ffi
               if
                 .includes? (#{} :map-0-rm :vec-0-rm :set-0-rm :date) op
                 dispatch! $ :: op
                 dispatch! $ :: op $ round
                   * 100 $ js-ffi.contract/expect-number |Math.random $ js/Math.random
           :examples $ []
-          :schema $ quote $ Fn Tag (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn Tag
+            -> $ Fn respo.schema/RespoEvent
+              Fn recollect.app.updater/Op $ -> Unit
+              -> Unit
+              :features :js-ffi
+            :features :js-ffi
         'render-button $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-button (title op)
             div $ {} (:style ui/button) (:inner-text title)
@@ -173,7 +182,7 @@
             hsl.core :refer $ hsl
             respo-ui.core :as ui
             respo.core :refer $ defcomp <> span div
-            respo.comp.space :refer $ =<
+            respo.comp.space :refer $ space-x
     'recollect.app.config $ %{} 'FileEntry
       :defs $ {}
         'dev? $ %{} 'CodeEntry (:doc |)
@@ -250,7 +259,7 @@
         'next-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-store (op) (updater @*store op)
           :examples $ []
-          :schema $ quote $ Fn Enum
+          :schema $ quote $ Fn recollect.app.updater/Op
             -> $ Map Tag Dynamic
             :features :js-ffi
         'reload! $ %{} 'CodeEntry (:doc |)
@@ -268,13 +277,19 @@
           :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! (renderer)
-            renderer
-              .unwrap $ browser/query-selector |.app
+            render-memo/with-memo-frame $ fn () $ renderer
+              .unwrap $ respo.ffi.browser/query-selector |.app
               comp-container @*data-twig @*client-store
               , dispatch!
             , &unit
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn
+            Fn respo.dom/DomElement respo.schema/Component
+              Fn recollect.app.updater/Op $ -> Unit
+              -> Unit
+              :features :js-ffi
+            -> Unit
+            :features :js-ffi
         'render-data-twig! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-data-twig! ()
             let
@@ -335,6 +350,7 @@
             js-ffi.browser :as browser
             js-ffi.shared :as shared
             recollect.memo :as memo
+            respo.memo :as render-memo
     'recollect.app.twig.container $ %{} 'FileEntry
       :defs $ {}
         'twig-card $ %{} 'CodeEntry
