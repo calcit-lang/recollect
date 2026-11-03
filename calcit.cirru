@@ -1976,7 +1976,7 @@
           :doc "|Nominal patch result carrying an open twig payload on success or a diagnostic PatchError."
           :code $ quote $ defenum PatchResult (:ok Dynamic) (:err recollect.patch/PatchError)
           :examples $ []
-          :schema $ quote Enum
+          :schema $ quote EnumDef
         'empty-patch-path $ %{} 'CodeEntry (:doc "|类型化的根补丁路径。")
           :code $ quote $ defn empty-patch-path () ([])
           :examples $ []

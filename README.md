@@ -14,7 +14,7 @@ Diff/patch library designed for Cumulo project.
 
 本轮将 `set-difference-iter` 的三处输入和一处返回元素类型关联为同一泛型 T，原实现保持；该辅助函数不会凭空产生其他类型的元素。`patch-map` 按 0.34.2 Map 转列表的二元 Tuple 合同直接解构键值，替代旧无名义来源的 `.get`。删除、合并和任意值 payload 的语义保持，原断言与质量门禁不放宽。
 
-全部 164 个存储定义经官方查询逐项对照，只有上述一个 schema 和一个运行代码节点变化，所有原测试、示例与其他元数据保持。官方共享测试 runner 同步到正式 0.34.2；不增加 checker、改写规则或排除项。本地原 native/JS 测试、完整 strict、91 个公开定义、示例、文档及构建均通过；官方共享 runner 在 native/JS 各 43/43、JS 显示 1/1 通过，零新增排除。unresolved schema Dynamic 由 100 降至 96，dynamic-method 和 deprecated 均为零。Linux 精确提交结果仍以原 CI 为准。本轮不据历史 Demo 结果宣称完成新的浏览器验收。
+全部 164 个存储定义经官方查询逐项对照，只有上述两个 schema 和一个运行代码节点变化，另外将 `PatchResult` 定义自身的误标 `Enum` 改为真实 `EnumDef`；运行值和 payload 不变。所有原测试、示例与其他元数据保持。官方共享测试 runner 同步到正式 0.34.2；不增加 checker、改写规则或排除项。本地原 native/JS 测试、完整 strict、91 个公开定义、示例、文档及构建均通过；官方共享 runner 在 native/JS 各 43/43、JS 显示 1/1 通过，零新增排除。unresolved schema Dynamic 由 100 降至 96，dynamic-method 和 deprecated 均为零。Linux 精确提交结果仍以原 CI 为准。本轮不据历史 Demo 结果宣称完成新的浏览器验收。
 
 补丁 payload、Map key 及 memo 缓存本就允许任意数据，保留真实开放边界，不能用有限 union 限制已有 wire 合同。Value 0.6.3 保留固定样式的 union；本库不据此宣称所有 payload 已静态化。
 
