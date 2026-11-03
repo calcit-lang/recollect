@@ -1563,8 +1563,9 @@
                 x $ .unwrap $ first xs
               set-difference-iter (.rest xs) a $ if (.includes? a x) acc $ .append acc x
           :examples $ []
-          :schema $ quote $ Fn (List Dynamic) (Set Dynamic) (List Dynamic)
-            -> $ List Dynamic
+          :schema $ quote $ Fn (List T) (Set T) (List T)
+            -> $ List T
+            :generics T
         'unlimited-diff-budget $ %{} 'CodeEntry
           :doc "|Construct an unlimited budget for compatibility entry points."
           :code $ quote $ defn unlimited-diff-budget (unit)
@@ -2093,9 +2094,7 @@
             foldl (.to-list added)
               foldl (.to-list removed) base $ fn (acc k) (.dissoc acc k)
               fn (acc pair)
-                .assoc acc
-                  .unwrap $ .get pair 0
-                  .unwrap $ .get pair 1
+                let[] (k v) pair $ .assoc acc k v
           :examples $ [] $ quote
             patch-map
               {} (:a 1) (:b 2)
