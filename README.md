@@ -10,7 +10,7 @@ Diff/patch library designed for Cumulo project.
 
 候选 `0.2.2` 使用正式 Calcit CLI / `@calcit/procs` `0.34.2`，升级到 Respo `0.19.2`、UI `0.14.1`、Value `0.7.0`、JS-FFI `0.2.10` 与传递 Router `0.11.2`。消费者须更新完整精确依赖图并重新生成 JS；候选尚未发布。
 
-Value 新版保留异构 Map key，在渲染边界转换为稳定 CoordKey。直接构建包含 Value 的组件树时，应把组件构建和实际渲染一起放进 `respo.memo/with-memo-frame`；Demo 的 render/SSR 入口与原显示测试均已适配。数据 key、状态游标与 diff/patch wire 合同保持原样，不把 Bool、List 等旧 key 限制为 Tag/String/Number。
+Value 新版保留异构 Map key，在渲染边界转换为稳定 CoordKey。直接构建包含 Value 的组件树时，应把组件构建和实际渲染一起放进 `respo.memo/with-memo-frame`；Demo 的 render/SSR 入口与原显示测试均已适配。数据 key、状态游标与 diff/patch wire 合同保持原样，不把 Bool、List 等旧 key 限制为 Tag/String/Number；Value 展开 Map 时仍不支持 nil key，这不收窄 Recollect 核心 diff/patch 的开放数据合同。
 
 Demo renderer 与按钮回调改用具体 `Fn` 合同，`next-store` 使用已有 `Op`，DOM 查询改用 Respo 现有的受检入口，不增加强转。六处旧 spacer 改为等宽 `space-x 8`。核心 diff/patch/memo 算法未改，原 HUD 保留。
 
