@@ -8,19 +8,17 @@ Diff/patch library designed for Cumulo project.
 
 ### 使用者需要注意
 
-候选 `0.2.1` 配对正式 Calcit CLI / `@calcit/procs` `0.34.2`，使用正式 Respo `0.18.1`、UI `0.12.1`、Value `0.6.3`、JS-FFI `0.2.9` 与传递 Router `0.10.1`。消费者须更新完整精确图并重新生成 JS。候选尚未发布，不引用 main/hash 代替正式 tag。
+候选 `0.2.2` 使用正式 Calcit CLI / `@calcit/procs` `0.34.2`，升级到 Respo `0.19.2`、UI `0.14.1`、Value `0.7.0`、JS-FFI `0.2.10` 与传递 Router `0.11.2`。消费者须更新完整精确依赖图并重新生成 JS；候选尚未发布。
 
-从 `0.1.1` 等旧版本升级时，注意当前 main 已包含 [#121](https://github.com/calcit-lang/recollect/pull/121) 的 API 变化：`patch-get` 返回 `Option`，缺失 Map 键或 Struct 字段为 none，存在且为 nil 的值为 `some nil`；List/Enum 下标仍须存在。直接调用者需处理 Option。`patch-one` 仍按原 nil 子节点语义创建缺失节点；Demo twig 仅写有值的 user/date，updater 保留原必填报错与默认行为。本次不再改变这些合同。
+Value 新版保留异构 Map key，在渲染边界转换为稳定 CoordKey。直接构建包含 Value 的组件树时，应把组件构建和实际渲染一起放进 `respo.memo/with-memo-frame`；Demo 的 render/SSR 入口与原显示测试均已适配。数据 key、状态游标与 diff/patch wire 合同保持原样，不把 Bool、List 等旧 key 限制为 Tag/String/Number。
 
-本轮将 `set-difference-iter` 的三处输入和一处返回元素类型关联为同一泛型 T，原实现保持；该辅助函数不会凭空产生其他类型的元素。`patch-map` 按 0.34.2 Map 转列表的二元 Tuple 合同直接解构键值，替代旧无名义来源的 `.get`。删除、合并和任意值 payload 的语义保持，原断言与质量门禁不放宽。
+Demo renderer 与按钮回调改用具体 `Fn` 合同，`next-store` 使用已有 `Op`，DOM 查询改用 Respo 现有的受检入口，不增加强转。六处旧 spacer 改为等宽 `space-x 8`。核心 diff/patch/memo 算法未改，原 HUD 保留。
 
-全部 164 个存储定义经官方查询逐项对照，只有上述两个 schema 和一个运行代码节点变化，另外将 `PatchResult` 定义自身的误标 `Enum` 改为真实 `EnumDef`；运行值和 payload 不变。所有原测试、示例与其他元数据保持。官方共享测试 runner 同步到正式 0.34.2；不增加 checker、改写规则或排除项。本地原 native/JS 测试、完整 strict、91 个公开定义、示例、文档及构建均通过；官方共享 runner 在 native/JS 各 43/43、JS 显示 1/1 通过，零新增排除。unresolved schema Dynamic 由 100 降至 96，dynamic-method 和 deprecated 均为零。Linux 精确提交结果仍以原 CI 为准。本轮不据历史 Demo 结果宣称完成新的浏览器验收。
+本地完整 strict、349 个可达定义、91 个公开定义、原测试、示例、文档和构建通过。同版官方共享 runner 的 native/JS 各 43/43、JS 显示 1/1 通过，零新增排除。官方查询核对全部 164 个存储定义，无删除；改动限于三处 Demo schema、四个代码体、一个原测试的渲染 frame 及三个命名空间导入。原测试名、输入和断言保留。相同新版依赖图下，schema Dynamic 129→127、nil 13→8，显式 unsafe 仍为 3；未放宽门禁。实际 Chrome 已验收全部 12 个原按钮、展开树中同名 Tag/String 与新增 Number key、每次更新后的 twig/client 数据一致及刷新初始化，无控制台错误。Linux 精确提交结果以原 CI 为准。
 
-补丁 payload、Map key 及 memo 缓存本就允许任意数据，保留真实开放边界，不能用有限 union 限制已有 wire 合同。Value 0.6.3 保留固定样式的 union；本库不据此宣称所有 payload 已静态化。
+从 `0.1.1` 等旧版本升级时，仍须处理 [#121](https://github.com/calcit-lang/recollect/pull/121) 已引入的 `patch-get` Option：缺失 Map 键或 Struct 字段为 none，存在且为 nil 的值为 `some nil`；List/Enum 下标仍须存在。`patch-one` 保持原 nil 子节点语义，本次不再修改该合同。补丁 payload、Map key 和 memo 缓存保留真实开放边界。
 
-旧 `&map:diff-triple` 的 Enum/List 返回类型错误已在 0.31.1 修复（[#2439](https://github.com/calcit-lang/calcit/issues/2439)）。0.34.2 仍将结果声明为裸 List，丢失三个位置的泛型关系；上游 [#2549](https://github.com/calcit-lang/calcit/issues/2549) 继续跟踪，本轮保持原受检三元组读取，不添加强转或专用改写规则。
-
-WASM eligibility 是原非阻断检查，不构成完整运行支持承诺。Value 对名义 Struct/Enum 的展示限制仍见 [Value #55](https://github.com/Respo/respo-value.calcit/issues/55)，没有把生成标签测试当作内容显示验收。HUD、wire 格式及原 Demo 部署路径保持。
+上游 [Calcit #2549](https://github.com/calcit-lang/calcit/issues/2549) 继续跟踪 `&map:diff-triple` 三个位置丢失泛型关系的问题；本轮保留原受检读取。Value 对名义 Struct/Enum 的内容展示限制仍见 [Value #55](https://github.com/Respo/respo-value.calcit/issues/55)。WASM eligibility 原非阻断检查通过，不构成产物生成或完整运行支持承诺。
 
 ### API and guides
 
