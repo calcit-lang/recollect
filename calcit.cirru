@@ -553,13 +553,13 @@
                   , d true
               _ $ do (eprintln "|Unhandled op:" op) store
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) Enum
+          :schema $ quote $ Fn (Map Tag Dynamic) recollect.app.updater/Op
             -> $ Map Tag Dynamic
           :tests $ []
             %{} 'TestEntry (:name |required-fields-reject-missing-and-nil)
               :code $ quote $ let
                   verify $ fn (key op expected)
-                    hint-fn $ Fn Tag Enum String $ -> Unit
+                    hint-fn $ Fn Tag recollect.app.updater/Op String $ -> Unit
                     assert |missing-field-is-rejected $ try
                       do
                         updater ({}) op
@@ -805,7 +805,7 @@
             &compare (&enum:nth x 0) (&enum:nth y 0)
           :examples $ [] $ quote
             by-key (:: :a 1) (:: :b 2)
-          :schema $ quote $ Fn Enum Enum (-> Number)
+          :schema $ quote $ Fn AnyEnum AnyEnum (-> Number)
         'consume-emitted! $ %{} 'CodeEntry
           :doc "|Consume one emitted-operation unit or record the first exceeded reason."
           :code $ quote $ defn consume-emitted! (state)
@@ -958,7 +958,7 @@
                 diff-record-step (empty-changes) 0 (&struct:count a) a b options
                 [] $ schema/change-op :replace b
           :examples $ []
-          :schema $ quote $ Fn Struct Struct (Map Tag Tag)
+          :schema $ quote $ Fn AnyStruct AnyStruct (Map Tag Tag)
             -> $ List recollect.schema/change-op
         'diff-record-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware struct diff.")
           :code $ quote $ defn diff-record-budgeted (state a b options)
@@ -967,7 +967,7 @@
                 diff-record-step-budgeted state (empty-changes) 0 (&struct:count a) a b options
                 emit-change state $ schema/change-op :replace b
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) Struct Struct (Map Tag Tag)
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) AnyStruct AnyStruct (Map Tag Tag)
             -> $ List recollect.schema/change-op
         'diff-record-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-record-step (acc idx n a b options)
@@ -982,7 +982,7 @@
                     wrapped $ wrap-pick k child-changes
                   diff-record-step (.concat acc wrapped) (&+ idx 1) n a b options
           :examples $ []
-          :schema $ quote $ Fn (List recollect.schema/change-op) Number Number Struct Struct (Map Tag Tag)
+          :schema $ quote $ Fn (List recollect.schema/change-op) Number Number AnyStruct AnyStruct (Map Tag Tag)
             -> $ List recollect.schema/change-op
         'diff-record-step-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware iteration over struct fields.")
           :code $ quote $ defn diff-record-step-budgeted (state acc idx n a b options)
@@ -1000,7 +1000,7 @@
                         wrapped $ wrap-pick-budgeted state k child-changes
                       diff-record-step-budgeted state (.concat acc wrapped) (&+ idx 1) n a b options
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (List recollect.schema/change-op) Number Number Struct Struct (Map Tag Tag)
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (List recollect.schema/change-op) Number Number AnyStruct AnyStruct (Map Tag Tag)
             -> $ List recollect.schema/change-op
         'diff-set $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-set (a b)
@@ -1041,7 +1041,7 @@
                   max-idx $ dec $ &enum:count a
                 diff-tuple-step (empty-changes) 1 max-idx a b options
           :examples $ []
-          :schema $ quote $ Fn Enum Enum (Map Tag Tag)
+          :schema $ quote $ Fn AnyEnum AnyEnum (Map Tag Tag)
             -> $ List recollect.schema/change-op
         'diff-tuple-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware enum diff.")
           :code $ quote $ defn diff-tuple-budgeted (state a b options)
@@ -1054,7 +1054,7 @@
                   max-idx $ dec $ &enum:count a
                 diff-tuple-step-budgeted state (empty-changes) 1 max-idx a b options
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) Enum Enum (Map Tag Tag)
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) AnyEnum AnyEnum (Map Tag Tag)
             -> $ List recollect.schema/change-op
         'diff-tuple-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-tuple-step (acc idx max-idx a b options)
@@ -1063,7 +1063,7 @@
                 wrapped $ wrap-pick idx child-changes
               diff-tuple-step (.concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
-          :schema $ quote $ Fn (List recollect.schema/change-op) Number Number Enum Enum (Map Tag Tag)
+          :schema $ quote $ Fn (List recollect.schema/change-op) Number Number AnyEnum AnyEnum (Map Tag Tag)
             -> $ List recollect.schema/change-op
         'diff-tuple-step-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware iteration over enum payloads.")
           :code $ quote $ defn diff-tuple-step-budgeted (state acc idx max-idx a b options)
@@ -1075,7 +1075,7 @@
                     wrapped $ wrap-pick-budgeted state idx child-changes
                   diff-tuple-step-budgeted state (.concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (List recollect.schema/change-op) Number Number Enum Enum (Map Tag Tag)
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (List recollect.schema/change-op) Number Number AnyEnum AnyEnum (Map Tag Tag)
             -> $ List recollect.schema/change-op
         'diff-twig $ %{} 'CodeEntry
           :doc "|计算旧、新数据树的 change-op 列表，第三个参数是必需的 options Map。需要受检应用或更新 Struct 字段时使用 try-patch-twig；旧 patch-twig 返回数据而非 PatchResult，且不支持 Struct 字段更新。网络数据先经 decode-changes 校验操作，再在 wire tree 应用补丁并完整解码应用类型。"
@@ -1732,7 +1732,7 @@
                           swap! *twig-call-cache assoc-in-map ([] f key) (MemoEntry :args args :value ret)
                           , ret
           :examples $ []
-          :schema $ quote $ Fn Dynamic Fn & Dynamic (-> Dynamic)
+          :schema $ quote $ Fn Dynamic AnyFn & Dynamic (-> Dynamic)
           :tests $ []
             %{} 'TestEntry (:name |caches-nil-false-zero-empty-string)
               :code $ quote $ let
