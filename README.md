@@ -6,7 +6,17 @@ Demo http://repo.calcit-lang.org/recollect/ .
 
 Diff/patch library designed for Cumulo project.
 
-### 0.3.0 候选：使用者需要注意
+### 0.3.1 候选：使用者需要注意
+
+CLI / `@calcit/procs` 同步正式 **0.35.1**，UI **0.15.1**、Value **0.7.3**、
+Respo **0.19.4**、JS-FFI **0.2.13** / Router **0.12.1** 需统一精确图并重新生成 JS。
+相对当前 0.3.0 main，本次不修改 Snapshot、diff/patch 算法、wire、公开类型或测试；
+保留 `DemoTree` 递归 union、泛型 benchmark 回调，以及真实开放 patch/memo 边界。
+`AnyFn` / `AnyEnum` 名称沿用已合并的 #126，不因此声称缩小了开放类型。
+共享 native/JS runner 配对同版正式 tag，原门禁和部署路径保留。
+候选验收以精确 PR / main CI 为准；WASM 仍不承诺产物运行支持。
+
+### 历史 0.3.0 配对
 
 CLI / `@calcit/procs` 同步正式 **0.35.0**，UI **0.15.0**、Value **0.7.1**、
 Respo **0.19.3**、JS-FFI **0.2.12** / Router **0.12.0** 需统一精确图并重新生成 JS。
