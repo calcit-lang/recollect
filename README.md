@@ -6,7 +6,29 @@ Demo http://repo.calcit-lang.org/recollect/ .
 
 Diff/patch library designed for Cumulo project.
 
-### 使用者需要注意
+### 0.3.0 候选：使用者需要注意
+
+CLI / `@calcit/procs` 同步正式 **0.35.0**，UI **0.15.0**、Value **0.7.1**、
+Respo **0.19.3**、JS-FFI **0.2.12** / Router **0.12.0** 需统一精确图并重新生成 JS。
+常规 diff/patch、补丁 wire、异构 key、nil/false/0/空串和 memo 缓存合同保持。
+内部 `checked-triples` 已退役；直接引用它的代码需改接已有 core 的 typed Tuple 结果。
+内部 map step 改收 `List<Tuple<K,V,W>>`，splice helper 改收 Set/Map；因此按 minor 发布。
+外部输入仍走原受检 patch API，不把任意业务数据伪造为有限 union。
+
+已核实 [Calcit #2549](https://github.com/calcit-lang/calcit/issues/2549) 在正式 0.35.0
+修复：`&map:diff-triple` 保留三处位置和 K/V/W。移除旧 triple 形状检查及两层
+重复 Set/Map guard，遍历用现有 `let[]` 保留 Tuple 字段关系；空 splice 的业务分支、
+预算计数、顺序、原操作记录和断言保留。索引 206 个活跃项目的定义体查询只在本库
+发现这些 helper 名称；这不证明未索引用户或纯导入未使用，因此仍明确说明迁移影响。
+
+两份纯 Demo 深层常量用 `DemoTree = Number | String | Tag | List DemoTree |
+Map Tag DemoTree`，benchmark helper 的任意回调返回类型改为泛型 R；数据字面量和
+benchmark 函数体不变。union 只描述这两份演示数据，不收窄核心开放载荷。
+原门禁、预算、测试和部署路径保留；精确 native/JS/共享 runner 验收见 PR。
+WASM 仍只有原非阻断 eligibility，不承诺产物运行支持。
+
+### 历史 0.2.2 配对
+
 
 候选 `0.2.2` 使用正式 Calcit CLI / `@calcit/procs` `0.34.2`，升级到 Respo `0.19.2`、UI `0.14.1`、Value `0.7.0`、JS-FFI `0.2.10` 与传递 Router `0.11.2`。消费者须更新完整精确依赖图并重新生成 JS；候选尚未发布。
 
@@ -18,7 +40,7 @@ Demo renderer 与按钮回调改用具体 `Fn` 合同，`next-store` 使用已�
 
 从 `0.1.1` 等旧版本升级时，仍须处理 [#121](https://github.com/calcit-lang/recollect/pull/121) 已引入的 `patch-get` Option：缺失 Map 键或 Struct 字段为 none，存在且为 nil 的值为 `some nil`；List/Enum 下标仍须存在。`patch-one` 保持原 nil 子节点语义，本次不再修改该合同。补丁 payload、Map key 和 memo 缓存保留真实开放边界。
 
-上游 [Calcit #2549](https://github.com/calcit-lang/calcit/issues/2549) 继续跟踪 `&map:diff-triple` 三个位置丢失泛型关系的问题；本轮保留原受检读取。Value 对名义 Struct/Enum 的内容展示限制仍见 [Value #55](https://github.com/Respo/respo-value.calcit/issues/55)。WASM eligibility 原非阻断检查通过，不构成产物生成或完整运行支持承诺。
+0.2.2 时曾用受检读取补足 `&map:diff-triple` 的信息缺口；上游 [Calcit #2549](https://github.com/calcit-lang/calcit/issues/2549) 已修复，当前 0.3.0 按开头所述消费 typed Tuple 并退役旧 guard。Value 对名义 Struct/Enum 的内容展示限制仍见 [Value #55](https://github.com/Respo/respo-value.calcit/issues/55)。WASM eligibility 原非阻断检查通过，不构成产物生成或完整运行支持承诺。
 
 ### API and guides
 
