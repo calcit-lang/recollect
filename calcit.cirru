@@ -2869,6 +2869,14 @@
         :code $ quote $ ns recollect.util
     'recollect.wasm-test $ %{} 'FileEntry
       :defs $ {}
+        'ApiSampleField $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion ApiSampleField (Map Tag Number) (List Number) (Set Tag)
+          :examples $ []
+          :schema $ quote UnionDef
+        'StoreSampleField $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion StoreSampleField Number (Map Tag Number)
+          :examples $ []
+          :schema $ quote UnionDef
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () 0
           :examples $ []
@@ -2892,7 +2900,9 @@
               :flags $ #{} :a :b
               :nested $ {} $ :count 4
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn
+            -> $ Map Tag recollect.wasm-test/ApiSampleField
+            :features :js-ffi
         'sample-api-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn sample-api-target ()
             {}
@@ -2901,7 +2911,9 @@
               :flags $ #{} :b :c
               :nested $ {} (:count 10) (:bonus 3)
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn
+            -> $ Map Tag recollect.wasm-test/ApiSampleField
+            :features :js-ffi
         'sample-store-a $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn sample-store-a ()
             {}
@@ -2909,7 +2921,9 @@
               :date $ {} (:year 2016) (:month 10)
               :lit-0 1
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn
+            -> $ Map Tag recollect.wasm-test/StoreSampleField
+            :features :js-ffi
         'sample-store-b $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn sample-store-b ()
             {}
@@ -2917,7 +2931,9 @@
               :date $ {} (:year 2017) (:month 11)
               :lit-0 2
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn
+            -> $ Map Tag recollect.wasm-test/StoreSampleField
+            :features :js-ffi
         'test-api-roundtrip-summary $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-api-roundtrip-summary ()
             let
