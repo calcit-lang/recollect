@@ -6,7 +6,17 @@ Demo http://repo.calcit-lang.org/recollect/ .
 
 Diff/patch library designed for Cumulo project.
 
-### 0.3.1 候选：使用者需要注意
+### 0.3.2 候选：使用者需要注意
+
+工具链与精确依赖图沿用正式 0.3.1；业务 diff/patch、wire、异构 key 和 memo 合同不变。
+仅四个固定回归样例的返回类型从 Dynamic 改为 Tag-keyed Map，分别使用
+`ApiSampleField = Map Tag Number | List Number | Set Tag` 和
+`StoreSampleField = Number | Map Tag Number`。直接复用这些测试 helper 的代码会获得
+更具体的返回类型；样例字面量、函数体、断言及核心开放数据入口保持。
+两种 union 均显式声明 `UnionDef`，不扩大为任意递归值，也不假称 WASM 运行已通过。
+原门禁和测试继续执行；精确 PR / main 验收后再正式发布。
+
+### 历史 0.3.1 配对
 
 CLI / `@calcit/procs` 同步正式 **0.35.1**，UI **0.15.1**、Value **0.7.3**、
 Respo **0.19.4**、JS-FFI **0.2.13** / Router **0.12.1** 需统一精确图并重新生成 JS。
