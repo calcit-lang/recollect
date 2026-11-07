@@ -6,7 +6,14 @@ Demo http://repo.calcit-lang.org/recollect/ .
 
 Diff/patch library designed for Cumulo project.
 
-### 0.3.2 候选：使用者需要注意
+### 0.3.4 候选：使用者需要注意
+
+CLI 与 `@calcit/procs` 配对正式 **0.37.0**。Respo **0.19.5**、UI **0.15.2**、
+Value **0.7.4**、JS-FFI **0.2.13** 和传递 Router **0.12.2** 应一并对齐后重新生成 JS。
+Demo 数值操作使用具体类型，Value 状态游标仍接收 Bool、List 等异构键。
+公开的 diff、patch、memo 接口和补丁格式保持兼容。
+
+### 历史 0.3.2 候选
 
 工具链与精确依赖图沿用正式 0.3.1；业务 diff/patch、wire、异构 key 和 memo 合同不变。
 仅四个固定回归样例的返回类型从 Dynamic 改为 Tag-keyed Map，分别使用
