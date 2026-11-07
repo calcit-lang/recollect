@@ -6,7 +6,7 @@
     :default $ {} (:description |) (:init-fn 'recollect.app.main/main!) (:mode :js) (:reload-fn 'recollect.app.main/reload!) (:target :browser)
       :feature-policy $ {}
       :modules $ [] |respo.calcit/ |respo-ui.calcit/ |respo-value.calcit/ |js-ffi/
-      :type-slots $ {} $ :dispatch-op |recollect.app.updater/Op
+      :type-slots $ {} $ :dispatch-op 'recollect.app.updater/Op
     :test $ {} (:description |) (:init-fn 'recollect.app.main/test!) (:mode :native) (:reload-fn 'recollect.app.main/test!) (:target :native)
       :feature-policy $ {}
       :modules $ [] |js-ffi/
@@ -1732,7 +1732,7 @@
                           swap! *twig-call-cache assoc-in-map ([] f key) (MemoEntry :args args :value ret)
                           , ret
           :examples $ []
-          :schema $ quote $ Fn Dynamic AnyFn & Dynamic (-> Dynamic)
+          :schema $ quote $ Fn Dynamic AnyFn (& Dynamic) (-> Dynamic)
           :tests $ []
             %{} 'TestEntry (:name |caches-nil-false-zero-empty-string)
               :code $ quote $ let
@@ -1855,7 +1855,7 @@
                 build $ assert-type
                   fn (value) (swap! calls inc)
                     {} $ :value value
-                  quote $ Fn Number $ -> (Map Tag Number)
+                  Fn Number $ -> $ Map Tag Number
               reset-twig-memo!
               begin-twig-frame!
               let
@@ -2855,8 +2855,7 @@
           :tests $ [] $ %{} 'TestEntry (:name |appends-immutable-lists)
             :code $ quote $ do
               let
-                  empty-numbers $ assert-type ([])
-                    quote $ List Number
+                  empty-numbers $ assert-type ([]) (List Number)
                 assert |empty-left-is-identity $ &= ([] 5 6)
                   vec-add empty-numbers $ [] 5 6
                 assert |empty-right-is-identity $ &= ([] 1 2)
