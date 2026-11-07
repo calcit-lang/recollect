@@ -478,7 +478,7 @@
         'Op $ %{} 'CodeEntry
           :doc "|Dispatch Op of the demo app, bound to the :dispatch-op type slot."
           :code $ quote $ defenum Op
-            :states (List respo.schema/CoordKey) Dynamic
+            :states (List Dynamic) Dynamic
             :lit-0 Number
             :lit-1 Number
             :map-0 Number
@@ -700,6 +700,15 @@
                   updater
                     {} $ :set-0 $ #{} false
                     :: :set-0-rm
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |preserves-heterogeneous-value-cursor)
+              :code $ quote $ let
+                  key $ [] 1 2
+                  next $ updater
+                    {} $ :states $ {}
+                    recollect.app.updater/Op :states ([] :value false key) :expanded
+                assert= (Result :ok :expanded)
+                  get-in next $ [] :states :value false key :data
               :tags $ #{} :unit
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.updater
