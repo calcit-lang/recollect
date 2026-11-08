@@ -8,7 +8,8 @@ Diff/patch library designed for Cumulo project.
 
 ### 0.3.5 候选：使用者需要注意
 
-工具链与依赖图沿用 0.3.4（Calcit 0.37.0、Respo 0.19.5、JS-FFI 0.2.13）。
+配对正式 Calcit 和 `@calcit/procs` 0.38.0，使用 Respo 0.19.5、UI 0.15.2、Value 0.7.4 和 JS-FFI 0.2.13。升级后重新安装依赖并生成 JS。
+三处内部补丁辅助函数以泛型接收原始键，继续支持异构键。Demo 热更新返回 Unit，并通过 HUD 报告成功或失败。
 `diff-record`、`diff-tuple`、`by-key` 等反射式 diff 函数和 twig memo 的签名加上 `(:open :reflect)`，
 写明这里有意接受任意 struct / enum / 函数；类型和运行时行为不变，`W_OPEN_FAMILY` 中 AnyEnum / AnyStruct / AnyFn 计数归零。
 调用点在 `enum?` / `struct?` 运行时判断之后传入 Dynamic 值，所以不改用 `:where T AnyEnum` 族泛型。
