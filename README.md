@@ -6,7 +6,14 @@ Demo http://repo.calcit-lang.org/recollect/ .
 
 Diff/patch library designed for Cumulo project.
 
-### 0.3.4 候选：使用者需要注意
+### 0.3.5 候选：使用者需要注意
+
+工具链与依赖图沿用 0.3.4（Calcit 0.37.0、Respo 0.19.5、JS-FFI 0.2.13）。
+`diff-record`、`diff-tuple`、`by-key` 等反射式 diff 函数和 twig memo 的签名加上 `(:open :reflect)`，
+写明这里有意接受任意 struct / enum / 函数；类型和运行时行为不变，`W_OPEN_FAMILY` 中 AnyEnum / AnyStruct / AnyFn 计数归零。
+调用点在 `enum?` / `struct?` 运行时判断之后传入 Dynamic 值，所以不改用 `:where T AnyEnum` 族泛型。
+
+### 历史 0.3.4
 
 CLI 与 `@calcit/procs` 配对正式 **0.37.0**。Respo **0.19.5**、UI **0.15.2**、
 Value **0.7.4**、JS-FFI **0.2.13** 和传递 Router **0.12.2** 应一并对齐后重新生成 JS。

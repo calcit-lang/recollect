@@ -833,7 +833,7 @@
             &compare (&enum:nth x 0) (&enum:nth y 0)
           :examples $ [] $ quote
             by-key (:: :a 1) (:: :b 2)
-          :schema $ quote $ Fn AnyEnum AnyEnum (-> Number)
+          :schema $ quote $ Fn AnyEnum AnyEnum (-> Number) (:open :reflect)
         'consume-emitted! $ %{} 'CodeEntry
           :doc "|Consume one emitted-operation unit or record the first exceeded reason."
           :code $ quote $ defn consume-emitted! (state)
@@ -988,6 +988,7 @@
           :examples $ []
           :schema $ quote $ Fn AnyStruct AnyStruct (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :open :reflect
         'diff-record-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware struct diff.")
           :code $ quote $ defn diff-record-budgeted (state a b options)
             if (identical? a b) ([])
@@ -997,6 +998,7 @@
           :examples $ []
           :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) AnyStruct AnyStruct (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :open :reflect
         'diff-record-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-record-step (acc idx n a b options)
             if (&>= idx n) acc $ let
@@ -1012,6 +1014,7 @@
           :examples $ []
           :schema $ quote $ Fn (List recollect.schema/change-op) Number Number AnyStruct AnyStruct (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :open :reflect
         'diff-record-step-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware iteration over struct fields.")
           :code $ quote $ defn diff-record-step-budgeted (state acc idx n a b options)
             if
@@ -1030,6 +1033,7 @@
           :examples $ []
           :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (List recollect.schema/change-op) Number Number AnyStruct AnyStruct (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :open :reflect
         'diff-set $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-set (a b)
             let
@@ -1071,6 +1075,7 @@
           :examples $ []
           :schema $ quote $ Fn AnyEnum AnyEnum (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :open :reflect
         'diff-tuple-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware enum diff.")
           :code $ quote $ defn diff-tuple-budgeted (state a b options)
             if
@@ -1084,6 +1089,7 @@
           :examples $ []
           :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) AnyEnum AnyEnum (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :open :reflect
         'diff-tuple-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-tuple-step (acc idx max-idx a b options)
             if (&> idx max-idx) acc $ let
@@ -1093,6 +1099,7 @@
           :examples $ []
           :schema $ quote $ Fn (List recollect.schema/change-op) Number Number AnyEnum AnyEnum (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :open :reflect
         'diff-tuple-step-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware iteration over enum payloads.")
           :code $ quote $ defn diff-tuple-step-budgeted (state acc idx max-idx a b options)
             if
@@ -1105,6 +1112,7 @@
           :examples $ []
           :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (List recollect.schema/change-op) Number Number AnyEnum AnyEnum (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :open :reflect
         'diff-twig $ %{} 'CodeEntry
           :doc "|计算旧、新数据树的 change-op 列表，第三个参数是必需的 options Map。需要受检应用或更新 Struct 字段时使用 try-patch-twig；旧 patch-twig 返回数据而非 PatchResult，且不支持 Struct 字段更新。网络数据先经 decode-changes 校验操作，再在 wire tree 应用补丁并完整解码应用类型。"
           :code $ quote $ defn diff-twig (a b options)
@@ -1760,7 +1768,7 @@
                           swap! *twig-call-cache assoc-in-map ([] f key) (MemoEntry :args args :value ret)
                           , ret
           :examples $ []
-          :schema $ quote $ Fn Dynamic AnyFn (& Dynamic) (-> Dynamic)
+          :schema $ quote $ Fn Dynamic AnyFn (& Dynamic) (-> Dynamic) (:open :reflect)
           :tests $ []
             %{} 'TestEntry (:name |caches-nil-false-zero-empty-string)
               :code $ quote $ let
