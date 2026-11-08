@@ -114,56 +114,75 @@
             recollect.diff :refer $ diff-twig
     'recollect.app.comp.panel $ %{} 'FileEntry
       :defs $ {}
+        'ButtonAction $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defenum ButtonAction (:direct recollect.app.updater/Op)
+            :random $ Fn Number $ -> recollect.app.updater/Op
+          :examples $ []
+          :schema $ quote EnumDef
         'comp-panel $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-panel ()
             div ({})
               div
                 {} $ :style style-line
-                render-button "|Change lit-0" :lit-0
+                render-button "|Change lit-0" $ ButtonAction :random $ fn (n)
+                  hint-fn $ Fn Number $ -> recollect.app.updater/Op
+                  recollect.app.updater/Op :lit-0 n
                 space-x 8
-                render-button "|Change lit-1" :lit-1
+                render-button "|Change lit-1" $ ButtonAction :random $ fn (n)
+                  hint-fn $ Fn Number $ -> recollect.app.updater/Op
+                  recollect.app.updater/Op :lit-1 n
               div
                 {} $ :style style-line
-                render-button "|Change map-0" :map-0
+                render-button "|Change map-0" $ ButtonAction :random $ fn (n)
+                  hint-fn $ Fn Number $ -> recollect.app.updater/Op
+                  recollect.app.updater/Op :map-0 n
                 space-x 8
-                render-button "|Remove map-0" :map-0-rm
+                render-button "|Remove map-0" $ ButtonAction :direct $ recollect.app.updater/Op :map-0-rm
               div
                 {} $ :style style-line
-                render-button "|Change vec-0" :vec-0
+                render-button "|Change vec-0" $ ButtonAction :random $ fn (n)
+                  hint-fn $ Fn Number $ -> recollect.app.updater/Op
+                  recollect.app.updater/Op :vec-0 n
                 space-x 8
-                render-button "|Remove vec-0" :vec-0-rm
+                render-button "|Remove vec-0" $ ButtonAction :direct $ recollect.app.updater/Op :vec-0-rm
               div
                 {} $ :style style-line
-                render-button "|Change vec-0" :vec-0
+                render-button "|Change vec-0" $ ButtonAction :random $ fn (n)
+                  hint-fn $ Fn Number $ -> recollect.app.updater/Op
+                  recollect.app.updater/Op :vec-0 n
                 space-x 8
-                render-button "|Change vec-0 remove" :vec-0-rm
+                render-button "|Change vec-0 remove" $ ButtonAction :direct $ recollect.app.updater/Op :vec-0-rm
               div
                 {} $ :style style-line
-                render-button "|Change set-0" :set-0
+                render-button "|Change set-0" $ ButtonAction :random $ fn (n)
+                  hint-fn $ Fn Number $ -> recollect.app.updater/Op
+                  recollect.app.updater/Op :set-0 n
                 space-x 8
-                render-button "|Change set-0 remove" :set-0-rm
+                render-button "|Change set-0 remove" $ ButtonAction :direct $ recollect.app.updater/Op :set-0-rm
               div
                 {} $ :style style-line
-                render-button "|Change date" :date
+                render-button "|Change date" $ ButtonAction :direct $ recollect.app.updater/Op :date
               div
                 {} $ :style style-line
-                render-button "|Change types" :types
+                render-button "|Change types" $ ButtonAction :random $ fn (n)
+                  hint-fn $ Fn Number $ -> recollect.app.updater/Op
+                  recollect.app.updater/Op :types n
           :examples $ []
           :schema $ quote $ Fn (-> respo.schema/Component)
         'on-click $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn on-click (op)
+          :code $ quote $ defn on-click (action)
             fn (e dispatch!)
               hint-fn $ Fn respo.schema/RespoEvent
                 Fn recollect.app.updater/Op $ -> Unit
                 -> Unit
                 :features :js-ffi
-              if
-                .includes? (#{} :map-0-rm :vec-0-rm :set-0-rm :date) op
-                dispatch! $ :: op
-                dispatch! $ :: op $ round
-                  * 100 $ js-ffi.contract/expect-number |Math.random $ js/Math.random
+              match action
+                (:direct op) (dispatch! op)
+                (:random make-op)
+                  dispatch! $ make-op $ round
+                    * 100 $ js-ffi.contract/expect-number |Math.random $ js/Math.random
           :examples $ []
-          :schema $ quote $ Fn Tag
+          :schema $ quote $ Fn recollect.app.comp.panel/ButtonAction
             -> $ Fn respo.schema/RespoEvent
               Fn recollect.app.updater/Op $ -> Unit
               -> Unit
@@ -174,7 +193,7 @@
             div $ {} (:style ui/button) (:inner-text title)
               :on-click $ on-click op
           :examples $ []
-          :schema $ quote $ Fn String Tag (-> respo.schema/Element) (:features :js-ffi)
+          :schema $ quote $ Fn String recollect.app.comp.panel/ButtonAction (-> respo.schema/Element) (:features :js-ffi)
         'style-line $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-line
             {} $ :height |40px
@@ -460,16 +479,16 @@
           :doc "|Dispatch Op of the demo app, bound to the :dispatch-op type slot."
           :code $ quote $ defenum Op
             :states (List Dynamic) Dynamic
-            :lit-0 Dynamic
-            :lit-1 Dynamic
-            :map-0 Dynamic
+            :lit-0 Number
+            :lit-1 Number
+            :map-0 Number
             :map-0-rm
-            :vec-0 Dynamic
+            :vec-0 Number
             :vec-0-rm
-            :set-0 Dynamic
+            :set-0 Number
             :set-0-rm
             :date
-            :types Dynamic
+            :types Number
           :examples $ []
           :schema $ quote EnumDef
         'updater $ %{} 'CodeEntry (:doc |)
@@ -577,7 +596,7 @@
                 verify :vec-0 (:: :vec-0 1) "|decode-map-as failed at $: expected list, got nil"
                 verify :vec-0 (:: :vec-0-rm) "|decode-map-as failed at $: expected list, got nil"
                 verify :set-0 (:: :set-0 1) "|decode-map-as failed at $: expected set, got nil"
-                verify :types (:: :types :x) "|decode-map-as failed at $: expected map, got nil"
+                verify :types (:: :types 1) "|decode-map-as failed at $: expected map, got nil"
               :tags $ #{} :unit
             %{} 'TestEntry
               :name |existing-truthy-defaults-and-errors-are-preserved
@@ -681,6 +700,15 @@
                   updater
                     {} $ :set-0 $ #{} false
                     :: :set-0-rm
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |preserves-heterogeneous-value-cursor)
+              :code $ quote $ let
+                  key $ [] 1 2
+                  next $ updater
+                    {} $ :states $ {}
+                    recollect.app.updater/Op :states ([] :value false key) :expanded
+                assert= (Result :ok :expanded)
+                  get-in next $ [] :states :value false key :data
               :tags $ #{} :unit
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.updater
