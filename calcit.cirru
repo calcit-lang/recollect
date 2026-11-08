@@ -295,8 +295,9 @@
                 render-app! render!
                 hud! |ok~ |Ok
               hud! |error build-errors
+            , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! (renderer)
             render-memo/with-memo-frame $ fn () $ renderer
@@ -1561,7 +1562,7 @@
                 schema/change-op :pick-in (prepend ks k) cs
               _ $ schema/change-op :update k c0
           :examples $ []
-          :schema $ quote $ Fn Dynamic recollect.schema/change-op (-> recollect.schema/change-op)
+          :schema $ quote $ Fn K recollect.schema/change-op (-> recollect.schema/change-op) (:generics K)
         'map-splice-changes $ %{} 'CodeEntry
           :doc "|Internal: consume the typed Set/Map results of core &map:diff-triple and omit an empty splice."
           :code $ quote $ defn map-splice-changes (drop-keys new-diff)
@@ -1619,8 +1620,9 @@
                   [] $ schema/change-op :pick k chunk
                 []
           :examples $ []
-          :schema $ quote $ Fn Dynamic (List recollect.schema/change-op)
+          :schema $ quote $ Fn K (List recollect.schema/change-op)
             -> $ List recollect.schema/change-op
+            :generics K
         'wrap-pick-budgeted $ %{} 'CodeEntry
           :doc "|Wrap nested changes while accounting for the emitted wrapper operation."
           :code $ quote $ defn wrap-pick-budgeted (state k chunk)
@@ -1639,8 +1641,9 @@
                   emit-change state $ schema/change-op :pick k chunk
                 []
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) Dynamic (List recollect.schema/change-op)
+          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) K (List recollect.schema/change-op)
             -> $ List recollect.schema/change-op
+            :generics K
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.diff
           :require
