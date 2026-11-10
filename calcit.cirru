@@ -67,12 +67,12 @@
                       text $ trim $ format-cirru-edn expected
                       first-section $ .unwrap $ .get (split html |</pre>) 0
                     assert |first-pre-contains-original-encoded-value $ ends-with? first-section $ str |> text
-              verify (Option :none) nil
+              verify None nil
               verify
-                Option :some $ {} $ :display-proof 7
+                Some $ {} $ :display-proof 7
                 {} $ :display-proof 7
               verify
-                Option :some $ {}
+                Some $ {}
                 {}
             :tags $ #{} :app-js
         'css-code-block $ %{} 'CodeEntry (:doc |)
@@ -90,7 +90,7 @@
                     :children $ {} (:a 1) (:b 2)
               :aa1 2
           :examples $ []
-          :schema $ quote $ Map Tag recollect.app.comp.container/DemoTree
+          :schema $ quote $ Map Tag DemoTree
         'deep-b $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def deep-b
             {}
@@ -100,7 +100,7 @@
                     :children $ {} (:a 1) (:b 3)
               :aa1 4
           :examples $ []
-          :schema $ quote $ Map Tag recollect.app.comp.container/DemoTree
+          :schema $ quote $ Map Tag DemoTree
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.comp.container
           :require
@@ -182,7 +182,7 @@
                   dispatch! $ make-op $ round
                     * 100 $ js-ffi.contract/expect-number |Math.random $ js/Math.random
           :examples $ []
-          :schema $ quote $ Fn recollect.app.comp.panel/ButtonAction
+          :schema $ quote $ Fn ButtonAction
             -> $ Fn respo.schema/RespoEvent
               Fn recollect.app.updater/Op $ -> Unit
               -> Unit
@@ -193,7 +193,7 @@
             div $ {} (:style ui/button) (:inner-text title)
               :on-click $ on-click op
           :examples $ []
-          :schema $ quote $ Fn String recollect.app.comp.panel/ButtonAction (-> respo.schema/Element) (:features :js-ffi)
+          :schema $ quote $ Fn String ButtonAction (-> respo.schema/Element) (:features :js-ffi)
         'style-line $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-line
             {} $ :height |40px
@@ -227,8 +227,7 @@
           :schema $ quote $ Ref (Map Tag Dynamic)
         '*data-twig $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *data-twig
-            assert-type (Option :none)
-              Option $ Map Tag Dynamic
+            assert-type None $ Option $ Map Tag Dynamic
           :examples $ []
           :schema $ quote $ Ref
             Option $ Map Tag Dynamic
@@ -324,7 +323,7 @@
                     [] $ schema/change-op :replace data-twig
               shared/console-log! $ str |Changes changes
               ; println "|Data twig:" data-twig
-              reset! *data-twig $ Option :some $ next-data-twig
+              reset! *data-twig $ Some $ next-data-twig
               reset! *client-store $ next-client-store changes
             , &unit
           :examples $ []
@@ -341,7 +340,7 @@
               let
                   bounded-outcome $ diff-twig-budgeted old updated
                     {} $ :key :id
-                    recollect.diff/DiffBudget :max-visited (Option :none) :max-emitted $ Option :none
+                    recollect.diff/DiffBudget :max-visited None :max-emitted None
                 match bounded-outcome
                   (:complete bounded-changes stats)
                     do
@@ -395,10 +394,10 @@
             :generics User Date
           :tests $ [] $ %{} 'TestEntry (:name |writes-only-present-fields)
             :code $ quote $ let
-                absent $ twig-card (Option :none) (Option :none)
-                explicit-nil $ twig-card (Option :some nil) (Option :some nil)
-                values $ twig-card (Option :some false) (Option :some 0)
-                empty-value $ twig-card (Option :some |) (Option :none)
+                absent $ twig-card None None
+                explicit-nil $ twig-card (Some nil) (Some nil)
+                values $ twig-card (Some false) (Some 0)
+                empty-value $ twig-card (Some |) None
               assert= false $ .contains-key? absent :user
               assert= false $ .contains-key? absent :date
               assert |none-leaves-the-key-out $ &= ({}) absent
@@ -418,9 +417,9 @@
                   hint-fn $ Fn (Option Dynamic)
                     -> $ Option Dynamic
                   match field
-                    (:none) (Option :none)
+                    (:none) None
                     (:some value)
-                      if (nil? value) (Option :none) (Option :some value)
+                      if (nil? value) None $ Some value
               merge store $ {} $ :card
                 memo-twig-by2 :card twig-card
                   normalize-field $ get store :user
@@ -575,7 +574,7 @@
                   , d true
               _ $ do (eprintln "|Unhandled op:" op) store
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) recollect.app.updater/Op
+          :schema $ quote $ Fn (Map Tag Dynamic) Op
             -> $ Map Tag Dynamic
           :tests $ []
             %{} 'TestEntry (:name |required-fields-reject-missing-and-nil)
@@ -859,10 +858,10 @@
                         , true
                       do
                         reset! state $ struct-with current $ :exceeded
-                          Option :some $ DiffBudgetReason :emitted-ops
+                          Some $ DiffBudgetReason :emitted-ops
                         , false
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (-> Bool)
+          :schema $ quote $ Fn (Ref DiffWorkState) (-> Bool)
         'consume-visited! $ %{} 'CodeEntry
           :doc "|Consume one visited-node unit or record the first exceeded reason."
           :code $ quote $ defn consume-visited! (state)
@@ -885,15 +884,15 @@
                         , true
                       do
                         reset! state $ struct-with current $ :exceeded
-                          Option :some $ DiffBudgetReason :visited-nodes
+                          Some $ DiffBudgetReason :visited-nodes
                         , false
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (-> Bool)
+          :schema $ quote $ Fn (Ref DiffWorkState) (-> Bool)
         'diff-map $ %{} 'CodeEntry
           :doc "|Internal function to compute diff between two maps. Collects :map-splice operations for removed and added entries."
           :code $ quote $ defn diff-map (a b options)
             let
-                id-k $ if (nil? options) (Option :some :id) (get options :key)
+                id-k $ if (nil? options) (Some :id) (get options :key)
                 ka $ match id-k
                   (:some k) (get a k)
                   (:none) (get a nil)
@@ -919,7 +918,7 @@
         'diff-map-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware map diff.")
           :code $ quote $ defn diff-map-budgeted (state a b options)
             let
-                id-k $ if (nil? options) (Option :some :id) (get options :key)
+                id-k $ if (nil? options) (Some :id) (get options :key)
                 ka $ match id-k
                   (:some k) (get a k)
                   (:none) (get a nil)
@@ -942,7 +941,7 @@
                     init-acc splice-changes
                   if (diff-state-exceeded? state) init-acc $ diff-map-step-budgeted state init-acc common-triples options
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (Map Dynamic Dynamic) (Map Dynamic Dynamic) (Map Tag Tag)
+          :schema $ quote $ Fn (Ref DiffWorkState) (Map Dynamic Dynamic) (Map Dynamic Dynamic) (Map Tag Tag)
             -> $ List recollect.schema/change-op
         'diff-map-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-map-step (acc triples options)
@@ -976,7 +975,7 @@
                       diff-map-step-budgeted state (.concat acc wrapped) rest-triples options
                   diff-map-step-budgeted state acc rest-triples options
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (List recollect.schema/change-op)
+          :schema $ quote $ Fn (Ref DiffWorkState) (List recollect.schema/change-op)
             List $ Tuple K V W
             Map Tag Tag
             -> $ List recollect.schema/change-op
@@ -999,7 +998,7 @@
                 diff-record-step-budgeted state (empty-changes) 0 (&struct:count a) a b options
                 emit-change state $ schema/change-op :replace b
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) AnyStruct AnyStruct (Map Tag Tag)
+          :schema $ quote $ Fn (Ref DiffWorkState) AnyStruct AnyStruct (Map Tag Tag)
             -> $ List recollect.schema/change-op
             :open :reflect
         'diff-record-step $ %{} 'CodeEntry (:doc |)
@@ -1034,7 +1033,7 @@
                         wrapped $ wrap-pick-budgeted state k child-changes
                       diff-record-step-budgeted state (.concat acc wrapped) (&+ idx 1) n a b options
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (List recollect.schema/change-op) Number Number AnyStruct AnyStruct (Map Tag Tag)
+          :schema $ quote $ Fn (Ref DiffWorkState) (List recollect.schema/change-op) Number Number AnyStruct AnyStruct (Map Tag Tag)
             -> $ List recollect.schema/change-op
             :open :reflect
         'diff-set $ %{} 'CodeEntry (:doc |)
@@ -1053,7 +1052,7 @@
                 removed $ set-difference-dynamic a b
               emit-change state $ schema/change-op :set-splice removed added
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (Set Dynamic) (Set Dynamic)
+          :schema $ quote $ Fn (Ref DiffWorkState) (Set Dynamic) (Set Dynamic)
             -> $ List recollect.schema/change-op
         'diff-state-exceeded? $ %{} 'CodeEntry
           :doc "|Return whether this invocation has exhausted either budget."
@@ -1063,7 +1062,7 @@
               (:some _) true
               (:none) false
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (-> Bool)
+          :schema $ quote $ Fn (Ref DiffWorkState) (-> Bool)
         'diff-tuple $ %{} 'CodeEntry
           :doc "|Internal function to compute a diff between two enums. Replaces when the variant tag or arity differs; otherwise diffs payload elements."
           :code $ quote $ defn diff-tuple (a b options)
@@ -1090,7 +1089,7 @@
                   max-idx $ dec $ &enum:count a
                 diff-tuple-step-budgeted state (empty-changes) 1 max-idx a b options
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) AnyEnum AnyEnum (Map Tag Tag)
+          :schema $ quote $ Fn (Ref DiffWorkState) AnyEnum AnyEnum (Map Tag Tag)
             -> $ List recollect.schema/change-op
             :open :reflect
         'diff-tuple-step $ %{} 'CodeEntry (:doc |)
@@ -1113,7 +1112,7 @@
                     wrapped $ wrap-pick-budgeted state idx child-changes
                   diff-tuple-step-budgeted state (.concat acc wrapped) (&+ idx 1) max-idx a b options
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (List recollect.schema/change-op) Number Number AnyEnum AnyEnum (Map Tag Tag)
+          :schema $ quote $ Fn (Ref DiffWorkState) (List recollect.schema/change-op) Number Number AnyEnum AnyEnum (Map Tag Tag)
             -> $ List recollect.schema/change-op
             :open :reflect
         'diff-twig $ %{} 'CodeEntry
@@ -1263,12 +1262,12 @@
                 (:some reason) (DiffOutcome :budget-exceeded reason stats)
                 (:none) (DiffOutcome :complete changes stats)
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic (Map Tag Tag) recollect.diff/DiffBudget (-> recollect.diff/DiffOutcome)
+          :schema $ quote $ Fn Dynamic Dynamic (Map Tag Tag) DiffBudget (-> DiffOutcome)
           :tests $ []
             %{} 'TestEntry (:name |zero-and-one-visited-limits)
               :code $ quote $ do
                 let
-                    zero-budget $ DiffBudget :max-visited (Option :some 0) :max-emitted $ Option :none
+                    zero-budget $ DiffBudget :max-visited (Some 0) :max-emitted None
                     outcome $ diff-twig-budgeted 1 1 ({}) zero-budget
                   match outcome
                     (:budget-exceeded reason stats)
@@ -1278,7 +1277,7 @@
                         assert |zero-budget-emits-no-operation $ &= 0 $ :emitted-ops stats
                     _ $ assert |zero-budget-must-exceed false
                 let
-                    one-budget $ DiffBudget :max-visited (Option :some 1) :max-emitted $ Option :some 0
+                    one-budget $ DiffBudget :max-visited (Some 1) :max-emitted $ Some 0
                     outcome $ diff-twig-budgeted 1 1 ({}) one-budget
                   match outcome
                     (:complete changes stats)
@@ -1291,7 +1290,7 @@
             %{} 'TestEntry (:name |exact-emitted-limit-and-atomic-overflow)
               :code $ quote $ do
                 let
-                    exact-budget $ DiffBudget :max-visited (Option :some 1) :max-emitted $ Option :some 1
+                    exact-budget $ DiffBudget :max-visited (Some 1) :max-emitted $ Some 1
                     outcome $ diff-twig-budgeted 1 2 ({}) exact-budget
                   match outcome
                     (:complete changes stats)
@@ -1302,7 +1301,7 @@
                         assert |exact-emitted-limit-counts-one $ &= 1 $ :emitted-ops stats
                     _ $ assert |exact-emitted-limit-must-complete false
                 let
-                    zero-emitted $ DiffBudget :max-visited (Option :some 1) :max-emitted $ Option :some 0
+                    zero-emitted $ DiffBudget :max-visited (Some 1) :max-emitted $ Some 0
                     outcome $ diff-twig-budgeted 1 2 ({}) zero-emitted
                   match outcome
                     (:budget-exceeded reason stats)
@@ -1315,7 +1314,7 @@
             %{} 'TestEntry (:name |low-op-high-visited-and-exact-bound)
               :code $ quote $ do
                 let
-                    limited $ DiffBudget :max-visited (Option :some 3) :max-emitted $ Option :none
+                    limited $ DiffBudget :max-visited (Some 3) :max-emitted None
                     outcome $ diff-twig-budgeted ([] 1 2 3) ([] 1 2 4) ({}) limited
                   match outcome
                     (:budget-exceeded reason stats)
@@ -1325,7 +1324,7 @@
                         assert |late-change-was-not-emitted $ &= 0 $ :emitted-ops stats
                     _ $ assert |low-op-high-visited-must-exceed false
                 let
-                    exact $ DiffBudget :max-visited (Option :some 4) :max-emitted $ Option :some 2
+                    exact $ DiffBudget :max-visited (Some 4) :max-emitted $ Some 2
                     outcome $ diff-twig-budgeted ([] 1 2 3) ([] 1 2 4) ({}) exact
                   match outcome
                     (:complete changes stats)
@@ -1358,7 +1357,7 @@
                         assert |unlimited-budget-records-work $ &> (:visited-nodes stats) 0
                     _ $ assert |unlimited-budget-must-complete false
                 let
-                    blocked $ DiffBudget :max-visited (Option :some 0) :max-emitted $ Option :none
+                    blocked $ DiffBudget :max-visited (Some 0) :max-emitted None
                     first-outcome $ diff-twig-budgeted 1 2 ({}) blocked
                     second-outcome $ diff-twig-budgeted 1 2 ({}) (unlimited-diff-budget &unit)
                   match first-outcome
@@ -1374,7 +1373,7 @@
             %{} 'TestEntry (:name |deep-path-and-full-replacement)
               :code $ quote $ do
                 let
-                    budget $ DiffBudget :max-visited (Option :some 1) :max-emitted $ Option :some 1
+                    budget $ DiffBudget :max-visited (Some 1) :max-emitted $ Some 1
                     outcome $ diff-twig-budgeted ([] 1 2)
                       {} $ :replaced true
                       {}
@@ -1409,7 +1408,7 @@
                     let
                         old $ {} (nil identity-value) (:x 1)
                         updated $ {} (nil 2) (:x 1)
-                        budget $ DiffBudget :max-visited (Option :some 1) :max-emitted $ Option :some 1
+                        budget $ DiffBudget :max-visited (Some 1) :max-emitted $ Some 1
                       match
                         diff-twig-budgeted old updated ({}) budget
                         (:complete changes stats)
@@ -1496,14 +1495,14 @@
                     true $ []
               []
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) Dynamic Dynamic (Map Tag Tag)
+          :schema $ quote $ Fn (Ref DiffWorkState) Dynamic Dynamic (Map Tag Tag)
             -> $ List recollect.schema/change-op
         'emit-change $ %{} 'CodeEntry
           :doc "|Return a singleton change list only when one emitted-operation unit is available."
           :code $ quote $ defn emit-change (state change)
             if (consume-emitted! state) ([] change) ([])
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) recollect.schema/change-op
+          :schema $ quote $ Fn (Ref DiffWorkState) recollect.schema/change-op
             -> $ List recollect.schema/change-op
         'empty-changes $ %{} 'CodeEntry (:doc "|类型化的空变更列表，作为差异累加器初值。")
           :code $ quote $ defn empty-changes () ([])
@@ -1548,7 +1547,7 @@
                     wrapped $ wrap-pick-budgeted state idx child-changes
                   find-vector-changes-budgeted state (.concat acc wrapped) (&+ idx 1) (.rest a-items) (.rest b-items) options
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) (List recollect.schema/change-op) Number (List Dynamic) (List Dynamic) (Map Tag Tag)
+          :schema $ quote $ Fn (Ref DiffWorkState) (List recollect.schema/change-op) Number (List Dynamic) (List Dynamic) (Map Tag Tag)
             -> $ List recollect.schema/change-op
         'fold-update $ %{} 'CodeEntry
           :doc "|Internal helper to fold :update operations into :update-in for nested paths."
@@ -1579,10 +1578,10 @@
         'new-diff-state $ %{} 'CodeEntry
           :doc "|Create isolated work counters for one diff invocation."
           :code $ quote $ defn new-diff-state (budget)
-            ref $ DiffWorkState :budget budget :stats (DiffStats :visited-nodes 0 :emitted-ops 0) :exceeded $ Option :none
+            ref $ DiffWorkState :budget budget :stats (DiffStats :visited-nodes 0 :emitted-ops 0) :exceeded None
           :examples $ []
-          :schema $ quote $ Fn recollect.diff/DiffBudget
-            -> $ Ref recollect.diff/DiffWorkState
+          :schema $ quote $ Fn DiffBudget
+            -> $ Ref DiffWorkState
         'set-difference-dynamic $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn set-difference-dynamic (a b) (&difference a b)
           :examples $ []
@@ -1600,10 +1599,9 @@
             :generics T
         'unlimited-diff-budget $ %{} 'CodeEntry
           :doc "|Construct an unlimited budget for compatibility entry points."
-          :code $ quote $ defn unlimited-diff-budget (unit)
-            DiffBudget :max-visited (Option :none) :max-emitted $ Option :none
+          :code $ quote $ defn unlimited-diff-budget (unit) (DiffBudget :max-visited None :max-emitted None)
           :examples $ []
-          :schema $ quote $ Fn Unit (-> recollect.diff/DiffBudget)
+          :schema $ quote $ Fn Unit (-> DiffBudget)
         'wrap-pick $ %{} 'CodeEntry
           :doc "|Internal helper to wrap multiple changes into a :pick operation for a specific key."
           :code $ quote $ defn wrap-pick (k chunk)
@@ -1643,7 +1641,7 @@
                   emit-change state $ schema/change-op :pick k chunk
                 []
           :examples $ []
-          :schema $ quote $ Fn (Ref recollect.diff/DiffWorkState) K (List recollect.schema/change-op)
+          :schema $ quote $ Fn (Ref DiffWorkState) K (List recollect.schema/change-op)
             -> $ List recollect.schema/change-op
             :generics K
       :ns $ %{} 'NsEntry (:doc |)
@@ -1659,7 +1657,7 @@
               Map Dynamic $ Map Dynamic MemoEntry
           :examples $ []
           :schema $ quote $ Ref
-            Map Dynamic $ Map Dynamic recollect.memo/MemoEntry
+            Map Dynamic $ Map Dynamic MemoEntry
         '*twig-frame-active? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *twig-frame-active? false
           :examples $ []
@@ -1670,7 +1668,7 @@
               Map Dynamic $ Map Dynamic MemoEntry
           :examples $ []
           :schema $ quote $ Ref
-            Map Dynamic $ Map Dynamic recollect.memo/MemoEntry
+            Map Dynamic $ Map Dynamic MemoEntry
         'MemoEntry $ %{} 'CodeEntry
           :doc "|内部 memo 条目：参数列表与结果分字段保存；异构值只保留在原 variadic 合同中，不再用动态二元 List 表达固定结构。"
           :code $ quote $ defstruct MemoEntry
@@ -2009,7 +2007,7 @@
           :code $ quote $ defn empty-patch-path () ([])
           :examples $ []
           :schema $ quote $ Fn
-            -> $ List recollect.patch/PatchPathSegment
+            -> $ List PatchPathSegment
         'patch-assoc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn patch-assoc (base k data)
             cond
@@ -2028,14 +2026,14 @@
           :code $ quote $ defn patch-batch (changes)
             %{} PatchBatch $ :changes changes
           :examples $ []
-          :schema $ quote $ Fn (List recollect.schema/change-op) (-> recollect.patch/PatchBatch)
+          :schema $ quote $ Fn (List recollect.schema/change-op) (-> PatchBatch)
           :tags $ #{} :scaffold
         'patch-batch:apply-to $ %{} 'CodeEntry
           :doc "|应用 PatchBatch，委托 try-patch-twig 返回同一名义 PatchResult。成功 payload 仍开放，不能仅凭方法返回声明把它当作原应用类型；网络值须在成功后完整解码。"
           :code $ quote $ defn patch-batch:apply-to (self base)
             try-patch-twig base $ :changes self
           :examples $ []
-          :schema $ quote $ Fn recollect.patch/PatchBatch Dynamic (-> recollect.patch/PatchResult)
+          :schema $ quote $ Fn PatchBatch Dynamic (-> PatchResult)
           :tags $ #{} :scaffold
         'patch-child $ %{} 'CodeEntry
           :doc "|Apply a change to a child read with patch-get; a missing child is patched as nil, so :replace can create it."
@@ -2060,7 +2058,7 @@
               (:invalid-index path index size)
                 str "|Invalid patch index at " (str path) "|: " index "| for size " size
           :examples $ []
-          :schema $ quote $ Fn recollect.patch/PatchError (-> String)
+          :schema $ quote $ Fn PatchError (-> String)
           :tags $ #{} :scaffold
         'patch-get $ %{} 'CodeEntry
           :doc "|Read the child node at k as an Option: none for a missing map key or struct field; list and enum indexes must exist."
@@ -2068,16 +2066,16 @@
             if (map? base) (get base k)
               if (list? base)
                 if (number? k)
-                  Option :some $ .unwrap $ .get base k
+                  Some $ .unwrap $ .get base k
                   raise $ str "|patch-get expected a Number index for list, got: " k
                 if (enum? base)
                   if (number? k)
-                    Option :some $ &enum:nth base k
+                    Some $ &enum:nth base k
                     raise $ str "|patch-get expected a Number index for enum, got: " k
                   if (struct? base)
                     if (tag? k)
                       get (&struct:to-map base) k
-                      Option :none
+                      , None
                     raise $ str "|Unsupported-patch-container-type: " $ type-of base
           :examples $ []
           :schema $ quote $ Fn Dynamic Dynamic
@@ -2094,35 +2092,31 @@
               :code $ quote $ let
                   Person $ defstruct Person $ :name String
                   person $ %{} Person $ :name |Ada
-                assert= (Option :some |Ada) (patch-get person :name)
+                assert= (Some |Ada) (patch-get person :name)
             %{} 'TestEntry (:name |legacy-map-read-keeps-nil-and-falsey-values)
               :code $ quote $ let
                   source $ {} (:nil nil) (:false false) (:zero 0) (:empty |) (nil |nil-key)
-                assert= (Option :none) (patch-get source :missing)
-                assert= (Option :some nil) (patch-get source :nil)
-                assert= (Option :some false) (patch-get source :false)
-                assert= (Option :some 0) (patch-get source :zero)
-                assert= (Option :some |) (patch-get source :empty)
-                assert= (Option :some |nil-key) (patch-get source nil)
+                assert= None $ patch-get source :missing
+                assert= (Some nil) (patch-get source :nil)
+                assert= (Some false) (patch-get source :false)
+                assert= (Some 0) (patch-get source :zero)
+                assert= (Some |) (patch-get source :empty)
+                assert= (Some |nil-key) (patch-get source nil)
               :tags $ #{} :unit
             %{} 'TestEntry (:name |legacy-struct-read-is-tag-only-and-keeps-nil)
               :code $ quote $ let
                   Sample $ defstruct Sample $ :field Dynamic
                   sample $ Sample :field false
                   nil-sample $ Sample :field nil
-                assert= (Option :some false) (patch-get sample :field)
-                assert= (Option :some nil) (patch-get nil-sample :field)
-                assert= (Option :none) (patch-get sample :unknown)
-                assert= (Option :none) (patch-get sample |field)
-                assert= (Option :none) (patch-get sample 'field)
+                assert= (Some false) (patch-get sample :field)
+                assert= (Some nil) (patch-get nil-sample :field)
+                assert= None $ patch-get sample :unknown
+                assert= None $ patch-get sample |field
+                assert= None $ patch-get sample 'field
               :tags $ #{} :unit
         'patch-map $ %{} 'CodeEntry
           :doc "|Apply map-splice patch by removing specified keys and merging in new entries."
-          :code $ quote $ defn patch-map (base removed added)
-            foldl (.to-list added)
-              foldl (.to-list removed) base $ fn (acc k) (.dissoc acc k)
-              fn (acc pair)
-                let[] (k v) pair $ .assoc acc k v
+          :code $ quote $ defn patch-map (base removed added) (patch-map-typed base removed added)
           :examples $ [] $ quote
             patch-map
               {} (:a 1) (:b 2)
@@ -2138,6 +2132,28 @@
               {} $ :a 1
               , :b 2
           :schema $ quote $ Fn Dynamic Dynamic Dynamic (-> Dynamic)
+        'patch-map-typed $ %{} 'CodeEntry
+          :doc "|Apply a map splice whose keys and values follow a known Map contract."
+          :code $ quote $ defn patch-map-typed (base removed added)
+            foldl (.to-list added)
+              foldl (.to-list removed) base $ fn (acc k) (.dissoc acc k)
+              fn (acc pair)
+                let[] (k v) pair $ .assoc acc k v
+          :examples $ []
+          :schema $ quote $ Fn (Map K V) (Set K) (Map K V)
+            -> $ Map K V
+            :generics K V
+          :tests $ [] $ %{} 'TestEntry (:name |keeps-known-key-and-value-types)
+            :code $ quote $ let
+                patched $ patch-map-typed
+                  {} (:a 1) (:b 2)
+                  #{} :a
+                  {} $ :c 3
+              assert= 5 $ +
+                .unwrap $ get patched :b
+                .unwrap $ get patched :c
+              assert= None $ get patched :a
+            :tags $ #{} :unit
         'patch-one $ %{} 'CodeEntry
           :doc "|Apply a single change operation to base data. Dispatches to appropriate patch function based on operation tag."
           :code $ quote $ defn patch-one (base change)
@@ -2200,7 +2216,7 @@
               (number? value) (PatchPathSegment :index value)
               true $ PatchPathSegment :key $ str value
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> recollect.patch/PatchPathSegment)
+          :schema $ quote $ Fn Dynamic (-> PatchPathSegment)
         'patch-set $ %{} 'CodeEntry
           :doc "|Apply set-splice patch by removing and adding elements to a set."
           :code $ quote $ defn patch-set (base removed added)
@@ -2302,7 +2318,7 @@
         'patch-vector-drop $ %{} 'CodeEntry
           :doc "|Drop trailing elements from a vector. Takes first n elements."
           :code $ quote $ defn patch-vector-drop (base data)
-            .slice base 0 $ Option :some data
+            .slice base 0 $ Some data
           :examples $ [] $ quote
             patch-vector-drop ([] 1 2 3 4) 2
           :schema $ quote $ Fn (List T) Number
@@ -2350,7 +2366,7 @@
                     PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic Dynamic (List recollect.patch/PatchPathSegment) (-> recollect.patch/PatchResult)
+          :schema $ quote $ Fn Dynamic Dynamic Dynamic (List PatchPathSegment) (-> PatchResult)
           :tags $ #{} :scaffold
           :tests $ []
             %{} 'TestEntry (:name |checks-dynamic-struct-field-writes)
@@ -2433,7 +2449,7 @@
                     PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic (List recollect.patch/PatchPathSegment) (-> recollect.patch/PatchResult)
+          :schema $ quote $ Fn Dynamic Dynamic (List PatchPathSegment) (-> PatchResult)
           :tags $ #{} :scaffold
         'try-patch-one $ %{} 'CodeEntry
           :doc "|Apply one change operation atomically and return Result."
@@ -2442,7 +2458,7 @@
                 path $ empty-patch-path
               try-patch-one-at base change path
           :examples $ []
-          :schema $ quote $ Fn Dynamic recollect.schema/change-op (-> recollect.patch/PatchResult)
+          :schema $ quote $ Fn Dynamic recollect.schema/change-op (-> PatchResult)
           :tags $ #{} :scaffold
         'try-patch-one-at $ %{} 'CodeEntry
           :doc "|Apply one change operation at a diagnostic path."
@@ -2530,7 +2546,7 @@
                             (:ok next-val) (try-patch-assoc base k0 next-val path)
               _ $ PatchResult :err $ PatchError :unsupported-operation (str change)
           :examples $ []
-          :schema $ quote $ Fn Dynamic recollect.schema/change-op (List recollect.patch/PatchPathSegment) (-> recollect.patch/PatchResult)
+          :schema $ quote $ Fn Dynamic recollect.schema/change-op (List PatchPathSegment) (-> PatchResult)
           :tags $ #{} :scaffold
         'try-patch-twig $ %{} 'CodeEntry
           :doc "|原子应用补丁批次，返回名义 PatchResult：:ok 携带开放数据，:err 携带 PatchError；不是自动保留输入类型的 Result<T,PatchError>。支持对已有 Struct 进行受检字段更新，失败不暴露部分结果。网络边界先 decode-changes，在独立 wire tree 应用，再完整 decode 为应用类型；匿名 EDN Enum 不能凭相同 tag 冒充名义 Option 字段。"
@@ -2539,7 +2555,7 @@
                 path $ empty-patch-path
               try-patch-twig-at base changes path
           :examples $ []
-          :schema $ quote $ Fn Dynamic (List recollect.schema/change-op) (-> recollect.patch/PatchResult)
+          :schema $ quote $ Fn Dynamic (List recollect.schema/change-op) (-> PatchResult)
           :tags $ #{} :scaffold
           :tests $ []
             %{} 'TestEntry (:name |applies-valid-batches)
@@ -2648,8 +2664,8 @@
               :tags $ #{} :struct-patch-boundary :unit
             %{} 'TestEntry (:name |wire-option-decoded-after-patch)
               :code $ quote $ let
-                  typed-old $ recollect.test.fixture/OptionalProfile :name |Ada :score $ Option :none
-                  typed-next $ recollect.test.fixture/OptionalProfile :name |Ada :score $ Option :some 2
+                  typed-old $ recollect.test.fixture/OptionalProfile :name |Ada :score None
+                  typed-next $ recollect.test.fixture/OptionalProfile :name |Ada :score $ Some 2
                   wire-old $ parse-cirru-edn $ format-cirru-edn
                     {} (:name |Ada)
                       :score $ :: :none
@@ -2682,17 +2698,15 @@
                               (:some encoded)
                                 match encoded
                                   (:some value)
-                                    if (number? value) (Option :some value) (raise |expected-profile-score)
-                                  (:none) (Option :none)
+                                    if (number? value) (Some value) (raise |expected-profile-score)
+                                  (:none) None
                                   _ $ raise |invalid-profile-option
                               (:none) (raise |missing-profile-score)
                           assert= typed-next $ recollect.test.fixture/OptionalProfile :name decoded-name :score decoded-score
                         raise |expected-wire-map
                   (:err error)
                     raise $ patch-error-message error
-                assert=
-                  recollect.test.fixture/OptionalProfile :name |Ada :score $ Option :none
-                  , typed-old
+                assert= (recollect.test.fixture/OptionalProfile :name |Ada :score None) typed-old
                 assert=
                   parse-cirru-edn $ format-cirru-edn $ {} (:name |Ada)
                     :score $ :: :none
@@ -2708,7 +2722,7 @@
                   (:ok next-base) (recur next-base cs path)
                   (:err error) (PatchResult :err error)
           :examples $ []
-          :schema $ quote $ Fn Dynamic (List recollect.schema/change-op) (List recollect.patch/PatchPathSegment) (-> recollect.patch/PatchResult)
+          :schema $ quote $ Fn Dynamic (List recollect.schema/change-op) (List PatchPathSegment) (-> PatchResult)
           :tags $ #{} :scaffold
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.patch
@@ -2941,7 +2955,7 @@
               :nested $ {} $ :count 4
           :examples $ []
           :schema $ quote $ Fn
-            -> $ Map Tag recollect.wasm-test/ApiSampleField
+            -> $ Map Tag ApiSampleField
             :features :js-ffi
         'sample-api-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn sample-api-target ()
@@ -2952,7 +2966,7 @@
               :nested $ {} (:count 10) (:bonus 3)
           :examples $ []
           :schema $ quote $ Fn
-            -> $ Map Tag recollect.wasm-test/ApiSampleField
+            -> $ Map Tag ApiSampleField
             :features :js-ffi
         'sample-store-a $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn sample-store-a ()
@@ -2962,7 +2976,7 @@
               :lit-0 1
           :examples $ []
           :schema $ quote $ Fn
-            -> $ Map Tag recollect.wasm-test/StoreSampleField
+            -> $ Map Tag StoreSampleField
             :features :js-ffi
         'sample-store-b $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn sample-store-b ()
@@ -2972,7 +2986,7 @@
               :lit-0 2
           :examples $ []
           :schema $ quote $ Fn
-            -> $ Map Tag recollect.wasm-test/StoreSampleField
+            -> $ Map Tag StoreSampleField
             :features :js-ffi
         'test-api-roundtrip-summary $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-api-roundtrip-summary ()
@@ -3042,12 +3056,12 @@
           :code $ quote $ defn test-arg-order (a b)
             if (empty? b) 1 0
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn Dynamic Dynamic (-> Number) (:features :js-ffi)
         'test-arg-order-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-arg-order-call ()
             test-arg-order 1 $ []
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'test-diff-identical $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-diff-identical ()
             diff-twig 1 1 $ {}
@@ -3080,12 +3094,12 @@
           :code $ quote $ defn test-empty-recur-guard (xs)
             if (empty? xs) 1 $ recur xs
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn Dynamic (-> Number) (:features :js-ffi)
         'test-empty-recur-guard-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-recur-guard-call ()
             test-empty-recur-guard $ []
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'test-empty-recur-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-empty-recur-list (xs)
             if (empty? xs) 1 $ recur $ .rest xs
@@ -3105,12 +3119,12 @@
           :code $ quote $ defn test-list-arg-kind (a b)
             if (list? b) 1 0
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn Dynamic Dynamic (-> Number) (:features :js-ffi)
         'test-list-arg-kind-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-list-arg-kind-call ()
             test-list-arg-kind 1 $ []
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'test-list-empty-proc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-list-empty-proc (a b)
             if (.empty? b) 1 0
