@@ -1990,10 +1990,10 @@
         'PatchError $ %{} 'CodeEntry
           :doc "|Structured failure returned by validated patch application. Paths point to the rejected node in the base tree."
           :code $ quote $ defenum PatchError (:unsupported-operation String)
-            :unsupported-container (List Dynamic) Tag
+            :unsupported-container (List recollect.patch/PatchPathSegment) Tag
             :missing-node $ List recollect.patch/PatchPathSegment
-            :type-mismatch (List Dynamic) Tag Tag
-            :invalid-index (List Dynamic) Number Number
+            :type-mismatch (List recollect.patch/PatchPathSegment) Tag Tag
+            :invalid-index (List recollect.patch/PatchPathSegment) Number Number
           :examples $ []
           :schema $ quote EnumDef
         'PatchPathSegment $ %{} 'CodeEntry (:doc |)
