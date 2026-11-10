@@ -352,9 +352,9 @@
               assert= &unit $ memo/begin-twig-frame!
               assert= &unit $ memo/finish-twig-frame!
               assert= &unit $ clear-twig-caches!
-              , nil
+              , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.main
           :require
@@ -381,16 +381,18 @@
           :code $ quote $ defn twig-card (user date)
             let
                 with-field $ fn (m k field)
-                  hint-fn $ Fn (Map Tag Dynamic) Tag (Option Dynamic)
+                  hint-fn $ Fn (Map Tag Dynamic) Tag (Option T)
                     -> $ Map Tag Dynamic
+                    :generics T
                   match field
                     (:some value)
                       if (nil? value) m $ .assoc m k value
                     (:none) m
               -> ({}) (with-field :user user) (with-field :date date)
           :examples $ []
-          :schema $ quote $ Fn (Option Dynamic) (Option Dynamic)
+          :schema $ quote $ Fn (Option User) (Option Date)
             -> $ Map Tag Dynamic
+            :generics User Date
           :tests $ [] $ %{} 'TestEntry (:name |writes-only-present-fields)
             :code $ quote $ let
                 absent $ twig-card (Option :none) (Option :none)
@@ -719,7 +721,7 @@
         'bench! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn bench! () (run-bench!)
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'bench-fn $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn bench-fn (label n f)
             let
