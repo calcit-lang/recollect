@@ -2124,6 +2124,14 @@
               {} $ :c 3
           :schema $ quote $ Fn (Map Dynamic Dynamic) (Set Dynamic) (Map Dynamic Dynamic)
             -> $ Map Dynamic Dynamic
+          :tests $ [] $ %{} 'TestEntry (:name |keeps-heterogeneous-patch-contract)
+            :code $ quote $ assert=
+              {} (:keep 2) (42 |answer) (|flag true)
+              patch-map
+                {} (:drop 1) (:keep 2)
+                #{} :drop
+                {} (42 |answer) (|flag true)
+            :tags $ #{} :unit
         'patch-map-set $ %{} 'CodeEntry
           :doc "|Set a key-value pair in a map. Equivalent to assoc."
           :code $ quote $ defn patch-map-set (base k data) (patch-assoc base k data)
