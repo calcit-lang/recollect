@@ -4,9 +4,9 @@
 和 `value: Dynamic`。两层 Map 的值类型一直保留到 Ref、frame 交接与读取处，
 不再将任意 List 当作二元组，也不再用下标或反复 decode 恢复已知结构。
 
-`assoc-in-map` 用泛型 V 保留两层 Map 的值关系。内部 path 始终由函数和业务 key
-构造为二项 List；它不是任意深度的路径 API。`twig-memo-size` 通过 `map-entries`
-和类型化字段计数，不再丢失 key/value 关系后重解码。
+缓存更新分别传入函数和业务键。`assoc-cache-entry` 用泛型保留两层键和值的类型，
+避免每次写入构造路径列表。`assoc-in-map` 仍接受旧路径列表并读取前两项。
+`twig-memo-size` 通过 `map-entries` 和类型化字段计数。
 
 ## 不变的用户行为
 

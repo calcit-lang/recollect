@@ -1676,17 +1676,23 @@
             :value Dynamic
           :examples $ []
           :schema $ quote StructDef
-        'assoc-in-map $ %{} 'CodeEntry
-          :doc "|两层 Map 更新保留值类型 V。内部调用始终传入函数与业务 key 构成的二项 path；不把未知缓存值 decode 成 Map。"
+        'assoc-cache-entry $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn assoc-cache-entry (m outer-key inner-key v)
+            .assoc m outer-key $ .assoc
+              .unwrap-or (get m outer-key) ({})
+              , inner-key v
+          :examples $ []
+          :schema $ quote $ Fn
+            Map K $ Map L V
+            , K L V
+              -> $ Map K $ Map L V
+              :generics K L V
+        'assoc-in-map $ %{} 'CodeEntry (:doc "||兼容旧 List 路径的两层 Map 更新；直接调用可沿用前两项作为外层键和内层键。")
           :code $ quote $ defn assoc-in-map (m path v)
-            .assoc m
+            assoc-cache-entry m
               .unwrap $ .get path 0
-              .assoc
-                .unwrap-or
-                  get m $ .unwrap $ .get path 0
-                  {}
-                .unwrap $ .get path 1
-                , v
+              .unwrap $ .get path 1
+              , v
           :examples $ []
           :schema $ quote $ Fn
             Map Dynamic $ Map Dynamic V
@@ -1748,30 +1754,30 @@
                       if @*twig-frame-active?
                         &let
                           ret $ :value cached-pair
-                          swap! *twig-frame-cache assoc-in-map ([] f key) cached-pair
+                          swap! *twig-frame-cache assoc-cache-entry f key cached-pair
                           , ret
                         :value cached-pair
                       &let
                         ret $ f & args
                         if @*twig-frame-active?
                           &let (result ret)
-                            swap! *twig-frame-cache assoc-in-map ([] f key) (MemoEntry :args args :value ret)
+                            swap! *twig-frame-cache assoc-cache-entry f key $ MemoEntry :args args :value ret
                             , ret
                           &let (result ret)
-                            swap! *twig-call-cache assoc-in-map ([] f key) (MemoEntry :args args :value ret)
+                            swap! *twig-call-cache assoc-cache-entry f key $ MemoEntry :args args :value ret
                             , ret
                   (:none)
                     &let
                       ret $ f & args
                       if @*twig-frame-active?
                         &let (result ret)
-                          swap! *twig-frame-cache assoc-in-map ([] f key) (MemoEntry :args args :value ret)
+                          swap! *twig-frame-cache assoc-cache-entry f key $ MemoEntry :args args :value ret
                           , ret
                         &let (result ret)
-                          swap! *twig-call-cache assoc-in-map ([] f key) (MemoEntry :args args :value ret)
+                          swap! *twig-call-cache assoc-cache-entry f key $ MemoEntry :args args :value ret
                           , ret
           :examples $ []
-          :schema $ quote $ Fn Dynamic AnyFn (& Dynamic) (-> Dynamic) (:open :reflect)
+          :schema $ quote $ Fn K AnyFn (& Dynamic) (-> Dynamic) (:generics K) (:open :reflect)
           :tests $ []
             %{} 'TestEntry (:name |caches-nil-false-zero-empty-string)
               :code $ quote $ let
