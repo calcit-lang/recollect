@@ -1527,8 +1527,9 @@
                   wrapped $ wrap-pick idx child-changes
                 find-vector-changes (.concat acc wrapped) (&+ idx 1) (.rest a-items) (.rest b-items) options
           :examples $ []
-          :schema $ quote $ Fn (List recollect.schema/change-op) Number (List Dynamic) (List Dynamic) (Map Tag Tag)
+          :schema $ quote $ Fn (List recollect.schema/change-op) Number (List A) (List B) (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :generics A B
         'find-vector-changes-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware list diff.")
           :code $ quote $ defn find-vector-changes-budgeted (state acc idx a-items b-items options)
             if (diff-state-exceeded? state) acc $ cond
@@ -1547,8 +1548,9 @@
                     wrapped $ wrap-pick-budgeted state idx child-changes
                   find-vector-changes-budgeted state (.concat acc wrapped) (&+ idx 1) (.rest a-items) (.rest b-items) options
           :examples $ []
-          :schema $ quote $ Fn (Ref DiffWorkState) (List recollect.schema/change-op) Number (List Dynamic) (List Dynamic) (Map Tag Tag)
+          :schema $ quote $ Fn (Ref DiffWorkState) (List recollect.schema/change-op) Number (List A) (List B) (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :generics A B
         'fold-update $ %{} 'CodeEntry
           :doc "|Internal helper to fold :update operations into :update-in for nested paths."
           :code $ quote $ defn fold-update (k c0)
