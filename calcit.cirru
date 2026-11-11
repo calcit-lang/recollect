@@ -1043,8 +1043,9 @@
                 removed $ set-difference-dynamic a b
               [] $ schema/change-op :set-splice removed added
           :examples $ []
-          :schema $ quote $ Fn (Set Dynamic) (Set Dynamic)
+          :schema $ quote $ Fn (Set A) (Set B)
             -> $ List recollect.schema/change-op
+            :generics A B
         'diff-set-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware set diff.")
           :code $ quote $ defn diff-set-budgeted (state a b)
             let
@@ -1052,8 +1053,9 @@
                 removed $ set-difference-dynamic a b
               emit-change state $ schema/change-op :set-splice removed added
           :examples $ []
-          :schema $ quote $ Fn (Ref DiffWorkState) (Set Dynamic) (Set Dynamic)
+          :schema $ quote $ Fn (Ref DiffWorkState) (Set A) (Set B)
             -> $ List recollect.schema/change-op
+            :generics A B
         'diff-state-exceeded? $ %{} 'CodeEntry
           :doc "|Return whether this invocation has exhausted either budget."
           :code $ quote $ defn diff-state-exceeded? (state)
@@ -1587,9 +1589,24 @@
         'set-difference-dynamic $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn set-difference-dynamic (a b) (&difference a b)
           :examples $ []
-          :schema $ quote $ Fn (Set T) (Set T)
-            -> $ Set T
-            :generics T
+          :schema $ quote $ Fn (Set A) (Set B)
+            -> $ Set A
+            :generics A B
+          :tests $ [] $ %{} 'TestEntry (:name |different-element-types)
+            :code $ quote $ let
+                numbers $ assert-type (#{} 1 2) (Set Number)
+                strings $ assert-type (#{} |a |b) (Set String)
+                numeric-difference $ assert-type (set-difference-dynamic numbers strings) (Set Number)
+                string-difference $ assert-type (set-difference-dynamic strings numbers) (Set String)
+                forward $ [] $ schema/change-op :set-splice numbers strings
+                backward $ [] $ schema/change-op :set-splice strings numbers
+                budget $ unlimited-diff-budget &unit
+              assert= numbers numeric-difference
+              assert= strings string-difference
+              assert= forward $ diff-set numbers strings
+              assert= backward $ diff-set strings numbers
+              assert= forward $ diff-set-budgeted (new-diff-state budget) numbers strings
+              assert= backward $ diff-set-budgeted (new-diff-state budget) strings numbers
         'set-difference-iter $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn set-difference-iter (xs a acc)
             if (empty? xs) acc $ let
