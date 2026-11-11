@@ -1043,8 +1043,9 @@
                 removed $ set-difference-dynamic a b
               [] $ schema/change-op :set-splice removed added
           :examples $ []
-          :schema $ quote $ Fn (Set Dynamic) (Set Dynamic)
+          :schema $ quote $ Fn (Set A) (Set B)
             -> $ List recollect.schema/change-op
+            :generics A B
         'diff-set-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware set diff.")
           :code $ quote $ defn diff-set-budgeted (state a b)
             let
@@ -1052,8 +1053,9 @@
                 removed $ set-difference-dynamic a b
               emit-change state $ schema/change-op :set-splice removed added
           :examples $ []
-          :schema $ quote $ Fn (Ref DiffWorkState) (Set Dynamic) (Set Dynamic)
+          :schema $ quote $ Fn (Ref DiffWorkState) (Set A) (Set B)
             -> $ List recollect.schema/change-op
+            :generics A B
         'diff-state-exceeded? $ %{} 'CodeEntry
           :doc "|Return whether this invocation has exhausted either budget."
           :code $ quote $ defn diff-state-exceeded? (state)
@@ -1587,9 +1589,9 @@
         'set-difference-dynamic $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn set-difference-dynamic (a b) (&difference a b)
           :examples $ []
-          :schema $ quote $ Fn (Set T) (Set T)
-            -> $ Set T
-            :generics T
+          :schema $ quote $ Fn (Set A) (Set B)
+            -> $ Set A
+            :generics A B
         'set-difference-iter $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn set-difference-iter (xs a acc)
             if (empty? xs) acc $ let
