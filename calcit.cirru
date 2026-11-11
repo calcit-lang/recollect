@@ -580,7 +580,7 @@
             %{} 'TestEntry (:name |required-fields-reject-missing-and-nil)
               :code $ quote $ let
                   verify $ fn (key op expected)
-                    hint-fn $ Fn Tag recollect.app.updater/Op String $ -> Unit
+                    hint-fn $ Fn Tag Op String $ -> Unit
                     assert |missing-field-is-rejected $ try
                       do
                         updater ({}) op
