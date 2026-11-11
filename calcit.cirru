@@ -913,8 +913,9 @@
                     init-acc splice-changes
                   diff-map-step init-acc common-triples options
           :examples $ []
-          :schema $ quote $ Fn (Map Dynamic Dynamic) (Map Dynamic Dynamic) (Map Tag Tag)
+          :schema $ quote $ Fn (Map Dynamic A) (Map Dynamic B) (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :generics A B
         'diff-map-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware map diff.")
           :code $ quote $ defn diff-map-budgeted (state a b options)
             let
@@ -941,8 +942,9 @@
                     init-acc splice-changes
                   if (diff-state-exceeded? state) init-acc $ diff-map-step-budgeted state init-acc common-triples options
           :examples $ []
-          :schema $ quote $ Fn (Ref DiffWorkState) (Map Dynamic Dynamic) (Map Dynamic Dynamic) (Map Tag Tag)
+          :schema $ quote $ Fn (Ref DiffWorkState) (Map Dynamic A) (Map Dynamic B) (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :generics A B
         'diff-map-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-map-step (acc triples options)
             match (destruct-list triples)
