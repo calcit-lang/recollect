@@ -1690,10 +1690,10 @@
         '*twig-call-cache $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *twig-call-cache
             assert-type ({})
-              Map Dynamic $ Map Dynamic MemoEntry
+              Map AnyFn $ Map Dynamic MemoEntry
           :examples $ []
           :schema $ quote $ Ref
-            Map Dynamic $ Map Dynamic MemoEntry
+            Map AnyFn $ Map Dynamic MemoEntry
         '*twig-frame-active? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *twig-frame-active? false
           :examples $ []
@@ -1701,10 +1701,10 @@
         '*twig-frame-cache $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *twig-frame-cache
             assert-type ({})
-              Map Dynamic $ Map Dynamic MemoEntry
+              Map AnyFn $ Map Dynamic MemoEntry
           :examples $ []
           :schema $ quote $ Ref
-            Map Dynamic $ Map Dynamic MemoEntry
+            Map AnyFn $ Map Dynamic MemoEntry
         'MemoEntry $ %{} 'CodeEntry
           :doc "|内部 memo 条目：参数列表与结果分字段保存；异构值只保留在原 variadic 合同中，不再用动态二元 List 表达固定结构。"
           :code $ quote $ defstruct MemoEntry
