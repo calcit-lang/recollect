@@ -252,7 +252,7 @@
             reset! *store $ next-store op
             , &unit
           :examples $ []
-          :schema $ quote $ Fn recollect.app.updater/Op (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn recollect.app.updater/Op (-> Unit) (:features :io :js-ffi :state)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!)
             println "|Running mode:" $ if config/dev? |dev |release
@@ -265,24 +265,26 @@
             ; render-data-twig!
             println "|app started!"
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'next-client-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-client-store (changes)
             decode-map-as (patch-twig @*client-store changes) (Map Tag Dynamic)
           :examples $ []
           :schema $ quote $ Fn (List recollect.schema/change-op)
             -> $ Map Tag Dynamic
+            :features :state
         'next-data-twig $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-data-twig () (twig-container @*store)
           :examples $ []
           :schema $ quote $ Fn
             -> $ Map Tag Dynamic
+            :features :state
         'next-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn next-store (op) (updater @*store op)
           :examples $ []
           :schema $ quote $ Fn recollect.app.updater/Op
             -> $ Map Tag Dynamic
-            :features :js-ffi
+            :features :io :js-ffi :state
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
@@ -296,7 +298,7 @@
               hud! |error build-errors
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! (renderer)
             render-memo/with-memo-frame $ fn () $ renderer
@@ -311,7 +313,7 @@
               -> Unit
               :features :js-ffi
             -> Unit
-            :features :js-ffi
+            :features :io :js-ffi :state
         'render-data-twig! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-data-twig! ()
             let
@@ -327,7 +329,7 @@
               reset! *client-store $ next-client-store changes
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi :state)
         'test! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test! ()
             let
@@ -353,7 +355,7 @@
               assert= &unit $ clear-twig-caches!
               , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.app.main
           :require
@@ -427,6 +429,7 @@
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic)
             -> $ Map Tag Dynamic
+            :features :state
           :tests $ []
             %{} 'TestEntry (:name |missing-and-nil-keep-card-cache-identity)
               :code $ quote $ do (recollect.memo/reset-twig-memo!)
@@ -576,6 +579,7 @@
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) Op
             -> $ Map Tag Dynamic
+            :features :io
           :tests $ []
             %{} 'TestEntry (:name |required-fields-reject-missing-and-nil)
               :code $ quote $ let
@@ -720,7 +724,7 @@
         'bench! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn bench! () (run-bench!)
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'bench-fn $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn bench-fn (label n f)
             let
@@ -736,11 +740,11 @@
             Fn $ -> R
             -> Unit
             :generics R
-            :features :js-ffi
+            :features :io :js-ffi
         'print-sep $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn print-sep () (println "|─────────────────────────────────────────")
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
         'run-bench! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn run-bench! ()
             let
@@ -791,7 +795,7 @@
                 _ $ print-sep
               println |Done.
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.bench
           :require
@@ -861,7 +865,7 @@
                           Some $ DiffBudgetReason :emitted-ops
                         , false
           :examples $ []
-          :schema $ quote $ Fn (Ref DiffWorkState) (-> Bool)
+          :schema $ quote $ Fn (Ref DiffWorkState) (-> Bool) (:features :state)
         'consume-visited! $ %{} 'CodeEntry
           :doc "|Consume one visited-node unit or record the first exceeded reason."
           :code $ quote $ defn consume-visited! (state)
@@ -887,7 +891,7 @@
                           Some $ DiffBudgetReason :visited-nodes
                         , false
           :examples $ []
-          :schema $ quote $ Fn (Ref DiffWorkState) (-> Bool)
+          :schema $ quote $ Fn (Ref DiffWorkState) (-> Bool) (:features :state)
         'diff-map $ %{} 'CodeEntry
           :doc "|Internal function to compute diff between two maps. Collects :map-splice operations for removed and added entries."
           :code $ quote $ defn diff-map (a b options)
@@ -945,6 +949,7 @@
           :schema $ quote $ Fn (Ref DiffWorkState) (Map Dynamic A) (Map Dynamic B) (Map Tag Tag)
             -> $ List recollect.schema/change-op
             :generics A B
+            :features :state
         'diff-map-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-map-step (acc triples options)
             match (destruct-list triples)
@@ -982,6 +987,7 @@
             Map Tag Tag
             -> $ List recollect.schema/change-op
             :generics K V W
+            :features :state
         'diff-record $ %{} 'CodeEntry
           :doc "|Internal function to compute a diff between two structs. Only diffs structs with the same definition."
           :code $ quote $ defn diff-record (a b options)
@@ -1002,6 +1008,7 @@
           :examples $ []
           :schema $ quote $ Fn (Ref DiffWorkState) AnyStruct AnyStruct (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :features :state
             :open :reflect
         'diff-record-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-record-step (acc idx n a b options)
@@ -1037,6 +1044,7 @@
           :examples $ []
           :schema $ quote $ Fn (Ref DiffWorkState) (List recollect.schema/change-op) Number Number AnyStruct AnyStruct (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :features :state
             :open :reflect
         'diff-set $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-set (a b)
@@ -1058,6 +1066,7 @@
           :schema $ quote $ Fn (Ref DiffWorkState) (Set A) (Set B)
             -> $ List recollect.schema/change-op
             :generics A B
+            :features :state
         'diff-state-exceeded? $ %{} 'CodeEntry
           :doc "|Return whether this invocation has exhausted either budget."
           :code $ quote $ defn diff-state-exceeded? (state)
@@ -1066,7 +1075,7 @@
               (:some _) true
               (:none) false
           :examples $ []
-          :schema $ quote $ Fn (Ref DiffWorkState) (-> Bool)
+          :schema $ quote $ Fn (Ref DiffWorkState) (-> Bool) (:features :state)
         'diff-tuple $ %{} 'CodeEntry
           :doc "|Internal function to compute a diff between two enums. Replaces when the variant tag or arity differs; otherwise diffs payload elements."
           :code $ quote $ defn diff-tuple (a b options)
@@ -1095,6 +1104,7 @@
           :examples $ []
           :schema $ quote $ Fn (Ref DiffWorkState) AnyEnum AnyEnum (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :features :state
             :open :reflect
         'diff-tuple-step $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-tuple-step (acc idx max-idx a b options)
@@ -1118,6 +1128,7 @@
           :examples $ []
           :schema $ quote $ Fn (Ref DiffWorkState) (List recollect.schema/change-op) Number Number AnyEnum AnyEnum (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :features :state
             :open :reflect
         'diff-twig $ %{} 'CodeEntry
           :doc "|计算旧、新数据树的 change-op 列表，第三个参数是必需的 options Map。需要受检应用或更新 Struct 字段时使用 try-patch-twig；旧 patch-twig 返回数据而非 PatchResult，且不支持 Struct 字段更新。网络数据先经 decode-changes 校验操作，再在 wire tree 应用补丁并完整解码应用类型。"
@@ -1266,7 +1277,7 @@
                 (:some reason) (DiffOutcome :budget-exceeded reason stats)
                 (:none) (DiffOutcome :complete changes stats)
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic (Map Tag Tag) DiffBudget (-> DiffOutcome)
+          :schema $ quote $ Fn Dynamic Dynamic (Map Tag Tag) DiffBudget (-> DiffOutcome) (:features :state)
           :tests $ []
             %{} 'TestEntry (:name |zero-and-one-visited-limits)
               :code $ quote $ do
@@ -1501,6 +1512,7 @@
           :examples $ []
           :schema $ quote $ Fn (Ref DiffWorkState) Dynamic Dynamic (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :features :state
         'emit-change $ %{} 'CodeEntry
           :doc "|Return a singleton change list only when one emitted-operation unit is available."
           :code $ quote $ defn emit-change (state change)
@@ -1508,6 +1520,7 @@
           :examples $ []
           :schema $ quote $ Fn (Ref DiffWorkState) recollect.schema/change-op
             -> $ List recollect.schema/change-op
+            :features :state
         'empty-changes $ %{} 'CodeEntry (:doc "|类型化的空变更列表，作为差异累加器初值。")
           :code $ quote $ defn empty-changes () ([])
           :examples $ []
@@ -1555,6 +1568,7 @@
           :schema $ quote $ Fn (Ref DiffWorkState) (List recollect.schema/change-op) Number (List A) (List B) (Map Tag Tag)
             -> $ List recollect.schema/change-op
             :generics A B
+            :features :state
         'fold-update $ %{} 'CodeEntry
           :doc "|Internal helper to fold :update operations into :update-in for nested paths."
           :code $ quote $ defn fold-update (k c0)
@@ -1665,6 +1679,7 @@
           :schema $ quote $ Fn (Ref DiffWorkState) K (List recollect.schema/change-op)
             -> $ List recollect.schema/change-op
             :generics K
+            :features :state
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.diff
           :require
@@ -1748,7 +1763,7 @@
             reset! *twig-frame-active? true
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :state)
         'finish-twig-frame! $ %{} 'CodeEntry
           :doc "|Finish the current twig memo frame, retaining only entries touched during that frame."
           :code $ quote $ defn finish-twig-frame! ()
@@ -1757,7 +1772,7 @@
             reset! *twig-frame-cache $ {}
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :state)
         'memo-twig-by $ %{} 'CodeEntry
           :doc "|Memoize a twig builder with arbitrary arguments. This variadic escape hatch is intentionally dynamic; prefer memo-twig-by0, memo-twig-by1, or memo-twig-by2 for static argument and return checking."
           :code $ quote $ defn memo-twig-by (key f & args)
@@ -1798,7 +1813,7 @@
                           swap! *twig-call-cache assoc-cache-entry f key $ MemoEntry :args args :value ret
                           , ret
           :examples $ []
-          :schema $ quote $ Fn K AnyFn (& Dynamic) (-> Dynamic) (:generics K) (:open :reflect)
+          :schema $ quote $ Fn K AnyFn (& Dynamic) (-> Dynamic) (:generics K) (:features :state) (:open :reflect)
           :tests $ []
             %{} 'TestEntry (:name |caches-nil-false-zero-empty-string)
               :code $ quote $ let
@@ -1906,7 +1921,7 @@
             Fn $ -> R
             -> R
             :generics K R
-            :features :erased-cache
+            :features :erased-cache :state
         'memo-twig-by1 $ %{} 'CodeEntry
           :doc "|Typed unary twig memoization keyed by function, stable application key, and argument value."
           :code $ quote $ defn memo-twig-by1 (key f a)
@@ -1914,7 +1929,7 @@
           :examples $ []
           :schema $ quote $ Fn K
             Fn A $ -> R
-            , A (-> R) (:generics K A R) (:features :erased-cache)
+            , A (-> R) (:generics K A R) (:features :erased-cache :state)
           :tests $ [] $ %{} 'TestEntry (:name |caches-values-and-prunes-frames)
             :code $ quote $ let
                 calls $ ref 0
@@ -1962,7 +1977,7 @@
           :examples $ []
           :schema $ quote $ Fn K
             Fn A B $ -> R
-            , A B (-> R) (:generics K A B R) (:features :erased-cache)
+            , A B (-> R) (:generics K A B R) (:features :erased-cache :state)
         'reset-twig-memo! $ %{} 'CodeEntry
           :doc "|Clear all twig memo entries and leave frame collection inactive."
           :code $ quote $ defn reset-twig-memo! ()
@@ -1971,7 +1986,7 @@
             reset! *twig-frame-active? false
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :state)
           :tests $ [] $ %{} 'TestEntry (:name |lifecycle-returns-unit)
             :code $ quote $ do
               assert= &unit $ reset-twig-memo!
@@ -1986,7 +2001,7 @@
             .fold (map-entries @*twig-call-cache) 0 $ fn (total entry)
               + total $ .len $ :value entry
           :examples $ []
-          :schema $ quote $ Fn (-> Number)
+          :schema $ quote $ Fn (-> Number) (:features :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.memo
     'recollect.patch $ %{} 'FileEntry
@@ -2883,17 +2898,17 @@
           :doc "|Clear all dedicated twig memo entries. Call this on hot reload or when application state is replaced."
           :code $ quote $ defn clear-twig-caches! () (reset-twig-memo!)
           :examples $ [] $ quote (clear-twig-caches!)
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :state)
         'show-tag-summay $ %{} 'CodeEntry
           :doc "|Legacy misspelled alias returning the retained twig memo entry count."
           :code $ quote $ defn show-tag-summay () (twig-memo-size)
           :examples $ [] $ quote (show-tag-summay)
-          :schema $ quote $ Fn (-> Number)
+          :schema $ quote $ Fn (-> Number) (:features :state)
         'show-twig-summary $ %{} 'CodeEntry
           :doc "|Return the number of retained dedicated twig memo entries."
           :code $ quote $ defn show-twig-summary () (twig-memo-size)
           :examples $ []
-          :schema $ quote $ Fn (-> Number)
+          :schema $ quote $ Fn (-> Number) (:features :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns recollect.twig
           :require $ recollect.memo :refer $ reset-twig-memo! twig-memo-size
@@ -3086,7 +3101,7 @@
                     raise "|app roundtrip probe expected a card Map"
                 raise "|roundtrip probe expected a Map"
           :examples $ []
-          :schema $ quote $ Fn (-> Number)
+          :schema $ quote $ Fn (-> Number) (:features :state)
         'test-arg-order $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-arg-order (a b)
             if (empty? b) 1 0
