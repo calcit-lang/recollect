@@ -2266,7 +2266,7 @@
               (number? value) (PatchPathSegment :index value)
               true $ PatchPathSegment :key $ str value
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> PatchPathSegment)
+          :schema $ quote $ Fn K (-> PatchPathSegment) (:generics K)
         'patch-set $ %{} 'CodeEntry
           :doc "|Apply set-splice patch by removing and adding elements to a set."
           :code $ quote $ defn patch-set (base removed added)

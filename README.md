@@ -8,9 +8,9 @@ Diff/patch library designed for Cumulo project.
 
 ### 0.3.6 候选：使用者需要注意
 
-配对正式 Calcit 和 `@calcit/procs` 0.42.0，使用 Respo 0.19.5、UI 0.15.2、Value 0.7.4 和 JS-FFI 0.2.13。升级后重新安装依赖并生成 JS。 Demo 的状态游标使用递归联合类型，支持 Tag、String、Number、Bool、Symbol 和递归 List 键。
+配对正式 Calcit 和 `@calcit/procs` 0.42.1，使用 Respo 0.19.5、UI 0.15.2、Value 0.7.4 和 JS-FFI 0.2.13。升级后重新安装依赖并生成 JS。 Demo 的状态游标使用递归联合类型，支持 Tag、String、Number、Bool、Symbol 和递归 List 键。
 
-0.42.0 效果边界：`diff-twig-budgeted` 等带预算的 diff 函数和 `memo-twig-by*`、`clear-twig-caches!` 读写全局 Ref，`Fn` schema 声明了 `:state`；调用它们的函数也要声明 `:state`，否则会有 `W_STATE_FEATURE_REQUIRED` 提示。
+0.42.1 效果边界：`diff-twig-budgeted` 等带预算的 diff 函数和 `memo-twig-by*`、`clear-twig-caches!` 读写全局 Ref，`Fn` schema 声明了 `:state`；调用它们的函数也要声明 `:state`，否则会有 `W_STATE_FEATURE_REQUIRED` 提示。
 
 已知 Map 键和值类型时可调用 `recollect.patch/patch-map-typed`，移除集合、写入 Map 和返回值共享该类型合同。旧 `patch-map` 继续接受改变键和值类型的补丁。
 三处内部补丁辅助函数以泛型接收原始键，继续支持异构键。Demo 热更新返回 Unit，并通过 HUD 报告成功或失败。
