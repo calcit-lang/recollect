@@ -477,10 +477,14 @@
           :require $ recollect.memo :refer $ memo-twig-by2
     'recollect.app.updater $ %{} 'FileEntry
       :defs $ {}
+        'DemoCursorKey $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion DemoCursorKey Tag String Number Bool Symbol (List DemoCursorKey)
+          :examples $ []
+          :schema $ quote UnionDef
         'Op $ %{} 'CodeEntry
           :doc "|Dispatch Op of the demo app, bound to the :dispatch-op type slot."
           :code $ quote $ defenum Op
-            :states (List Dynamic) Dynamic
+            :states (List DemoCursorKey) Dynamic
             :lit-0 Number
             :lit-1 Number
             :map-0 Number
@@ -497,11 +501,7 @@
           :code $ quote $ defn updater (store op)
             match op
               (:states cursor s)
-                decode-map-as
-                  update-states store
-                    decode-map-as cursor $ List Dynamic
-                    , s
-                  Map Tag Dynamic
+                decode-map-as (update-states store cursor s) (Map Tag Dynamic)
               (:lit-0 d) (.assoc store :lit-0 d)
               (:lit-1 d)
                 .assoc store :in-map $ .assoc
@@ -3244,11 +3244,11 @@
         'test-num-order $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-num-order (a b) (if true b 0)
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn Number Number (-> Number)
         'test-num-order-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-num-order-call () (test-num-order 1 2)
           :examples $ []
-          :schema $ quote $ Fn (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Number)
         'test-patch-empty $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn test-patch-empty ()
             patch-twig 1 $ assert-type ([]) (List recollect.schema/change-op)
