@@ -2964,7 +2964,7 @@
           :examples $ []
             quote $ literal? 123
             quote $ literal? $ [] 1 2
-          :schema $ quote $ Fn Dynamic (-> Bool)
+          :schema $ quote $ Fn Input (-> Bool) (:generics Input)
         'vec-add $ %{} 'CodeEntry
           :doc "|Append vector ys to vector xs. Returns a new vector with all elements from xs followed by all elements from ys."
           :code $ quote $ defn vec-add (xs ys)
