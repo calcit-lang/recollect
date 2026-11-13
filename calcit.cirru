@@ -377,6 +377,27 @@
             respo.memo :as render-memo
     'recollect.app.twig.container $ %{} 'FileEntry
       :defs $ {}
+        'normalize-field $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn normalize-field (field)
+            match field
+              (:none) None
+              (:some value)
+                if (nil? value) None $ Some value
+          :examples $ []
+          :schema $ quote $ Fn (Option T)
+            -> $ Option T
+            :generics T
+          :tests $ [] $ %{} 'TestEntry (:name |retains-concrete-payload-types)
+            :code $ quote $ let
+                number $ fn ()
+                  hint-fn $ Fn $ -> (Option Number)
+                  normalize-field $ Some 0
+                text $ fn ()
+                  hint-fn $ Fn $ -> (Option String)
+                  normalize-field $ Some |
+              assert= (Some 0) (number)
+              assert= (Some |) (text)
+            :tags $ #{} :unit
         'twig-card $ %{} 'CodeEntry
           :doc "|演示 wire Map 的构造边界。内部使用 Option；写入 Map 时只放有值的 :user/:date，none 和 some nil 都不写这个键。"
           :code $ quote $ defn twig-card (user date)
@@ -414,19 +435,10 @@
         'twig-container $ %{} 'CodeEntry
           :doc "|使用类型化二参数 memo 保留 Map 返回合同。缺失与显式 nil 在 memo 前规范为同一 none，以保留旧缓存命中和 identity；false/0/空串保留为 some。其他 store 字段原样保留。"
           :code $ quote $ defn twig-container (store)
-            let
-                normalize-field $ fn (field)
-                  hint-fn $ Fn (Option T)
-                    -> $ Option T
-                    :generics T
-                  match field
-                    (:none) None
-                    (:some value)
-                      if (nil? value) None $ Some value
-              merge store $ {} $ :card
-                memo-twig-by2 :card twig-card
-                  normalize-field $ get store :user
-                  normalize-field $ get store :date
+            merge store $ {} $ :card
+              memo-twig-by2 :card twig-card
+                normalize-field $ get store :user
+                normalize-field $ get store :date
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic)
             -> $ Map Tag Dynamic
