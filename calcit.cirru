@@ -416,8 +416,9 @@
           :code $ quote $ defn twig-container (store)
             let
                 normalize-field $ fn (field)
-                  hint-fn $ Fn (Option Dynamic)
-                    -> $ Option Dynamic
+                  hint-fn $ Fn (Option T)
+                    -> $ Option T
+                    :generics T
                   match field
                     (:none) None
                     (:some value)
@@ -453,7 +454,7 @@
             %{} 'TestEntry (:name |false-zero-and-empty-keep-values-and-cache)
               :code $ quote $ let
                   verify $ fn (value)
-                    hint-fn $ Fn Dynamic $ -> Unit
+                    hint-fn $ Fn T (-> Unit) (:generics T)
                     recollect.memo/reset-twig-memo!
                     let
                         store $ {} (:user value) (:date value) (:extra 9)
