@@ -1033,6 +1033,19 @@
           :schema $ quote $ Fn AnyStruct AnyStruct (Map Tag Tag)
             -> $ List recollect.schema/change-op
             :open :reflect
+          :tests $ [] $ %{} 'TestEntry (:name |preserves-field-order-and-replacement)
+            :code $ quote $ let
+                before $ DiffStats :visited-nodes 1 :emitted-ops 2
+                after $ DiffStats :visited-nodes 3 :emitted-ops 4
+                other $ DiffBudget :max-visited None :max-emitted None
+                expected $ [] (schema/change-op :assoc :emitted-ops 4) (schema/change-op :assoc :visited-nodes 3)
+                budget $ unlimited-diff-budget &unit
+                replacement $ [] $ schema/change-op :replace other
+              assert= expected $ diff-record before after $ {}
+              assert= expected $ diff-record-budgeted (new-diff-state budget) before after $ {}
+              assert= replacement $ diff-record before other $ {}
+              assert= replacement $ diff-record-budgeted (new-diff-state budget) before other $ {}
+            :tags $ #{} :unit
         'diff-record-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware struct diff.")
           :code $ quote $ defn diff-record-budgeted (state a b options)
             if (identical? a b) ([])
