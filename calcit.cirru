@@ -2868,7 +2868,7 @@
                     true $ raise $ str "|recollect cannot decode change operation: " x
               raise $ str "|recollect cannot decode change operation: " x
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> recollect.schema/change-op)
+          :schema $ quote $ Fn Input (-> recollect.schema/change-op) (:generics Input)
         'decode-changes $ %{} 'CodeEntry
           :doc "|在网络/EDN 边界逐项校验并重建 change-op 列表，替代对未知数据的 assert-type。"
           :code $ quote $ defn decode-changes (xs)
@@ -2883,8 +2883,9 @@
                   append acc $ decode-change-op x
               raise $ str "|recollect expected a list of changes, got: " $ type-of xs
           :examples $ []
-          :schema $ quote $ Fn Dynamic
+          :schema $ quote $ Fn Input
             -> $ List recollect.schema/change-op
+            :generics Input
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             {} $ :states $ {}
