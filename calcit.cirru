@@ -2953,7 +2953,7 @@
                     if (identical? x0 y0) (recur xss yss) false
           :examples $ [] $ quote
             =seq ([] 1 2 3) ([] 1 2 3)
-          :schema $ quote $ Fn (List T) (List T) (-> Bool) (:generics T)
+          :schema $ quote $ Fn (List Left) (List Right) (-> Bool) (:generics Left Right)
         'compare $ %{} 'CodeEntry
           :doc "|Compare two numbers. Returns -1 if x < y, 1 if x > y, otherwise 0; preserves the existing unordered-NaN behavior."
           :code $ quote $ defn compare (x y)
