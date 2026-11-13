@@ -1127,10 +1127,16 @@
                 opts $ {}
                 budget $ unlimited-diff-budget &unit
                 expected $ [] $ schema/change-op :replace named
-              assert= expected $ diff-twig anonymous named opts
+                forward $ diff-twig anonymous named opts
+                backward $ diff-twig named anonymous opts
+              assert= expected forward
               assert=
                 [] $ schema/change-op :replace anonymous
-                diff-twig named anonymous opts
+                , backward
+              assert= (enum-definition named)
+                enum-definition $ recollect.patch/patch-twig anonymous forward
+              assert= (enum-definition anonymous)
+                enum-definition $ recollect.patch/patch-twig named backward
               match (diff-twig-budgeted anonymous named opts budget)
                 (:complete changes _) (assert= expected changes)
                 _ $ raise |Expected-a-complete-diff
