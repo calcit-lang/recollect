@@ -1407,6 +1407,14 @@
                         assert |unlimited-budget-records-work $ &> (:visited-nodes stats) 0
                     _ $ assert |unlimited-budget-must-complete false
                 let
+                    old $ :: :sample |before 2
+                    updated $ :: :sample |after 3
+                    outcome $ diff-twig-budgeted old updated ({}) (unlimited-diff-budget &unit)
+                  match outcome
+                    (:complete changes _)
+                      assert= changes $ [] (schema/change-op :assoc 1 |after) (schema/change-op :assoc 2 3)
+                    _ $ assert |enum-payload-budget-must-complete false
+                let
                     blocked $ DiffBudget :max-visited (Some 0) :max-emitted None
                     first-outcome $ diff-twig-budgeted 1 2 ({}) blocked
                     second-outcome $ diff-twig-budgeted 1 2 ({}) (unlimited-diff-budget &unit)
