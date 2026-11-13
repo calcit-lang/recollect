@@ -849,10 +849,13 @@
         'by-key $ %{} 'CodeEntry
           :doc "|Compare two key-value pairs by their keys. Used for sorting map entries."
           :code $ quote $ defn by-key (x y)
-            &compare (&enum:nth x 0) (&enum:nth y 0)
+            if
+              and (enum? x) (enum? y)
+              &compare (&enum:nth x 0) (&enum:nth y 0)
+              raise "|by-key expects two Enum entries"
           :examples $ [] $ quote
             by-key (:: :a 1) (:: :b 2)
-          :schema $ quote $ Fn AnyEnum AnyEnum (-> Number) (:open :reflect)
+          :schema $ quote $ Fn Left Right (-> Number) (:generics Left Right) (:open :reflect)
         'consume-emitted! $ %{} 'CodeEntry
           :doc "|Consume one emitted-operation unit or record the first exceeded reason."
           :code $ quote $ defn consume-emitted! (state)
