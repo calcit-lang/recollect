@@ -1040,11 +1040,15 @@
                 other $ DiffBudget :max-visited None :max-emitted None
                 expected $ [] (schema/change-op :assoc :emitted-ops 4) (schema/change-op :assoc :visited-nodes 3)
                 budget $ unlimited-diff-budget &unit
+                limited $ DiffBudget :max-visited (Some 2) :max-emitted None
                 replacement $ [] $ schema/change-op :replace other
               assert= expected $ diff-record before after $ {}
               assert= expected $ diff-record-budgeted (new-diff-state budget) before after $ {}
               assert= replacement $ diff-record before other $ {}
               assert= replacement $ diff-record-budgeted (new-diff-state budget) before other $ {}
+              assert=
+                DiffOutcome :budget-exceeded (DiffBudgetReason :visited-nodes) (DiffStats :visited-nodes 2 :emitted-ops 2)
+                diff-twig-budgeted before after ({}) limited
             :tags $ #{} :unit
         'diff-record-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware struct diff.")
           :code $ quote $ defn diff-record-budgeted (state a b options)
