@@ -856,6 +856,13 @@
           :examples $ [] $ quote
             by-key (:: :a 1) (:: :b 2)
           :schema $ quote $ Fn Left Right (-> Number) (:generics Left Right) (:open :reflect)
+          :tests $ [] $ %{} 'TestEntry (:name |compares-enum-keys)
+            :code $ quote $ do
+              assert= -1 $ by-key (:: :a 1) (:: :b 2)
+              assert= 0 $ by-key (:: :a 1) (:: :a 2)
+              assert= "|by-key expects two Enum entries" $ try
+                by-key (:: :a 1) ({})
+                fn (error) error
         'consume-emitted! $ %{} 'CodeEntry
           :doc "|Consume one emitted-operation unit or record the first exceeded reason."
           :code $ quote $ defn consume-emitted! (state)
