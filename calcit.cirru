@@ -1156,8 +1156,9 @@
               {} $ :items $ [] 1 2 3
               {} $ :items $ [] 1 2 4
               {} $ :key :id
-          :schema $ quote $ Fn Dynamic Dynamic (Map Tag Tag)
+          :schema $ quote $ Fn A B (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :generics A B
           :tests $ []
             %{} 'TestEntry (:name |reports-map-and-set-operations)
               :code $ quote $ do
@@ -1290,7 +1291,7 @@
                 (:some reason) (DiffOutcome :budget-exceeded reason stats)
                 (:none) (DiffOutcome :complete changes stats)
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic (Map Tag Tag) DiffBudget (-> DiffOutcome) (:features :state)
+          :schema $ quote $ Fn A B (Map Tag Tag) DiffBudget (-> DiffOutcome) (:generics A B) (:features :state)
           :tests $ []
             %{} 'TestEntry (:name |zero-and-one-visited-limits)
               :code $ quote $ do
@@ -1490,8 +1491,9 @@
                       [] $ schema/change-op :replace b
                   true $ []
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic (Map Tag Tag)
+          :schema $ quote $ Fn A B (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :generics A B
         'diff-twig-iterate-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware recursive value dispatcher.")
           :code $ quote $ defn diff-twig-iterate-budgeted (state a b options)
             if (consume-visited! state)
@@ -1523,8 +1525,9 @@
                     true $ []
               []
           :examples $ []
-          :schema $ quote $ Fn (Ref DiffWorkState) Dynamic Dynamic (Map Tag Tag)
+          :schema $ quote $ Fn (Ref DiffWorkState) A B (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :generics A B
             :features :state
         'emit-change $ %{} 'CodeEntry
           :doc "|Return a singleton change list only when one emitted-operation unit is available."
