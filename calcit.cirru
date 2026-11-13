@@ -1105,7 +1105,7 @@
           :examples $ []
           :schema $ quote $ Fn (Ref DiffWorkState) (-> Bool) (:features :state)
         'diff-tuple $ %{} 'CodeEntry
-          :doc "|Internal function to compute a diff between two enums. Replaces when the variant tag or arity differs; otherwise diffs payload elements."
+          :doc "|Diff two enums. Replace the value when the definition, variant tag, or arity differs. Otherwise diff the payload elements."
           :code $ quote $ defn diff-tuple (a b options)
             if
               or
@@ -1141,7 +1141,8 @@
                 (:complete changes _) (assert= expected changes)
                 _ $ raise |Expected-a-complete-diff
             :tags $ #{} :unit
-        'diff-tuple-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware enum diff.")
+        'diff-tuple-budgeted $ %{} 'CodeEntry
+          :doc "|Budget-aware enum diff with the same definition, variant tag, and arity checks as diff-tuple."
           :code $ quote $ defn diff-tuple-budgeted (state a b options)
             if
               or
