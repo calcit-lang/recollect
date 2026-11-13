@@ -860,8 +860,13 @@
             :code $ quote $ do
               assert= -1 $ by-key (:: :a 1) (:: :b 2)
               assert= 0 $ by-key (:: :a 1) (:: :a 2)
+              assert= (&compare :visited-nodes :index)
+                by-key (DiffBudgetReason :visited-nodes) (recollect.patch/PatchPathSegment :index 0)
               assert= "|by-key expects two Enum entries" $ try
                 by-key (:: :a 1) ({})
+                fn (error) error
+              assert= "|by-key expects two Enum entries" $ try
+                by-key ({}) (:: :a 1)
                 fn (error) error
         'consume-emitted! $ %{} 'CodeEntry
           :doc "|Consume one emitted-operation unit or record the first exceeded reason."
