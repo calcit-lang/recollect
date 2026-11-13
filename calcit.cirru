@@ -849,10 +849,25 @@
         'by-key $ %{} 'CodeEntry
           :doc "|Compare two key-value pairs by their keys. Used for sorting map entries."
           :code $ quote $ defn by-key (x y)
-            &compare (&enum:nth x 0) (&enum:nth y 0)
+            if
+              and (enum? x) (enum? y)
+              &compare (&enum:nth x 0) (&enum:nth y 0)
+              raise "|by-key expects two Enum entries"
           :examples $ [] $ quote
             by-key (:: :a 1) (:: :b 2)
-          :schema $ quote $ Fn AnyEnum AnyEnum (-> Number) (:open :reflect)
+          :schema $ quote $ Fn Left Right (-> Number) (:generics Left Right) (:open :reflect)
+          :tests $ [] $ %{} 'TestEntry (:name |compares-enum-keys)
+            :code $ quote $ do
+              assert= -1 $ by-key (:: :a 1) (:: :b 2)
+              assert= 0 $ by-key (:: :a 1) (:: :a 2)
+              assert= (&compare :visited-nodes :index)
+                by-key (DiffBudgetReason :visited-nodes) (recollect.patch/PatchPathSegment :index 0)
+              assert= "|by-key expects two Enum entries" $ try
+                by-key (:: :a 1) ({})
+                fn (error) error
+              assert= "|by-key expects two Enum entries" $ try
+                by-key ({}) (:: :a 1)
+                fn (error) error
         'consume-emitted! $ %{} 'CodeEntry
           :doc "|Consume one emitted-operation unit or record the first exceeded reason."
           :code $ quote $ defn consume-emitted! (state)
@@ -2943,7 +2958,7 @@
                     if (identical? x0 y0) (recur xss yss) false
           :examples $ [] $ quote
             =seq ([] 1 2 3) ([] 1 2 3)
-          :schema $ quote $ Fn (List T) (List T) (-> Bool) (:generics T)
+          :schema $ quote $ Fn (List Left) (List Right) (-> Bool) (:generics Left Right)
         'compare $ %{} 'CodeEntry
           :doc "|Compare two numbers. Returns -1 if x < y, 1 if x > y, otherwise 0; preserves the existing unordered-NaN behavior."
           :code $ quote $ defn compare (x y)
@@ -2961,7 +2976,7 @@
           :examples $ []
             quote $ literal? 123
             quote $ literal? $ [] 1 2
-          :schema $ quote $ Fn Dynamic (-> Bool)
+          :schema $ quote $ Fn Input (-> Bool) (:generics Input)
         'vec-add $ %{} 'CodeEntry
           :doc "|Append vector ys to vector xs. Returns a new vector with all elements from xs followed by all elements from ys."
           :code $ quote $ defn vec-add (xs ys)
