@@ -1878,41 +1878,28 @@
           :doc "|Memoize a twig builder with arbitrary arguments. This variadic escape hatch is intentionally dynamic; prefer memo-twig-by0, memo-twig-by1, or memo-twig-by2 for static argument and return checking."
           :code $ quote $ defn memo-twig-by (key f & args)
             if (nil? key) (f & args)
-              &let
-                cached-pair-option $ .or-else
-                  .and-then (get @*twig-frame-cache f)
-                    fn (bucket) (get bucket key)
-                  fn () $ .and-then (get @*twig-call-cache f)
-                    fn (bucket) (get bucket key)
-                match cached-pair-option
-                  (:some cached-pair)
+              let
+                  cached $ .or-else
+                    .and-then (get @*twig-frame-cache f)
+                      fn (bucket) (get bucket key)
+                    fn () $ .and-then (get @*twig-call-cache f)
+                      fn (bucket) (get bucket key)
+                  matching $ .and-then cached $ fn (entry)
                     if
-                      &= args $ :args cached-pair
-                      if @*twig-frame-active?
-                        &let
-                          ret $ :value cached-pair
-                          swap! *twig-frame-cache assoc-cache-entry f key cached-pair
-                          , ret
-                        :value cached-pair
-                      &let
-                        ret $ f & args
-                        if @*twig-frame-active?
-                          &let (result ret)
-                            swap! *twig-frame-cache assoc-cache-entry f key $ MemoEntry :args args :value ret
-                            , ret
-                          &let (result ret)
-                            swap! *twig-call-cache assoc-cache-entry f key $ MemoEntry :args args :value ret
-                            , ret
+                      &= args $ :args entry
+                      Some entry
+                      , None
+                match matching
+                  (:some entry)
+                    do
+                      if @*twig-frame-active? $ swap! *twig-frame-cache assoc-cache-entry f key entry
+                      :value entry
                   (:none)
-                    &let
-                      ret $ f & args
-                      if @*twig-frame-active?
-                        &let (result ret)
-                          swap! *twig-frame-cache assoc-cache-entry f key $ MemoEntry :args args :value ret
-                          , ret
-                        &let (result ret)
-                          swap! *twig-call-cache assoc-cache-entry f key $ MemoEntry :args args :value ret
-                          , ret
+                    let
+                        result $ f & args
+                        entry $ MemoEntry :args args :value result
+                      if @*twig-frame-active? (swap! *twig-frame-cache assoc-cache-entry f key entry) (swap! *twig-call-cache assoc-cache-entry f key entry)
+                      , result
           :examples $ []
           :schema $ quote $ Fn K AnyFn (& Dynamic) (-> Dynamic) (:generics K) (:features :state) (:open :reflect)
           :tests $ []
@@ -2079,6 +2066,23 @@
           :schema $ quote $ Fn K
             Fn A B $ -> R
             , A B (-> R) (:generics K A B R) (:features :erased-cache :state)
+          :tests $ [] $ %{} 'TestEntry (:name |typed-and-variadic-share-cache)
+            :code $ quote $ let
+                calls $ ref 0
+                build $ assert-type
+                  fn (label amount) (swap! calls inc)
+                    [] label $ str amount
+                  Fn String Number $ -> $ List String
+              reset-twig-memo!
+              let
+                  first-value $ assert-type (memo-twig-by2 :shared build |a 1) (List String)
+                  legacy-value $ memo-twig-by :shared build |a 1
+                assert |typed-and-variadic-share-builder-cache $ identical? first-value legacy-value
+                assert= 1 @calls
+                assert= ([] |a |2) (memo-twig-by2 :shared build |a 2)
+                assert= 2 @calls
+              reset-twig-memo!
+            :tags $ #{} :unit
         'reset-twig-memo! $ %{} 'CodeEntry
           :doc "|Clear all twig memo entries and leave frame collection inactive."
           :code $ quote $ defn reset-twig-memo! ()
