@@ -1877,7 +1877,29 @@
         'memo-twig-by $ %{} 'CodeEntry
           :doc "|Memoize a twig builder with arbitrary arguments. This variadic escape hatch is intentionally dynamic; prefer memo-twig-by0, memo-twig-by1, or memo-twig-by2 for static argument and return checking."
           :code $ quote $ defn memo-twig-by (key f & args)
-            memo-twig-call key f args $ fn () $ f & args
+            if (nil? key) (f & args)
+              let
+                  cached $ .or-else
+                    .and-then (get @*twig-frame-cache f)
+                      fn (bucket) (get bucket key)
+                    fn () $ .and-then (get @*twig-call-cache f)
+                      fn (bucket) (get bucket key)
+                  matching $ .and-then cached $ fn (entry)
+                    if
+                      &= args $ :args entry
+                      Some entry
+                      , None
+                match matching
+                  (:some entry)
+                    do
+                      if @*twig-frame-active? $ swap! *twig-frame-cache assoc-cache-entry f key entry
+                      :value entry
+                  (:none)
+                    let
+                        result $ f & args
+                        entry $ MemoEntry :args args :value result
+                      if @*twig-frame-active? (swap! *twig-frame-cache assoc-cache-entry f key entry) (swap! *twig-call-cache assoc-cache-entry f key entry)
+                      , result
           :examples $ []
           :schema $ quote $ Fn K AnyFn (& Dynamic) (-> Dynamic) (:generics K) (:features :state) (:open :reflect)
           :tests $ []
@@ -1981,8 +2003,7 @@
         'memo-twig-by0 $ %{} 'CodeEntry
           :doc "|Typed zero-argument twig memoization keyed by function and stable application key."
           :code $ quote $ defn memo-twig-by0 (key f)
-            memo-twig-call key f ([])
-              fn () $ f
+            unsafe-coerce (memo-twig-by key f) 'R
           :examples $ []
           :schema $ quote $ Fn K
             Fn $ -> R
@@ -1992,8 +2013,7 @@
         'memo-twig-by1 $ %{} 'CodeEntry
           :doc "|Typed unary twig memoization keyed by function, stable application key, and argument value."
           :code $ quote $ defn memo-twig-by1 (key f a)
-            memo-twig-call key f ([] a)
-              fn () $ f a
+            unsafe-coerce (memo-twig-by key f a) 'R
           :examples $ []
           :schema $ quote $ Fn K
             Fn A $ -> R
@@ -2041,8 +2061,7 @@
         'memo-twig-by2 $ %{} 'CodeEntry
           :doc "|Typed binary twig memoization keyed by function, stable application key, and both argument values."
           :code $ quote $ defn memo-twig-by2 (key f a b)
-            memo-twig-call key f ([] a b)
-              fn () $ f a b
+            unsafe-coerce (memo-twig-by key f a b) 'R
           :examples $ []
           :schema $ quote $ Fn K
             Fn A B $ -> R
@@ -2064,39 +2083,6 @@
                 assert= 2 @calls
               reset-twig-memo!
             :tags $ #{} :unit
-        'memo-twig-call $ %{} 'CodeEntry
-          :doc "|Invoke a typed builder on a miss. The shared cache erases the return type, which is recovered only after matching the original builder identity, key and arguments."
-          :code $ quote $ defn memo-twig-call (key builder args compute)
-            if (nil? key) (compute)
-              let
-                  cached-option $ .or-else
-                    .and-then (get @*twig-frame-cache builder)
-                      fn (bucket) (get bucket key)
-                    fn () $ .and-then (get @*twig-call-cache builder)
-                      fn (bucket) (get bucket key)
-                  matching-option $ .and-then cached-option $ fn (cached)
-                    if
-                      &= args $ :args cached
-                      Some cached
-                      , None
-                match matching-option
-                  (:some cached)
-                    do
-                      if @*twig-frame-active? $ swap! *twig-frame-cache assoc-cache-entry builder key cached
-                      unsafe-coerce (:value cached) 'R
-                  (:none)
-                    let
-                        result $ compute
-                        entry $ MemoEntry :args args :value result
-                      if @*twig-frame-active? (swap! *twig-frame-cache assoc-cache-entry builder key entry) (swap! *twig-call-cache assoc-cache-entry builder key entry)
-                      , result
-          :examples $ []
-          :schema $ quote $ Fn K AnyFn (List Dynamic)
-            Fn $ -> R
-            -> R
-            :generics K R
-            :features :erased-cache :state
-            :open :reflect
         'reset-twig-memo! $ %{} 'CodeEntry
           :doc "|Clear all twig memo entries and leave frame collection inactive."
           :code $ quote $ defn reset-twig-memo! ()
