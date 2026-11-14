@@ -2185,7 +2185,7 @@
               (:some old) (patch-one old change)
               (:none) (patch-one nil change)
           :examples $ []
-          :schema $ quote $ Fn (Option Dynamic) recollect.schema/change-op (-> Dynamic)
+          :schema $ quote $ Fn (Option Base) recollect.schema/change-op (-> Dynamic) (:generics Base)
         'patch-error-message $ %{} 'CodeEntry
           :doc "|Render a structured PatchError for compatibility APIs and logs."
           :code $ quote $ defn patch-error-message (error)
@@ -2698,7 +2698,7 @@
                             (:ok next-val) (try-patch-assoc base k0 next-val path)
               _ $ PatchResult :err $ PatchError :unsupported-operation (str change)
           :examples $ []
-          :schema $ quote $ Fn Dynamic recollect.schema/change-op (List PatchPathSegment) (-> PatchResult)
+          :schema $ quote $ Fn Base recollect.schema/change-op (List PatchPathSegment) (-> PatchResult) (:generics Base)
           :tags $ #{} :scaffold
         'try-patch-twig $ %{} 'CodeEntry
           :doc "|原子应用补丁批次，返回名义 PatchResult：:ok 携带开放数据，:err 携带 PatchError；不是自动保留输入类型的 Result<T,PatchError>。支持对已有 Struct 进行受检字段更新，失败不暴露部分结果。网络边界先 decode-changes，在独立 wire tree 应用，再完整 decode 为应用类型；匿名 EDN Enum 不能凭相同 tag 冒充名义 Option 字段。"
