@@ -1021,17 +1021,46 @@
           :code $ quote $ defn diff-record (a b options)
             if (identical? a b) ([])
               if (&struct:matches? a b)
-                diff-record-step (empty-changes) 0 (&struct:count a) a b options
+                diff-record-step (empty-changes) 0
+                  map
+                    range $ &struct:count a
+                    fn (index) (&struct:field-tag a index)
+                  &struct:to-map a
+                  &struct:to-map b
+                  , options
                 [] $ schema/change-op :replace b
           :examples $ []
           :schema $ quote $ Fn AnyStruct AnyStruct (Map Tag Tag)
             -> $ List recollect.schema/change-op
             :open :reflect
+          :tests $ [] $ %{} 'TestEntry (:name |preserves-field-order-and-replacement)
+            :code $ quote $ let
+                before $ DiffStats :visited-nodes 1 :emitted-ops 2
+                after $ DiffStats :visited-nodes 3 :emitted-ops 4
+                other $ DiffBudget :max-visited None :max-emitted None
+                expected $ [] (schema/change-op :assoc :emitted-ops 4) (schema/change-op :assoc :visited-nodes 3)
+                budget $ unlimited-diff-budget &unit
+                limited $ DiffBudget :max-visited (Some 2) :max-emitted None
+                replacement $ [] $ schema/change-op :replace other
+              assert= expected $ diff-record before after $ {}
+              assert= expected $ diff-record-budgeted (new-diff-state budget) before after $ {}
+              assert= replacement $ diff-record before other $ {}
+              assert= replacement $ diff-record-budgeted (new-diff-state budget) before other $ {}
+              assert=
+                DiffOutcome :budget-exceeded (DiffBudgetReason :visited-nodes) (DiffStats :visited-nodes 2 :emitted-ops 2)
+                diff-twig-budgeted before after ({}) limited
+            :tags $ #{} :unit
         'diff-record-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware struct diff.")
           :code $ quote $ defn diff-record-budgeted (state a b options)
             if (identical? a b) ([])
               if (&struct:matches? a b)
-                diff-record-step-budgeted state (empty-changes) 0 (&struct:count a) a b options
+                diff-record-step-budgeted state (empty-changes) 0
+                  map
+                    range $ &struct:count a
+                    fn (index) (&struct:field-tag a index)
+                  &struct:to-map a
+                  &struct:to-map b
+                  , options
                 emit-change state $ schema/change-op :replace b
           :examples $ []
           :schema $ quote $ Fn (Ref DiffWorkState) AnyStruct AnyStruct (Map Tag Tag)
@@ -1039,41 +1068,44 @@
             :features :state
             :open :reflect
         'diff-record-step $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn diff-record-step (acc idx n a b options)
-            if (&>= idx n) acc $ let
-                k $ &struct:field-tag a idx
-                va $ .unwrap $ get (&struct:to-map a) (&struct:field-tag a idx)
-                vb $ .unwrap $ get (&struct:to-map b) (&struct:field-tag b idx)
-              if (identical? va vb)
-                diff-record-step acc (&+ idx 1) n a b options
-                let
-                    child-changes $ diff-twig-iterate va vb options
-                    wrapped $ wrap-pick k child-changes
-                  diff-record-step (.concat acc wrapped) (&+ idx 1) n a b options
-          :examples $ []
-          :schema $ quote $ Fn (List recollect.schema/change-op) Number Number AnyStruct AnyStruct (Map Tag Tag)
-            -> $ List recollect.schema/change-op
-            :open :reflect
-        'diff-record-step-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware iteration over struct fields.")
-          :code $ quote $ defn diff-record-step-budgeted (state acc idx n a b options)
+          :code $ quote $ defn diff-record-step (acc idx field-tags a b options)
             if
-              or (diff-state-exceeded? state) (&>= idx n)
+              &>= idx $ .len field-tags
               , acc $ let
-                  k $ &struct:field-tag a idx
-                  va $ .unwrap $ get (&struct:to-map a) (&struct:field-tag a idx)
-                  vb $ .unwrap $ get (&struct:to-map b) (&struct:field-tag b idx)
+                  k $ &list:nth field-tags idx
+                  va $ .unwrap $ get a k
+                  vb $ .unwrap $ get b k
                 if (identical? va vb)
-                  diff-record-step-budgeted state acc (&+ idx 1) n a b options
+                  diff-record-step acc (&+ idx 1) field-tags a b options
+                  let
+                      child-changes $ diff-twig-iterate va vb options
+                      wrapped $ wrap-pick k child-changes
+                    diff-record-step (.concat acc wrapped) (&+ idx 1) field-tags a b options
+          :examples $ []
+          :schema $ quote $ Fn (List recollect.schema/change-op) Number (List Tag) (Map Tag A) (Map Tag B) (Map Tag Tag)
+            -> $ List recollect.schema/change-op
+            :generics A B
+        'diff-record-step-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware iteration over struct fields.")
+          :code $ quote $ defn diff-record-step-budgeted (state acc idx field-tags a b options)
+            if
+              or (diff-state-exceeded? state)
+                &>= idx $ .len field-tags
+              , acc $ let
+                  k $ &list:nth field-tags idx
+                  va $ .unwrap $ get a k
+                  vb $ .unwrap $ get b k
+                if (identical? va vb)
+                  diff-record-step-budgeted state acc (&+ idx 1) field-tags a b options
                   let
                       child-changes $ diff-twig-iterate-budgeted state va vb options
                     if (diff-state-exceeded? state) acc $ let
                         wrapped $ wrap-pick-budgeted state k child-changes
-                      diff-record-step-budgeted state (.concat acc wrapped) (&+ idx 1) n a b options
+                      diff-record-step-budgeted state (.concat acc wrapped) (&+ idx 1) field-tags a b options
           :examples $ []
-          :schema $ quote $ Fn (Ref DiffWorkState) (List recollect.schema/change-op) Number Number AnyStruct AnyStruct (Map Tag Tag)
+          :schema $ quote $ Fn (Ref DiffWorkState) (List recollect.schema/change-op) Number (List Tag) (Map Tag A) (Map Tag B) (Map Tag Tag)
             -> $ List recollect.schema/change-op
+            :generics A B
             :features :state
-            :open :reflect
         'diff-set $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn diff-set (a b)
             let
