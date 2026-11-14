@@ -2221,8 +2221,9 @@
                       , None
                     raise $ str "|Unsupported-patch-container-type: " $ type-of base
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic
+          :schema $ quote $ Fn Base Key
             -> $ Option Dynamic
+            :generics Base Key
           :tests $ []
             %{} 'TestEntry (:name |rejects-unsupported-containers)
               :code $ quote $ let
@@ -2600,7 +2601,7 @@
                     PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic (List PatchPathSegment) (-> PatchResult)
+          :schema $ quote $ Fn Base Key (List PatchPathSegment) (-> PatchResult) (:generics Base Key)
           :tags $ #{} :scaffold
         'try-patch-one $ %{} 'CodeEntry
           :doc "|Apply one change operation atomically and return Result."
