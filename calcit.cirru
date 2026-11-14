@@ -2518,7 +2518,7 @@
                     PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
                 true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic Dynamic (List PatchPathSegment) (-> PatchResult)
+          :schema $ quote $ Fn Base Key Value (List PatchPathSegment) (-> PatchResult) (:generics Base Key Value)
           :tags $ #{} :scaffold
           :tests $ []
             %{} 'TestEntry (:name |checks-dynamic-struct-field-writes)
