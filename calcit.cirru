@@ -1137,10 +1137,11 @@
           :examples $ []
           :schema $ quote $ Fn (Ref DiffWorkState) (-> Bool) (:features :state)
         'diff-tuple $ %{} 'CodeEntry
-          :doc "|Internal function to compute a diff between two enums. Replaces when the variant tag or arity differs; otherwise diffs payload elements."
+          :doc "|Diff two enums. Replace the value when the definition, variant tag, or arity differs. Otherwise diff the payload elements."
           :code $ quote $ defn diff-tuple (a b options)
             if
               or
+                not $ = (enum-definition a) (enum-definition b)
                 not $ &= (&enum:nth a 0) (&enum:nth b 0)
                 not $ &= (&enum:count a) (&enum:count b)
               [] $ schema/change-op :replace b
@@ -1151,10 +1152,33 @@
           :schema $ quote $ Fn AnyEnum AnyEnum (Map Tag Tag)
             -> $ List recollect.schema/change-op
             :open :reflect
-        'diff-tuple-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware enum diff.")
+          :tests $ [] $ %{} 'TestEntry (:name |preserves-nominal-enum-identity)
+            :code $ quote $ let
+                named $ recollect.patch/PatchPathSegment :index 1
+                anonymous $ :: :index 1
+                opts $ {}
+                budget $ unlimited-diff-budget &unit
+                expected $ [] $ schema/change-op :replace named
+                forward $ diff-twig anonymous named opts
+                backward $ diff-twig named anonymous opts
+              assert= expected forward
+              assert=
+                [] $ schema/change-op :replace anonymous
+                , backward
+              assert= (enum-definition named)
+                enum-definition $ recollect.patch/patch-twig anonymous forward
+              assert= (enum-definition anonymous)
+                enum-definition $ recollect.patch/patch-twig named backward
+              match (diff-twig-budgeted anonymous named opts budget)
+                (:complete changes _) (assert= expected changes)
+                _ $ raise |Expected-a-complete-diff
+            :tags $ #{} :unit
+        'diff-tuple-budgeted $ %{} 'CodeEntry
+          :doc "|Budget-aware enum diff with the same definition, variant tag, and arity checks as diff-tuple."
           :code $ quote $ defn diff-tuple-budgeted (state a b options)
             if
               or
+                not $ = (enum-definition a) (enum-definition b)
                 not $ &= (&enum:nth a 0) (&enum:nth b 0)
                 not $ &= (&enum:count a) (&enum:count b)
               emit-change state $ schema/change-op :replace b
