@@ -2167,7 +2167,7 @@
               (map? base) (.assoc base k data)
               true $ raise $ str "|Unsupported-patch-container-type: " (type-of base)
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic Dynamic (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn Base Key Value (-> Dynamic) (:generics Base Key Value) (:features :js-ffi)
         'patch-batch $ %{} 'CodeEntry
           :doc "|Wrap a list of public change-op values as a method-oriented PatchBatch."
           :code $ quote $ defn patch-batch (changes)
@@ -2287,7 +2287,7 @@
             patch-map-set
               {} $ :a 1
               , :b 2
-          :schema $ quote $ Fn Dynamic Dynamic Dynamic (-> Dynamic)
+          :schema $ quote $ Fn Base Key Value (-> Dynamic) (:generics Base Key Value)
         'patch-map-typed $ %{} 'CodeEntry
           :doc "|Apply a map splice whose keys and values follow a known Map contract."
           :code $ quote $ defn patch-map-typed (base removed added)
