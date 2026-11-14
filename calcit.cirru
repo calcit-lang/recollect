@@ -2266,8 +2266,9 @@
               {} (:a 1) (:b 2)
               #{} :a
               {} $ :c 3
-          :schema $ quote $ Fn (Map Dynamic Dynamic) (Set Dynamic) (Map Dynamic Dynamic)
-            -> $ Map Dynamic Dynamic
+          :schema $ quote $ Fn (Map K V) (Set K) (Map K V)
+            -> $ Map K V
+            :generics K V
           :tests $ [] $ %{} 'TestEntry (:name |keeps-heterogeneous-patch-contract)
             :code $ quote $ assert=
               {} (:keep 2) (42 |answer) (|flag true)
