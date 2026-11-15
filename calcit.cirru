@@ -53,6 +53,7 @@
             Option $ Map Tag Dynamic
             Map Tag Dynamic
             -> respo.schema/Component
+            :features :state
           :tests $ [] $ %{} 'TestEntry (:name |option-display-keeps-original-nil-and-map-text)
             :code $ quote $ let
                 verify $ fn (input expected)
