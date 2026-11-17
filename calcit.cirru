@@ -310,9 +310,9 @@
           :examples $ []
           :schema $ quote $ Fn
             Fn respo.dom/DomElement respo.schema/Component
-              Fn recollect.app.updater/Op $ -> Unit
+              Fn recollect.app.updater/Op (-> Unit) (:features :io :state)
               -> Unit
-              :features :js-ffi
+              :features :io :js-ffi :state
             -> Unit
             :features :io :js-ffi :state
         'render-data-twig! $ %{} 'CodeEntry (:doc |)
@@ -2114,23 +2114,19 @@
       :defs $ {}
         'PatchBatch $ %{} 'CodeEntry
           :doc "|Nominal validated patch batch. Construct with patch-batch and apply with batch .apply-to base."
-          :code $ quote $ def PatchBatch
-            impl-traits
-              defstruct PatchBatch $ :changes $ List recollect.schema/change-op
-              , PatchBatchOpsImpl
+          :code $ quote $ defstruct PatchBatch
+            :changes $ List recollect.schema/change-op
+            :impls PatchBatchOps
           :examples $ []
           :schema $ quote StructDef
         'PatchBatchOps $ %{} 'CodeEntry
           :doc "|Method contract for applying a validated patch batch to a base tree."
           :code $ quote $ deftrait PatchBatchOps
-            .apply-to $ :: 'Fn $ {}
-              :generics $ [] 'T
-              :args $ [] 'recollect.patch/PatchBatch $ quote T
-              :return 'recollect.patch/PatchResult
+            .apply-to $ Fn Self T (-> recollect.patch/PatchResult) (:generics T)
           :examples $ []
           :schema $ quote Trait
         'PatchBatchOpsImpl $ %{} 'CodeEntry (:doc "|PatchBatch method implementation.")
-          :code $ quote $ defimpl PatchBatchOpsImpl PatchBatchOps (.apply-to patch-batch:apply-to)
+          :code $ quote $ defimpl PatchBatch PatchBatchOps (.apply-to patch-batch:apply-to)
           :examples $ []
           :schema $ quote Impl
         'PatchError $ %{} 'CodeEntry
