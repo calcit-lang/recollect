@@ -6,6 +6,10 @@ Demo http://repo.calcit-lang.org/recollect/ .
 
 Diff/patch library designed for Cumulo project.
 
+### 0.3.11：使用者需要注意
+
+配对 Calcit 0.44.0、Respo 0.19.15、UI 0.16.2、Value 0.7.10 与 JS-FFI 0.2.22，重新安装并生成 JS。状态游标、补丁和公开接口保持不变；正式 tag 发布前为候选。
+
 ### 0.3.10：使用者需要注意
 
 配对 Calcit 0.44.0、Respo 0.19.13、UI 0.15.7、Value 0.7.9 与 JS-FFI 0.2.19，重新安装并生成 JS。状态游标、补丁和公开接口保持不变。
