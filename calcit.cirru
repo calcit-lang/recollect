@@ -537,7 +537,10 @@
                   decode-map-as
                     match (get store :map-0)
                       (:some v)
-                        or v $ {}
+                        if
+                          or (nil? v) (= false v)
+                          {}
+                          , v
                       (:none) ({})
                     Map Tag Dynamic
                   , :y
@@ -574,13 +577,19 @@
                     date $ decode-map-as
                       match (get store :date)
                         (:some v)
-                          or v $ {}
+                          if
+                            or (nil? v) (= false v)
+                            {}
+                            , v
                         (:none) ({})
                       Map Tag Dynamic
                   .assoc store :date $ .assoc date :month $ inc
                     decode-map-as
                       match (get date :month)
-                        (:some v) (or v 0)
+                        (:some v)
+                          if
+                            or (nil? v) (= false v)
+                            , 0 v
                         (:none) 0
                       , 'Number
               (:types d)
@@ -1167,9 +1176,13 @@
                 [] $ schema/change-op :replace anonymous
                 , backward
               assert= (enum-definition named)
-                enum-definition $ recollect.patch/patch-twig anonymous forward
+                let
+                    patched $ recollect.patch/patch-twig anonymous forward
+                  if (enum? patched) (enum-definition patched) (raise |Expected-enum-after-patch)
               assert= (enum-definition anonymous)
-                enum-definition $ recollect.patch/patch-twig named backward
+                let
+                    patched $ recollect.patch/patch-twig named backward
+                  if (enum? patched) (enum-definition patched) (raise |Expected-enum-after-patch)
               match (diff-twig-budgeted anonymous named opts budget)
                 (:complete changes _) (assert= expected changes)
                 _ $ raise |Expected-a-complete-diff
