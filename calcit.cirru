@@ -50,9 +50,10 @@
                       :inner-text $ format-cirru-edn changes
           :examples $ []
           :schema $ quote $ Fn
-            Option $ Map Tag Dynamic
+            Option $ Map Tag T
             Map Tag Dynamic
             -> respo.schema/Component
+            :generics T
             :features :state
           :tests $ [] $ %{} 'TestEntry (:name |option-display-keeps-original-nil-and-map-text)
             :code $ quote $ let
