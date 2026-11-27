@@ -289,7 +289,7 @@
             :features :io :js-ffi :state
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
-            if (nil? build-errors)
+            if (js-nullish? build-errors)
               do (remove-watch! *store :changes) (remove-watch! *client-store :changes) (clear-cache!)
                 add-watch! *store :changes $ fn (store prev) (render-data-twig!)
                 add-watch! *client-store :changes $ fn (client-store prev) (render-app! render!)
@@ -384,7 +384,7 @@
             match field
               (:none) None
               (:some value)
-                if (nil? value) None $ Some value
+                if (identical? value nil) None $ Some value
           :examples $ []
           :schema $ quote $ Fn (Option T)
             -> $ Option T
@@ -410,7 +410,7 @@
                     :generics T
                   match field
                     (:some value)
-                      if (nil? value) m $ .assoc m k value
+                      if (identical? value nil) m $ .assoc m k value
                     (:none) m
               -> ({}) (with-field :user user) (with-field :date date)
           :examples $ []
@@ -539,7 +539,7 @@
                     match (get store :map-0)
                       (:some v)
                         if
-                          or (nil? v) (= false v)
+                          or (identical? nil v) (identical? false v)
                           {}
                           , v
                       (:none) ({})
@@ -554,11 +554,9 @@
                     , d
                   , :cursor
               (:vec-0-rm)
-                .assoc store :vec-0 $ either
-                  .butlast $ decode-map-as
-                    .unwrap $ get store :vec-0
-                    List Dynamic
-                  []
+                .assoc store :vec-0 $ .butlast $ decode-map-as
+                  .unwrap $ get store :vec-0
+                  List Dynamic
               (:set-0 d)
                 .assoc store :set-0 $ &union
                   decode-map-as
@@ -566,20 +564,23 @@
                     Set Dynamic
                   #{} d
               (:set-0-rm)
-                &let
-                  items $ .unwrap-or (get store :set-0) false
-                  if (set? items)
-                    .assoc store :set-0 $ match (.destruct items)
-                      (:some _item rest) rest
-                      (:none) items
-                    raise |Expected-set-for-set-0
+                match (get store :set-0)
+                  (:none) (raise |Expected-set-for-set-0)
+                  (:some raw)
+                    match
+                      try-decode-map-as raw $ Set Dynamic
+                      (:ok items)
+                        .assoc store :set-0 $ match (.destruct items)
+                          (:some _item rest) rest
+                          (:none) items
+                      (:err _) (raise |Expected-set-for-set-0)
               (:date)
                 let
                     date $ decode-map-as
                       match (get store :date)
                         (:some v)
                           if
-                            or (nil? v) (= false v)
+                            or (identical? nil v) (identical? false v)
                             {}
                             , v
                         (:none) ({})
@@ -589,7 +590,7 @@
                       match (get date :month)
                         (:some v)
                           if
-                            or (nil? v) (= false v)
+                            or (identical? nil v) (identical? false v)
                             , 0 v
                         (:none) 0
                       , 'Number
@@ -935,7 +936,7 @@
           :doc "|Internal function to compute diff between two maps. Collects :map-splice operations for removed and added entries."
           :code $ quote $ defn diff-map (a b options)
             let
-                id-k $ if (nil? options) (Some :id) (get options :key)
+                id-k $ get options :key
                 ka $ match id-k
                   (:some k) (get a k)
                   (:none) (get a nil)
@@ -943,9 +944,12 @@
                   (:some k) (get b k)
                   (:none) (get b nil)
               if
-                and (.some? ka)
-                  non-nil? $ .unwrap ka
-                  not $ &= ka kb
+                match ka
+                  (:some va)
+                    and
+                      not $ identical? va nil
+                      not $ &= ka kb
+                  (:none) false
                 [] $ schema/change-op :replace b
                 let
                     triple $ &map:diff-triple a b
@@ -962,7 +966,7 @@
         'diff-map-budgeted $ %{} 'CodeEntry (:doc "|Budget-aware map diff.")
           :code $ quote $ defn diff-map-budgeted (state a b options)
             let
-                id-k $ if (nil? options) (Some :id) (get options :key)
+                id-k $ get options :key
                 ka $ match id-k
                   (:some k) (get a k)
                   (:none) (get a nil)
@@ -970,9 +974,12 @@
                   (:some k) (get b k)
                   (:none) (get b nil)
               if
-                and (.some? ka)
-                  non-nil? $ .unwrap ka
-                  not $ &= ka kb
+                match ka
+                  (:some va)
+                    and
+                      not $ identical? va nil
+                      not $ &= ka kb
+                  (:none) false
                 emit-change state $ schema/change-op :replace b
                 let
                     triple $ &map:diff-triple a b
@@ -1571,8 +1578,6 @@
                 cond
                     literal? b
                     [] $ schema/change-op :replace b
-                  (symbol? b)
-                    [] $ schema/change-op :replace b
                   (set? b)
                     if (set? a) (diff-set a b)
                       [] $ schema/change-op :replace b
@@ -1603,8 +1608,6 @@
                   emit-change state $ schema/change-op :replace b
                   cond
                       literal? b
-                      emit-change state $ schema/change-op :replace b
-                    (symbol? b)
                       emit-change state $ schema/change-op :replace b
                     (set? b)
                       if (set? a) (diff-set-budgeted state a b)
@@ -1892,7 +1895,7 @@
         'memo-twig-by $ %{} 'CodeEntry
           :doc "|Memoize a twig builder with arbitrary arguments. This variadic escape hatch is intentionally dynamic; prefer memo-twig-by0, memo-twig-by1, or memo-twig-by2 for static argument and return checking."
           :code $ quote $ defn memo-twig-by (key f & args)
-            if (nil? key) (f & args)
+            if (identical? key nil) (f & args)
               let
                   cached $ .or-else
                     .and-then (get @*twig-frame-cache f)
@@ -2161,6 +2164,41 @@
           :code $ quote $ defenum PatchResult (:ok Dynamic) (:err recollect.patch/PatchError)
           :examples $ []
           :schema $ quote EnumDef
+        'as-list $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn as-list (v)
+            if (list? v) (Some v) None
+          :examples $ []
+          :schema $ quote $ Fn Base
+            -> $ Option $ List Dynamic
+            :generics Base
+            :open :reflect
+          :tags $ #{} :scaffold
+        'as-map $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn as-map (v)
+            if (map? v) (Some v) None
+          :examples $ []
+          :schema $ quote $ Fn Base
+            -> $ Option $ Map Dynamic Dynamic
+            :generics Base
+            :open :reflect
+          :tags $ #{} :scaffold
+        'as-number $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn as-number (v)
+            if (number? v) (Some v) None
+          :examples $ []
+          :schema $ quote $ Fn Base
+            -> $ Option Number
+            :generics Base
+          :tags $ #{} :scaffold
+        'as-set $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn as-set (v)
+            if (set? v) (Some v) None
+          :examples $ []
+          :schema $ quote $ Fn Base
+            -> $ Option $ Set Dynamic
+            :generics Base
+            :open :reflect
+          :tags $ #{} :scaffold
         'empty-patch-path $ %{} 'CodeEntry (:doc "|类型化的根补丁路径。")
           :code $ quote $ defn empty-patch-path () ([])
           :examples $ []
@@ -2170,13 +2208,17 @@
           :code $ quote $ defn patch-assoc (base k data)
             cond
                 enum? base
-                if (number? k) (&enum:assoc base k data)
-                  raise $ str "|patch-assoc expected a Number index for enum, got: " k
+                match (as-number k)
+                  (:some idx) (&enum:assoc base idx data)
+                  (:none)
+                    raise $ str "|patch-assoc expected a Number index for enum, got: " k
               (list? base)
-                if (number? k) (.assoc base k data)
-                  raise $ str "|patch-assoc expected a Number index for list, got: " k
+                match (as-number k)
+                  (:some idx) (.assoc base idx data)
+                  (:none)
+                    raise $ str "|patch-assoc expected a Number index for list, got: " k
               (map? base) (.assoc base k data)
-              true $ raise $ str "|Unsupported-patch-container-type: " (type-of base)
+              true $ raise-unsupported-container base
           :examples $ []
           :schema $ quote $ Fn Base Key Value (-> Dynamic) (:generics Base Key Value) (:features :js-ffi)
         'patch-batch $ %{} 'CodeEntry
@@ -2223,18 +2265,22 @@
           :code $ quote $ defn patch-get (base k)
             if (map? base) (get base k)
               if (list? base)
-                if (number? k)
-                  Some $ .unwrap $ .get base k
-                  raise $ str "|patch-get expected a Number index for list, got: " k
+                match (as-number k)
+                  (:some idx)
+                    Some $ .unwrap $ .get base idx
+                  (:none)
+                    raise $ str "|patch-get expected a Number index for list, got: " k
                 if (enum? base)
-                  if (number? k)
-                    Some $ &enum:nth base k
-                    raise $ str "|patch-get expected a Number index for enum, got: " k
+                  match (as-number k)
+                    (:some idx)
+                      Some $ &enum:nth base idx
+                    (:none)
+                      raise $ str "|patch-get expected a Number index for enum, got: " k
                   if (struct? base)
                     if (tag? k)
                       get (&struct:to-map base) k
                       , None
-                    raise $ str "|Unsupported-patch-container-type: " $ type-of base
+                    raise-unsupported-container base
           :examples $ []
           :schema $ quote $ Fn Base Key
             -> $ Option Dynamic
@@ -2327,18 +2373,22 @@
             match change
               (:replace data) data
               (:vec-append data)
-                if (list? base) (patch-vector-append base data)
-                  raise $ str "|patch-one cannot apply this change to: " $ type-of base
+                match (as-list base)
+                  (:some xs) (patch-vector-append xs data)
+                  (:none) (raise-patch-one-mismatch base)
               (:vec-drop data)
-                if (list? base) (patch-vector-drop base data)
-                  raise $ str "|patch-one cannot apply this change to: " $ type-of base
+                match (as-list base)
+                  (:some xs) (patch-vector-drop xs data)
+                  (:none) (raise-patch-one-mismatch base)
               (:assoc k data) (patch-map-set base k data)
               (:set-splice removed added)
-                if (set? base) (patch-set base removed added)
-                  raise $ str "|patch-one cannot apply this change to: " $ type-of base
+                match (as-set base)
+                  (:some s) (patch-set s removed added)
+                  (:none) (raise-patch-one-mismatch base)
               (:map-splice removed added)
-                if (map? base) (patch-map base removed added)
-                  raise $ str "|patch-one cannot apply this change to: " $ type-of base
+                match (as-map base)
+                  (:some m) (patch-map m removed added)
+                  (:none) (raise-patch-one-mismatch base)
               (:update k c0)
                 let
                     old-val $ patch-get base k
@@ -2474,6 +2524,18 @@
                     assert |nil-key-budgeted-replace-roundtrip $ &= updated $ patch-twig old changes
                   _ $ assert |nil-key-budgeted-roundtrip-must-complete false
               :tags $ #{} :unit
+        'patch-type-mismatch $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn patch-type-mismatch (path expected actual-val)
+            PatchResult :err $ PatchError :type-mismatch path expected $ type-of actual-val
+          :examples $ []
+          :schema $ quote $ Fn (List PatchPathSegment) Tag V (-> PatchResult) (:generics V)
+          :tags $ #{} :scaffold
+        'patch-unsupported-container $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn patch-unsupported-container (path base)
+            PatchResult :err $ PatchError :unsupported-container path $ type-of base
+          :examples $ []
+          :schema $ quote $ Fn (List PatchPathSegment) Base (-> PatchResult) (:generics Base)
+          :tags $ #{} :scaffold
         'patch-vector-append $ %{} 'CodeEntry
           :doc "|Append elements to a vector. Used for :vec-append operations."
           :code $ quote $ defn patch-vector-append (base data) (.concat base data)
@@ -2491,6 +2553,31 @@
           :schema $ quote $ Fn (List T) Number
             -> $ List T
             :generics T
+        'raise-patch-one-mismatch $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn raise-patch-one-mismatch (base)
+            raise $ str "|patch-one cannot apply this change to: " $ type-of base
+          :examples $ []
+          :schema $ quote $ Fn Base (-> Never) (:generics Base)
+          :tags $ #{} :scaffold
+        'raise-unsupported-container $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn raise-unsupported-container (base)
+            raise $ str "|Unsupported-patch-container-type: " $ type-of base
+          :examples $ []
+          :schema $ quote $ Fn Base (-> Never) (:generics Base)
+          :tags $ #{} :scaffold
+        'resolve-struct-field-key $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn resolve-struct-field-key (k)
+            cond
+                tag? k
+                Some k
+              (string? k)
+                Some $ to-tag k
+              true None
+          :examples $ []
+          :schema $ quote $ Fn K
+            -> $ Option Tag
+            :generics K
+          :tags $ #{} :scaffold
         'try-patch-assoc $ %{} 'CodeEntry
           :doc "|Associate a validated patch result without raising."
           :code $ quote $ defn try-patch-assoc (base k data path)
@@ -2500,38 +2587,37 @@
                   map? base
                   PatchResult :ok $ .assoc base k data
                 (list? base)
-                  if (number? k)
-                    if
-                      and
-                        = k $ floor k
-                        &>= k 0
-                        &< k $ .len base
-                      PatchResult :ok $ .assoc base k data
-                      PatchResult :err $ PatchError :invalid-index next-path k $ .len base
-                    PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
+                  match (as-number k)
+                    (:some idx)
+                      if
+                        and
+                          = idx $ floor idx
+                          &>= idx 0
+                          &< idx $ .len base
+                        PatchResult :ok $ .assoc base idx data
+                        PatchResult :err $ PatchError :invalid-index next-path idx $ .len base
+                    (:none) (patch-type-mismatch path :number k)
                 (enum? base)
-                  if (number? k)
-                    if
-                      and
-                        = k $ floor k
-                        &>= k 1
-                        &< k $ &enum:count base
-                      PatchResult :ok $ &enum:assoc base k data
-                      PatchResult :err $ PatchError :invalid-index next-path k $ &enum:count base
-                    PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
+                  match (as-number k)
+                    (:some idx)
+                      if
+                        and
+                          = idx $ floor idx
+                          &>= idx 1
+                          &< idx $ &enum:count base
+                        PatchResult :ok $ &enum:assoc base idx data
+                        PatchResult :err $ PatchError :invalid-index next-path idx $ &enum:count base
+                    (:none) (patch-type-mismatch path :number k)
                 (struct? base)
-                  if
-                    or (tag? k) (string? k)
-                    let
-                        field $ if (tag? k) k $ if (string? k) (to-tag k) (raise "|Expected a validated String or Tag field key")
+                  match (resolve-struct-field-key k)
+                    (:some field)
                       if (contains-field? base field)
                         try
                           PatchResult :ok $ struct-with base $ k data
-                          fn (_error)
-                            PatchResult :err $ PatchError :type-mismatch next-path :field-value $ type-of data
+                          fn (_error) (patch-type-mismatch next-path :field-value data)
                         PatchResult :err $ PatchError :missing-node next-path
-                    PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
-                true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
+                    (:none) (patch-type-mismatch path :field-key k)
+                true $ patch-unsupported-container path base
           :examples $ []
           :schema $ quote $ Fn Base Key Value (List PatchPathSegment) (-> PatchResult) (:generics Base Key Value)
           :tags $ #{} :scaffold
@@ -2586,35 +2672,35 @@
                     PatchResult :ok $ .unwrap $ get base k
                     PatchResult :err $ PatchError :missing-node next-path
                 (list? base)
-                  if (number? k)
-                    if
-                      and
-                        = k $ floor k
-                        &>= k 0
-                        &< k $ .len base
-                      PatchResult :ok $ .unwrap $ .get base k
-                      PatchResult :err $ PatchError :invalid-index next-path k $ .len base
-                    PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
+                  match (as-number k)
+                    (:some idx)
+                      if
+                        and
+                          = idx $ floor idx
+                          &>= idx 0
+                          &< idx $ .len base
+                        PatchResult :ok $ .unwrap $ .get base idx
+                        PatchResult :err $ PatchError :invalid-index next-path idx $ .len base
+                    (:none) (patch-type-mismatch path :number k)
                 (enum? base)
-                  if (number? k)
-                    if
-                      and
-                        = k $ floor k
-                        &>= k 0
-                        &< k $ &enum:count base
-                      PatchResult :ok $ &enum:nth base k
-                      PatchResult :err $ PatchError :invalid-index next-path k $ &enum:count base
-                    PatchResult :err $ PatchError :type-mismatch path :number $ type-of k
+                  match (as-number k)
+                    (:some idx)
+                      if
+                        and
+                          = idx $ floor idx
+                          &>= idx 0
+                          &< idx $ &enum:count base
+                        PatchResult :ok $ &enum:nth base idx
+                        PatchResult :err $ PatchError :invalid-index next-path idx $ &enum:count base
+                    (:none) (patch-type-mismatch path :number k)
                 (struct? base)
-                  if
-                    or (tag? k) (string? k)
-                    let
-                        field $ if (tag? k) k $ if (string? k) (to-tag k) (raise "|Expected a validated String or Tag field key")
+                  match (resolve-struct-field-key k)
+                    (:some field)
                       if (contains-field? base field)
                         PatchResult :ok $ .unwrap $ get (&struct:to-map base) field
                         PatchResult :err $ PatchError :missing-node next-path
-                    PatchResult :err $ PatchError :type-mismatch path :field-key $ type-of k
-                true $ PatchResult :err $ PatchError :unsupported-container path (type-of base)
+                    (:none) (patch-type-mismatch path :field-key k)
+                true $ patch-unsupported-container path base
           :examples $ []
           :schema $ quote $ Fn Base Key (List PatchPathSegment) (-> PatchResult) (:generics Base Key)
           :tags $ #{} :scaffold
@@ -2633,40 +2719,32 @@
             match change
               (:replace data) (PatchResult :ok data)
               (:vec-append data)
-                if (list? base)
-                  if (list? data)
-                    PatchResult :ok $ patch-vector-append base data
-                    PatchResult :err $ PatchError :type-mismatch path :list $ type-of data
-                  PatchResult :err $ PatchError :type-mismatch path :list $ type-of base
+                match (as-list base)
+                  (:some xs)
+                    PatchResult :ok $ patch-vector-append xs data
+                  (:none) (patch-type-mismatch path :list base)
               (:vec-drop data)
-                if (list? base)
-                  if
-                    and (number? data)
-                      = data $ floor data
-                      &>= data 0
-                      &<= data $ .len base
-                    PatchResult :ok $ patch-vector-drop base data
-                    if (number? data)
-                      PatchResult :err $ PatchError :invalid-index path data $ .len base
-                      PatchResult :err $ PatchError :type-mismatch path :number $ type-of data
-                  PatchResult :err $ PatchError :type-mismatch path :list $ type-of base
+                match (as-list base)
+                  (:some xs)
+                    if
+                      and
+                        = data $ floor data
+                        &>= data 0
+                        &<= data $ .len xs
+                      PatchResult :ok $ patch-vector-drop xs data
+                      PatchResult :err $ PatchError :invalid-index path data $ .len xs
+                  (:none) (patch-type-mismatch path :list base)
               (:assoc k data) (try-patch-assoc base k data path)
               (:set-splice removed added)
-                if (set? base)
-                  if (set? removed)
-                    if (set? added)
-                      PatchResult :ok $ patch-set base removed added
-                      PatchResult :err $ PatchError :type-mismatch path :set $ type-of added
-                    PatchResult :err $ PatchError :type-mismatch path :set $ type-of removed
-                  PatchResult :err $ PatchError :type-mismatch path :set $ type-of base
+                match (as-set base)
+                  (:some s)
+                    PatchResult :ok $ patch-set s removed added
+                  (:none) (patch-type-mismatch path :set base)
               (:map-splice removed added)
-                if (map? base)
-                  if (set? removed)
-                    if (map? added)
-                      PatchResult :ok $ patch-map base removed added
-                      PatchResult :err $ PatchError :type-mismatch path :map $ type-of added
-                    PatchResult :err $ PatchError :type-mismatch path :set $ type-of removed
-                  PatchResult :err $ PatchError :type-mismatch path :map $ type-of base
+                match (as-map base)
+                  (:some m)
+                    PatchResult :ok $ patch-map m removed added
+                  (:none) (patch-type-mismatch path :map base)
               (:update k c0)
                 match (try-patch-get base k path)
                   (:err error) (PatchResult :err error)
@@ -2922,52 +3000,60 @@
                       and (&= kind :replace) (&= size 2)
                       change-op :replace $ &enum:nth x 1
                     (and (&= kind :vec-append) (&= size 2))
-                      &let
-                        data $ &enum:nth x 1
-                        if (list? data) (change-op :vec-append data)
+                      match
+                        try-decode-map-as (&enum:nth x 1) (List Dynamic)
+                        (:ok data) (change-op :vec-append data)
+                        (:err _)
                           raise $ str "|recollect cannot decode change operation: " x
                     (and (&= kind :vec-drop) (&= size 2))
-                      &let
-                        data $ &enum:nth x 1
-                        if (number? data) (change-op :vec-drop data)
+                      match
+                        try-decode-map-as (&enum:nth x 1) Number
+                        (:ok data) (change-op :vec-drop data)
+                        (:err _)
                           raise $ str "|recollect cannot decode change operation: " x
                     (and (&= kind :assoc) (&= size 3))
                       change-op :assoc (&enum:nth x 1) (&enum:nth x 2)
                     (and (&= kind :set-splice) (&= size 3))
-                      &let
-                        removed $ &enum:nth x 1
-                        &let
-                          added $ &enum:nth x 2
-                          if (set? removed)
-                            if (set? added) (change-op :set-splice removed added)
+                      match
+                        try-decode-map-as (&enum:nth x 1) (Set Dynamic)
+                        (:ok removed)
+                          match
+                            try-decode-map-as (&enum:nth x 2) (Set Dynamic)
+                            (:ok added) (change-op :set-splice removed added)
+                            (:err _)
                               raise $ str "|recollect cannot decode change operation: " x
-                            raise $ str "|recollect cannot decode change operation: " x
+                        (:err _)
+                          raise $ str "|recollect cannot decode change operation: " x
                     (and (&= kind :map-splice) (&= size 3))
-                      &let
-                        removed $ &enum:nth x 1
-                        &let
-                          added $ &enum:nth x 2
-                          if (set? removed)
-                            if (map? added) (change-op :map-splice removed added)
+                      match
+                        try-decode-map-as (&enum:nth x 1) (Set Dynamic)
+                        (:ok removed)
+                          match
+                            try-decode-map-as (&enum:nth x 2) (Map Dynamic Dynamic)
+                            (:ok added) (change-op :map-splice removed added)
+                            (:err _)
                               raise $ str "|recollect cannot decode change operation: " x
-                            raise $ str "|recollect cannot decode change operation: " x
+                        (:err _)
+                          raise $ str "|recollect cannot decode change operation: " x
                     (and (&= kind :update) (&= size 3))
                       change-op :update (&enum:nth x 1)
                         decode-change-op $ &enum:nth x 2
                     (and (&= kind :update-in) (&= size 3))
-                      &let
-                        ks $ &enum:nth x 1
-                        if (list? ks)
+                      match
+                        try-decode-map-as (&enum:nth x 1) (List Dynamic)
+                        (:ok ks)
                           change-op :update-in ks $ decode-change-op $ &enum:nth x 2
+                        (:err _)
                           raise $ str "|recollect cannot decode change operation: " x
                     (and (&= kind :pick) (&= size 3))
                       change-op :pick (&enum:nth x 1)
                         decode-changes $ &enum:nth x 2
                     (and (&= kind :pick-in) (&= size 3))
-                      &let
-                        ks $ &enum:nth x 1
-                        if (list? ks)
+                      match
+                        try-decode-map-as (&enum:nth x 1) (List Dynamic)
+                        (:ok ks)
                           change-op :pick-in ks $ decode-changes $ &enum:nth x 2
+                        (:err _)
                           raise $ str "|recollect cannot decode change operation: " x
                     true $ raise $ str "|recollect cannot decode change operation: " x
               raise $ str "|recollect cannot decode change operation: " x
@@ -2976,16 +3062,11 @@
         'decode-changes $ %{} 'CodeEntry
           :doc "|在网络/EDN 边界逐项校验并重建 change-op 列表，替代对未知数据的 assert-type。"
           :code $ quote $ defn decode-changes (xs)
-            if (list? xs)
-              foldl xs ([])
-                defn %decode-changes (acc x)
-                  hint-fn $ {}
-                    :args $ []
-                      :: (quote List) (quote recollect.schema/change-op)
-                      quote Dynamic
-                    :return $ :: (quote List) (quote recollect.schema/change-op)
-                  append acc $ decode-change-op x
-              raise $ str "|recollect expected a list of changes, got: " $ type-of xs
+            match
+              try-decode-map-as xs $ List Dynamic
+              (:ok items) (map items decode-change-op)
+              (:err msg)
+                raise $ str "|recollect expected a list of changes: " msg
           :examples $ []
           :schema $ quote $ Fn Input
             -> $ List recollect.schema/change-op
@@ -3058,7 +3139,9 @@
         'literal? $ %{} 'CodeEntry
           :doc "|Check if value is a literal type (string, number, boolean, nil, tag, or symbol)."
           :code $ quote $ defn literal? (x)
-            or (string? x) (number? x) (bool? x) (nil? x) (tag? x) (symbol? x)
+            let
+                kind $ type-of x
+              or (= kind :string) (= kind :number) (= kind :bool) (= kind :nil) (= kind :tag) (= kind :symbol)
           :examples $ []
             quote $ literal? 123
             quote $ literal? $ [] 1 2
@@ -3099,6 +3182,35 @@
           :code $ quote $ defunion StoreSampleField Number (Map Tag Number)
           :examples $ []
           :schema $ quote UnionDef
+        'expect-list $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn expect-list (v msg)
+            if (list? v) v $ raise msg
+          :examples $ []
+          :schema $ quote $ Fn Base String
+            -> $ List Dynamic
+            :generics Base
+            :open :reflect
+        'expect-map $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn expect-map (v msg)
+            if (map? v) v $ raise msg
+          :examples $ []
+          :schema $ quote $ Fn Base String
+            -> $ Map Dynamic Dynamic
+            :generics Base
+            :open :reflect
+        'expect-number $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn expect-number (v msg)
+            if (number? v) v $ raise msg
+          :examples $ []
+          :schema $ quote $ Fn Base String (-> Number) (:generics Base)
+        'expect-set $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn expect-set (v msg)
+            if (set? v) v $ raise msg
+          :examples $ []
+          :schema $ quote $ Fn Base String
+            -> $ Set Dynamic
+            :generics Base
+            :open :reflect
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () 0
           :examples $ []
@@ -3107,10 +3219,7 @@
           :code $ quote $ defn probe-tag-match ()
             match (:: :map-splice 1 2)
               (:map-splice a b)
-                if
-                  and (number? a) (number? b)
-                  &+ a b
-                  raise "|tag probe expected numeric payloads"
+                &+ (expect-number a "|tag probe expected numeric payloads") (expect-number b "|tag probe expected numeric payloads")
               _ 0
           :examples $ []
           :schema $ quote $ Fn (-> Number)
@@ -3162,30 +3271,36 @@
                 base $ sample-api-base
                 target $ sample-api-target
                 changes $ diff-twig base target $ {}
-                patched $ patch-twig base changes
-              if (map? patched)
-                let
-                    user $ .unwrap $ get patched :user
-                    items $ .unwrap $ get patched :items
-                    flags $ .unwrap $ get patched :flags
-                    nested $ .unwrap $ get patched :nested
-                  if
-                    and (map? user) (list? items) (set? flags) (map? nested)
-                    let
-                        n0 $ .unwrap $ get user :score
-                        n1 $ .unwrap $ .get items 2
-                        n2 $ .unwrap $ get nested :count
-                        n3 $ .unwrap $ get nested :bonus
-                      if
-                        and (number? n0) (number? n1) (number? n2) (number? n3)
-                        &+ (.len patched)
-                          &+ n0 $ &+ (.len items)
-                            &+ n1 $ &+
-                              if (.includes? flags :c) 10 0
-                              &+ n2 n3
-                        raise "|roundtrip probe expected numeric fields"
-                    raise "|API roundtrip probe expected original field containers"
-                raise "|roundtrip probe expected a Map"
+                patched $ expect-map (patch-twig base changes) "|roundtrip probe expected a Map"
+                user $ expect-map
+                  .unwrap $ get patched :user
+                  , "|API roundtrip probe expected original field containers"
+                items $ expect-list
+                  .unwrap $ get patched :items
+                  , "|API roundtrip probe expected original field containers"
+                flags $ expect-set
+                  .unwrap $ get patched :flags
+                  , "|API roundtrip probe expected original field containers"
+                nested $ expect-map
+                  .unwrap $ get patched :nested
+                  , "|API roundtrip probe expected original field containers"
+                n0 $ expect-number
+                  .unwrap $ get user :score
+                  , "|roundtrip probe expected numeric fields"
+                n1 $ expect-number
+                  .unwrap $ .get items 2
+                  , "|roundtrip probe expected numeric fields"
+                n2 $ expect-number
+                  .unwrap $ get nested :count
+                  , "|roundtrip probe expected numeric fields"
+                n3 $ expect-number
+                  .unwrap $ get nested :bonus
+                  , "|roundtrip probe expected numeric fields"
+              &+ (.len patched)
+                &+ n0 $ &+ (.len items)
+                  &+ n1 $ &+
+                    if (.includes? flags :c) 10 0
+                    &+ n2 n3
           :examples $ []
           :schema $ quote $ Fn (-> Number)
         'test-app-twig-roundtrip-summary $ %{} 'CodeEntry (:doc |)
@@ -3194,30 +3309,31 @@
                 old-twig $ twig-container $ sample-store-a
                 new-twig $ twig-container $ sample-store-b
                 changes $ diff-twig old-twig new-twig $ {}
-                patched $ patch-twig old-twig changes
-              if (map? patched)
-                let
-                    card $ .unwrap $ get patched :card
-                  if (map? card)
-                    let
-                        user $ .unwrap $ get card :user
-                        date $ .unwrap $ get card :date
-                      if
-                        and (map? user) (map? date)
-                        let
-                            n0 $ .unwrap $ get patched :lit-0
-                            n1 $ .unwrap $ get user :score
-                            n2 $ .unwrap $ get date :year
-                            n3 $ .unwrap $ get date :month
-                          if
-                            and (number? n0) (number? n1) (number? n2) (number? n3)
-                            &+ (.len patched)
-                              &+ (.len card)
-                                &+ n0 $ &+ n1 $ &+ n2 n3
-                            raise "|roundtrip probe expected numeric fields"
-                        raise "|app roundtrip probe expected user and date Maps"
-                    raise "|app roundtrip probe expected a card Map"
-                raise "|roundtrip probe expected a Map"
+                patched $ expect-map (patch-twig old-twig changes) "|roundtrip probe expected a Map"
+                card $ expect-map
+                  .unwrap $ get patched :card
+                  , "|app roundtrip probe expected a card Map"
+                user $ expect-map
+                  .unwrap $ get card :user
+                  , "|app roundtrip probe expected user and date Maps"
+                date $ expect-map
+                  .unwrap $ get card :date
+                  , "|app roundtrip probe expected user and date Maps"
+                n0 $ expect-number
+                  .unwrap $ get patched :lit-0
+                  , "|roundtrip probe expected numeric fields"
+                n1 $ expect-number
+                  .unwrap $ get user :score
+                  , "|roundtrip probe expected numeric fields"
+                n2 $ expect-number
+                  .unwrap $ get date :year
+                  , "|roundtrip probe expected numeric fields"
+                n3 $ expect-number
+                  .unwrap $ get date :month
+                  , "|roundtrip probe expected numeric fields"
+              &+ (.len patched)
+                &+ (.len card)
+                  &+ n0 $ &+ n1 $ &+ n2 n3
           :examples $ []
           :schema $ quote $ Fn (-> Number) (:features :state)
         'test-arg-order $ %{} 'CodeEntry (:doc |)
@@ -3335,15 +3451,11 @@
           :code $ quote $ defn test-map-assoc-op ()
             let
                 base $ {} $ :a 1
-                patched $ patch-map-set base :b 4
-              if (map? patched)
-                let
-                    value0 $ .unwrap $ get patched :b
-                  if
-                    and $ number? value0
-                    &+ (.len patched) value0
-                    raise "|patch probe expected numeric map values"
-                raise "|patch probe expected a Map"
+                patched $ expect-map (patch-map-set base :b 4) "|patch probe expected a Map"
+                value0 $ expect-number
+                  .unwrap $ get patched :b
+                  , "|patch probe expected numeric map values"
+              &+ (.len patched) value0
           :examples $ []
           :schema $ quote $ Fn (-> Number)
         'test-map-patch $ %{} 'CodeEntry (:doc |)
@@ -3352,16 +3464,14 @@
                 a $ {} (:a 1) (:b 2)
                 b $ {} (:a 1) (:b 3) (:c 4)
                 changes $ diff-twig a b $ {}
-                patched $ patch-twig a changes
-              if (map? patched)
-                let
-                    value0 $ .unwrap $ get patched :b
-                    value1 $ .unwrap $ get patched :c
-                  if
-                    and (number? value0) (number? value1)
-                    &+ (.len patched) (&+ value0 value1)
-                    raise "|patch probe expected numeric map values"
-                raise "|patch probe expected a Map"
+                patched $ expect-map (patch-twig a changes) "|patch probe expected a Map"
+                value0 $ expect-number
+                  .unwrap $ get patched :b
+                  , "|patch probe expected numeric map values"
+                value1 $ expect-number
+                  .unwrap $ get patched :c
+                  , "|patch probe expected numeric map values"
+              &+ (.len patched) (&+ value0 value1)
           :examples $ []
           :schema $ quote $ Fn (-> Number)
         'test-map-patch2 $ %{} 'CodeEntry (:doc |)
@@ -3370,8 +3480,8 @@
                 a $ {} (:a 1) (:b 2)
                 b $ {} (:a 1) (:b 3) (:c 4)
                 changes $ diff-twig a b $ {}
-                patched $ patch-twig a changes
-              if (map? patched) (.len patched) (raise "|patch probe expected a Map")
+                patched $ expect-map (patch-twig a changes) "|patch probe expected a Map"
+              .len patched
           :examples $ []
           :schema $ quote $ Fn (-> Number)
         'test-num-order $ %{} 'CodeEntry (:doc |)
@@ -3391,15 +3501,13 @@
           :code $ quote $ defn test-patch-one-assoc ()
             let
                 base $ {} $ :a 1
-                patched $ patch-one base $ schema/change-op :assoc :b 4
-              if (map? patched)
-                let
-                    value0 $ .unwrap $ get patched :b
-                  if
-                    and $ number? value0
-                    &+ (.len patched) value0
-                    raise "|patch probe expected numeric map values"
-                raise "|patch probe expected a Map"
+                patched $ expect-map
+                  patch-one base $ schema/change-op :assoc :b 4
+                  , "|patch probe expected a Map"
+                value0 $ expect-number
+                  .unwrap $ get patched :b
+                  , "|patch probe expected numeric map values"
+              &+ (.len patched) value0
           :examples $ []
           :schema $ quote $ Fn (-> Number)
         'test-scalar-change $ %{} 'CodeEntry (:doc |)
@@ -3418,15 +3526,12 @@
                 a $ {} $ :a (#{} 1 2 3)
                 b $ {} $ :a (#{} 2 3 4)
                 changes $ diff-twig a b $ {}
-                patched $ patch-twig a changes
-              if (map? patched)
-                let
-                    s $ .unwrap $ get patched :a
-                  if (set? s)
-                    &+ (.len s)
-                      if (.includes? s 4) 10 0
-                    raise "|collection probe expected the original member container"
-                raise "|collection probe expected a Map"
+                patched $ expect-map (patch-twig a changes) "|collection probe expected a Map"
+                s $ expect-set
+                  .unwrap $ get patched :a
+                  , "|collection probe expected the original member container"
+              &+ (.len s)
+                if (.includes? s 4) 10 0
           :examples $ []
           :schema $ quote $ Fn (-> Number)
         'test-tuple-patch $ %{} 'CodeEntry (:doc |)
@@ -3437,9 +3542,7 @@
                 changes $ diff-twig a b $ {}
                 patched $ patch-twig a changes
               if (enum? patched)
-                let
-                    value $ &enum:nth patched 2
-                  if (number? value) value $ raise "|tuple probe expected a numeric payload"
+                expect-number (&enum:nth patched 2) "|tuple probe expected a numeric payload"
                 raise "|tuple probe expected an Enum"
           :examples $ []
           :schema $ quote $ Fn (-> Number)
@@ -3469,22 +3572,21 @@
                 a $ {} $ :a ([] 1 2 3 4)
                 b $ {} $ :a ([] 1 6 7 8)
                 changes $ diff-twig a b $ {}
-                patched $ patch-twig a changes
-              if (map? patched)
-                let
-                    xs $ .unwrap $ get patched :a
-                  if (list? xs)
-                    let
-                        n0 $ .unwrap $ .get xs 1
-                        n1 $ .unwrap $ .get xs 2
-                        n2 $ .unwrap $ .get xs 3
-                      if
-                        and (number? n0) (number? n1) (number? n2)
-                        &+ (.len xs)
-                          &+ n0 $ &+ n1 n2
-                        raise "|vector probe expected numeric members"
-                    raise "|collection probe expected the original member container"
-                raise "|collection probe expected a Map"
+                patched $ expect-map (patch-twig a changes) "|collection probe expected a Map"
+                xs $ expect-list
+                  .unwrap $ get patched :a
+                  , "|collection probe expected the original member container"
+                n0 $ expect-number
+                  .unwrap $ .get xs 1
+                  , "|vector probe expected numeric members"
+                n1 $ expect-number
+                  .unwrap $ .get xs 2
+                  , "|vector probe expected numeric members"
+                n2 $ expect-number
+                  .unwrap $ .get xs 3
+                  , "|vector probe expected numeric members"
+              &+ (.len xs)
+                &+ n0 $ &+ n1 n2
           :examples $ []
           :schema $ quote $ Fn (-> Number)
       :ns $ %{} 'NsEntry (:doc |)
