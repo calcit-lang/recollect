@@ -79,7 +79,7 @@ jobs:
       uses: actions/checkout@v7.0.1
       with:
         repository: calcit-lang/calcit
-        ref: 0.45.1
+        ref: 0.46.0
         path: .calcit/core-test-tools
         persist-credentials: false
         sparse-checkout-cone-mode: false
@@ -130,7 +130,7 @@ jobs:
 
     - name: Upload static assets to COS
       if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
-      uses: worktools/cos-upload-action@06d6027dcca6413c5936e04a9b6e9f0d5ef71ba0 # v1.2.0
+      uses: worktools/cos-upload-action@v1.3.0
       with:
         source-dir: dist
         bucket: ${{ secrets.COS_BUCKET }}

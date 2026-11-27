@@ -539,7 +539,9 @@
                     match (get store :map-0)
                       (:some v)
                         if
-                          or (nil? v) (= false v)
+                          or (nil? v)
+                            and (bool? v)
+                              = false $ decode-map-as v Bool
                           {}
                           , v
                       (:none) ({})
@@ -579,7 +581,9 @@
                       match (get store :date)
                         (:some v)
                           if
-                            or (nil? v) (= false v)
+                            or (nil? v)
+                              and (bool? v)
+                                = false $ decode-map-as v Bool
                             {}
                             , v
                         (:none) ({})
@@ -589,7 +593,9 @@
                       match (get date :month)
                         (:some v)
                           if
-                            or (nil? v) (= false v)
+                            or (nil? v)
+                              and (bool? v)
+                                = false $ decode-map-as v Bool
                             , 0 v
                         (:none) 0
                       , 'Number
